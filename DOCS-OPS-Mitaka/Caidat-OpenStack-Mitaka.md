@@ -2,6 +2,7 @@
 
 ## 1. Chuẩn bị môi trường
 - Mô hình cài đặt
+
 ![OpenStack Mitaka Topo](/images/Mitaka-topo.png)
 
 - Bảng phân hoạch IP
