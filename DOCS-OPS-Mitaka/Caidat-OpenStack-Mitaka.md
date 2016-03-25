@@ -6,7 +6,7 @@
 ![OpenStack Mitaka Topo](/DOCS-OPS-Mitaka/images/Mitaka-topo.png)
 
 ### 1.2 Các tham số phần cứng đối với các node
-![OpenStack Mitaka Topo](/DOCS-OPS-Mitaka/images/Mitaka-ip-planning.png)
+![OpenStack Mitaka Topo](/DOCS-OPS-Mitaka/images/Mitaka-ip-hardware.png)
 
 
  
