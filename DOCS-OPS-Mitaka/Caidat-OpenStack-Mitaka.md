@@ -25,27 +25,27 @@ apt-get -y update
 - Thiết lập địa chỉ IP
 - Dùng lệnh `vi` để sửa file `/etc/network/interface` với nội dung như sau.
 
-```sh
-# Interface MGNT
-auto eth0
-iface eth0 inet static
- address 10.10.10.140
- netmask 255.255.255.0
+	```sh
+	# Interface MGNT
+	auto eth0
+	iface eth0 inet static
+	 address 10.10.10.140
+	 netmask 255.255.255.0
 
-# Interface EXT
-auto eth1
-iface eth1 inet static
- address 172.16.69.140
- netmask 255.255.255.0
- gateway 172.16.69.1
- dns-nameservers 8.8.8.8
-```
+	# Interface EXT
+	auto eth1
+	iface eth1 inet static
+	 address 172.16.69.140
+	 netmask 255.255.255.0
+	 gateway 172.16.69.1
+	 dns-nameservers 8.8.8.8
+	```
 
 - Khởi động lại card mạng sau khi thiết lập IP tĩnh
-```sh
-ifdown -a && ifup -a
-```
+	```sh
+	ifdown -a && ifup -a
+	```
 - Kiểm tra kết nối tới gateway và internet sau khi thiết lập xong.
-```sh
-```
+	```sh
+	```
 
