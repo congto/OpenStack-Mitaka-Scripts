@@ -13,6 +13,7 @@
 ## 2. Bắt đầu cài đặt
 - Lưu ý:
  - Đăng nhập với quyền root trên tất cả các bước cài đặt.
+ - Các thao tác sửa file trong hướng dẫn này sử dụng lệnh `vi` hoặc `vim`
  
 ### 2.1 Cài đặt trên node controller
 #### 2.1.1 Thiết lập và cài đặt các gói cơ bản
@@ -29,16 +30,16 @@
 	# Interface MGNT
 	auto eth0
 	iface eth0 inet static
-	 address 10.10.10.40
-	 netmask 255.255.255.0
+		address 10.10.10.40
+		netmask 255.255.255.0
 
 	# Interface EXT
 	auto eth1
 	iface eth1 inet static
-	 address 172.16.69.40
-	 netmask 255.255.255.0
-	 gateway 172.16.69.1
-	 dns-nameservers 8.8.8.8
+		address 172.16.69.40
+		netmask 255.255.255.0
+		gateway 172.16.69.1
+		dns-nameservers 8.8.8.8
 	```
 
 - Khởi động lại card mạng sau khi thiết lập IP tĩnh
@@ -64,11 +65,11 @@
 	64 bytes from ti-in-f113.1e100.net (74.125.204.113): icmp_seq=4 ttl=41 time=58.3 ms
 	```
 - Cấu hình hostname
-- Dùng `vi` sửa file /etc/hostname với tên là `controller`
+- Dùng `vi` sửa file `/etc/hostname` với tên là `controller`
 	```sh
 	controller
 	```
-- Cập nhật file /etc/hosts để phân giải từ IP sang hostname và ngược lại, nội dung như sau
+- Cập nhật file `/etc/hosts` để phân giải từ IP sang hostname và ngược lại, nội dung như sau
 
 	```sh
 	127.0.0.1       localhost
@@ -105,6 +106,7 @@
 	```sh
 	apt-get -y update && apt-get -y dist-upgrade
 	```
+	
 - Cài đặt các gói client của OpenStack
 	```sh
 	apt-get -y install python-openstackclient
@@ -114,8 +116,13 @@
 
 - Cài đặt MariaDB
 	```sh
-	apt-get install mariadb-server python-pymysql
+	apt-get -y install mariadb-server python-pymysql
 	```
+- Trong quá trình cài MariaDB, hệ thống yêu cầu người dùng nhập mật khẩu vào ô sau
+
+![MariaDB password](/DOCS-OPS-Mitaka/images/mitaka-mariadb01.png)
+
+Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các bước.
 
 - Cấu hình cho MariaDB, tạo file  `/etc/mysql/conf.d/openstack.cnf` với nội dung sau
 
@@ -137,7 +144,25 @@
 	```sh
 	mysql_secure_installation
 	```
+- Đăng nhập bằng tài khoản `root` vào `MariaDB` để kiểm tra lại. Sau đó gõ lệnh `exit` để thoát.
+	```sh
+	root@controller:~# mysql -u root -p
+	Enter password:
+	Welcome to the MariaDB monitor.  Commands end with ; or \g.
+	Your MariaDB connection id is 29
+	Server version: 5.5.47-MariaDB-1ubuntu0.14.04.1 (Ubuntu)
 
+	Copyright (c) 2000, 2015, Oracle, MariaDB Corporation Ab and others.
+
+	Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+	MariaDB [(none)]>
+	MariaDB [(none)]>
+	MariaDB [(none)]> exit;
+	```
+
+
+	
 #### 2.1.4 Cài đặt RabbitMQ
 - Cài đặt gói
 	```sh
@@ -161,3 +186,8 @@
 	```sh
 	apt-get -y install memcached python-memcache
 	```
+	
+- Dùng vi `/etc/memcached.conf` , với dòng dưới
+```sh
+
+```
