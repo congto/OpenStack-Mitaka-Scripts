@@ -187,7 +187,35 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	apt-get -y install memcached python-memcache
 	```
 	
-- Dùng vi `/etc/memcached.conf` , với dòng dưới
-```sh
+- Dùng vi sửa file `/etc/memcached.conf`, thay dòng `-l 127.0.0.1` bằng dòng dưới
 
-```
+	```sh
+	-l 10.10.10.40
+	```
+
+- Khởi động lại `memcache`
+	```sh
+	service memcached restart
+	```
+	
+### 2.2 Cài đặt Keystone
+#### 2.2.1 Tạo database cho keystone
+- Đăng nhập vào MariaDB
+
+	```sh
+	mysql -u root -p
+	```
+
+- Tạo user, database cho keystone
+
+	```sh
+	CREATE DATABASE keystone;
+	GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' \
+	  IDENTIFIED BY 'Welcome123';
+	GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' \
+	  IDENTIFIED BY 'Welcome123';
+	```
+
+#### 2.2.2 Cài đặt và cấu hình `keystone`
+- Vô hiệu hóa dịch vụ `keystone` để 
+
