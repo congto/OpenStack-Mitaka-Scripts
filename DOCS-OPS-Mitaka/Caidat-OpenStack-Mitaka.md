@@ -18,9 +18,9 @@
 #### 2.1.1 Thiết lập và cài đặt các gói cơ bản
 
 - Chạy lệnh để cập nhật các gói phần mềm
-```sh
-apt-get -y update
-```
+	```sh
+	apt-get -y update
+	```
 
 - Thiết lập địa chỉ IP
 - Dùng lệnh `vi` để sửa file `/etc/network/interface` với nội dung như sau.
@@ -29,13 +29,13 @@ apt-get -y update
 	# Interface MGNT
 	auto eth0
 	iface eth0 inet static
-	 address 10.10.10.140
+	 address 10.10.10.40
 	 netmask 255.255.255.0
 
 	# Interface EXT
 	auto eth1
 	iface eth1 inet static
-	 address 172.16.69.140
+	 address 172.16.69.40
 	 netmask 255.255.255.0
 	 gateway 172.16.69.1
 	 dns-nameservers 8.8.8.8
@@ -47,5 +47,117 @@ apt-get -y update
 	```
 - Kiểm tra kết nối tới gateway và internet sau khi thiết lập xong.
 	```sh
+	ping 172.16.69.1 -c 4
+	PING 172.16.69.1 (172.16.69.1) 56(84) bytes of data.
+	64 bytes from 172.16.69.1: icmp_seq=1 ttl=64 time=0.253 ms
+	64 bytes from 172.16.69.1: icmp_seq=2 ttl=64 time=0.305 ms
+	64 bytes from 172.16.69.1: icmp_seq=3 ttl=64 time=0.306 ms
+	64 bytes from 172.16.69.1: icmp_seq=4 ttl=64 time=0.414 ms
+	```
+	
+	```sh
+	ping google.com -c 4
+	PING google.com (74.125.204.113) 56(84) bytes of data.
+	64 bytes from ti-in-f113.1e100.net (74.125.204.113): icmp_seq=1 ttl=41 time=58.3 ms
+	64 bytes from ti-in-f113.1e100.net (74.125.204.113): icmp_seq=2 ttl=41 time=58.3 ms
+	64 bytes from ti-in-f113.1e100.net (74.125.204.113): icmp_seq=3 ttl=41 time=58.3 ms
+	64 bytes from ti-in-f113.1e100.net (74.125.204.113): icmp_seq=4 ttl=41 time=58.3 ms
+	```
+- Cấu hình hostname
+- Dùng `vi` sửa file /etc/hostname với tên là `controller`
+	```sh
+	controller
+	```
+- Cập nhật file /etc/hosts để phân giải từ IP sang hostname và ngược lại, nội dung như sau
+
+	```sh
+	127.0.0.1       localhost
+	127.0.1.1       controller
+	10.10.10.40    controller
+	10.10.10.41    compute1
 	```
 
+
+#### 2.1.2 Cài đặt NTP
+- Cài gói `chrony`
+	```sh
+	apt-get -y install chrony
+	```
+	
+- Sửa file  `/etc/chrony/chrony.conf`
+	```sh
+	server 1.vn.pool.ntp.org iburst
+	server 0.asia.pool.ntp.org iburst
+	server 3.asia.pool.ntp.org iburst
+	```
+
+- Khởi động lại dịch vụ NTP
+
+#### 2.1.3 Cài đặt repos để cài OpenStack Mitaka
+
+- Cài đặt gói để cài OpenStack Mitaka
+	```sh
+	apt-get install software-properties-common -y
+	add-apt-repository cloud-archive:mitaka -y
+	```
+
+- Cập nhật các gói phần mềm
+	```sh
+	apt-get -y update && apt-get -y dist-upgrade
+	```
+- Cài đặt các gói client của OpenStack
+	```sh
+	apt-get -y install python-openstackclient
+	```
+
+#### 2.1.4 Cài đặt SQL database
+
+- Cài đặt MariaDB
+	```sh
+	apt-get install mariadb-server python-pymysql
+	```
+
+- Cấu hình cho MariaDB, tạo file  `/etc/mysql/conf.d/openstack.cnf` với nội dung sau
+
+	```sh
+	[mysqld]
+	bind-address = 10.10.10.40
+	default-storage-engine = innodb
+	innodb_file_per_table
+	collation-server = utf8_general_ci
+	character-set-server = utf8
+	```
+
+- Khởi động lại MariaDB
+	```sh
+	service mysql restart
+	```
+
+- Nếu cần thiết thực hiện bước dưới và làm theo để thiết lập cơ bản cho MariaDB
+	```sh
+	mysql_secure_installation
+	```
+
+#### 2.1.4 Cài đặt RabbitMQ
+- Cài đặt gói
+	```sh
+	apt-get -y install rabbitmq-server
+	```
+-Cấu hình RabbitMQ, tạo user `openstack` với mật khẩu là `Welcome123`
+	```sh
+	rabbitmqctl add_user openstack Welcome123
+	```
+
+- Gán quyền read, write cho tài khoản `openstack` trong `RabbitMQ`
+	```sh
+	rabbitmqctl set_permissions openstack ".*" ".*" ".*"
+	```
+
+- 
+
+#### 2.1.5 Cài đặt Memcached
+- Cài đặt các gói cần thiết cho `memcached`
+
+	```sh
+	apt-get -y install memcached python-memcache
+	```
