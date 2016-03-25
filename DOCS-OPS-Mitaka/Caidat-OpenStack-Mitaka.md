@@ -210,12 +210,45 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 
 	```sh
 	CREATE DATABASE keystone;
-	GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' \
-	  IDENTIFIED BY 'Welcome123';
-	GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' \
-	  IDENTIFIED BY 'Welcome123';
+	GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost'  IDENTIFIED BY 'Welcome123';
+	GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'Welcome123';
+	
+	exit;
 	```
 
 #### 2.2.2 Cài đặt và cấu hình `keystone`
-- Vô hiệu hóa dịch vụ `keystone` để 
+- Không cho `keystone` khởi động tự động sau khi cài
+	```sh
+	echo "manual" > /etc/init/keystone.override
+	```
+- Cài đặt gói cho `keystone`
 
+	```sh
+	apt-get -y install keystone apache2 libapache2-mod-wsgi
+	```
+
+- Chỉnh sửa file `/etc/keystone/keystone.conf `
+ - Trong section `[DEFAULT]` khai báo dòng
+	```sh
+	admin_token = Welcome
+	```
+ - Trong section `[database]` khai báo dòng
+	```sh
+	connection = mysql+pymysql://keystone:Welcome123@controller/keystone
+	```
+ - Sửa file `[token]`
+	```sh
+	provider = fernet
+	```
+	
+- Đồng bộ database cho keystone
+	```sh
+	su -s /bin/sh -c "keystone-manage db_sync" keystone
+	```
+
+- Thiết lập `Fernet` key
+	```sh
+	keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
+	```
+
+ 
