@@ -458,9 +458,9 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 - Vô hiệu hóa cơ chế xác thực bằng token tạm thời trong `keysonte` bằng cách chỉnh sửa dòng `admin_token_auth` trong các section `[pipeline:public_api]`,  `[pipeline:admin_api]`  và `[pipeline:api_v3]` của file `/etc/keystone/keystone-paste.ini`
 
 - Bỏ thiết lập trong biến môi trường của `OS_TOKEN` và `OS_URL` bằng lệnh
-```sh
-unset OS_TOKEN OS_URL
-```
+	```sh
+	unset OS_TOKEN OS_URL
+	```
 
 - Gõ lần lượt 2 lệnh dưới để nhận kết quả trả về
 	```sh
