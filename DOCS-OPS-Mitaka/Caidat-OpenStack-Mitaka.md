@@ -214,7 +214,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	
 <a name="2.2"> </a> 	
 ### 2.2 Cài đặt Keystone
-===
+***
 <a name="2.2.1"> </a> 
 #### 2.2.1 Tạo database cho keystone
 - Đăng nhập vào MariaDB
@@ -362,7 +362,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	rm -f /var/lib/keystone/keystone.db
 	```
 
-<a name="2.3"> </a> 
+<a name="3"> </a> 
 ### 2.3 Tạo endpoint và các service cho `keysonte`
 
 <a name="2.3.1"> </a> 
@@ -537,5 +537,14 @@ EOF
 	| user_id    | 100f1bf64d184f22bd6babdd5929696c                                                                                                                                                        |
 	+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 	```
-	
-- 
+
+<a name="3"> </a> 	
+### 3 Cài đặt Glance
+***
+`Glance` là dịch vụ cung cấp cá image (các hệ điều hành đã được đóng gói sẵn, sử dụng theo cơ chế template để tạo ra các máy ảo. )
+
+<a name="3.1"> </a> 	
+### 3.1 Tạo database và endpoint cho `glance`
+***
+
+
