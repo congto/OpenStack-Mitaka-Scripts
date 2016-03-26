@@ -1,24 +1,28 @@
 # Cài đặt openStack Mitaka
 
+<a name="1"> </a> 
 ## 1. Chuẩn bị môi trường
+<a name="1.1"> </a> 
 ### 1.1 Mô hình mạng
 
 ![OpenStack Mitaka Topo](/DOCS-OPS-Mitaka/images/Mitaka-topo.png)
 
+<a name="1.2"> </a> 
 ### 1.2 Các tham số phần cứng đối với các node
 ![OpenStack Mitaka Topo](/DOCS-OPS-Mitaka/images/Mitaka-ip-hardware.png)
 
-
- 
-## 2. Bắt đầu cài đặt
+<a name="2"> </a> 
+## 2. Cài đặt trên node controller
 ===
 - Lưu ý:
  - Đăng nhập với quyền root trên tất cả các bước cài đặt.
  - Các thao tác sửa file trong hướng dẫn này sử dụng lệnh `vi` hoặc `vim`
  - Password thống nhất cho tất cả các dịch vụ là `Welcome123`
- 
-### 2.1 Cài đặt trên node controller
+
+<a name="2.1"> </a>  
+### 2.1 Cài đặt các thành phần chung
 ===
+<a name="2.1.1"> </a> 
 #### 2.1.1 Thiết lập và cài đặt các gói cơ bản
 
 - Chạy lệnh để cập nhật các gói phần mềm
@@ -80,7 +84,7 @@
 	10.10.10.41    compute1
 	```
 
-
+<a name="2.1.2"> </a> 
 #### 2.1.2 Cài đặt NTP
 - Cài gói `chrony`
 	```sh
@@ -96,6 +100,7 @@
 
 - Khởi động lại dịch vụ NTP
 
+<a name="2.1.3"> </a> 
 #### 2.1.3 Cài đặt repos để cài OpenStack Mitaka
 
 - Cài đặt gói để cài OpenStack Mitaka
@@ -120,7 +125,7 @@
 	```
 - Đăng nhập lại và chuyển sang quyền `root` và thực hiện các bước tiếp theo.
 	
-
+<a name="2.1.4"> </a> 
 #### 2.1.4 Cài đặt SQL database
 
 - Cài đặt MariaDB
@@ -171,8 +176,9 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	MariaDB [(none)]>
 	MariaDB [(none)]> exit;
 	```
-	
-#### 2.1.4 Cài đặt RabbitMQ
+
+<a name="2.1.5"> </a> 	
+#### 2.1.5 Cài đặt RabbitMQ
 - Cài đặt gói
 	```sh
 	apt-get -y install rabbitmq-server
@@ -187,7 +193,8 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	rabbitmqctl set_permissions openstack ".*" ".*" ".*"
 	```
 
-#### 2.1.5 Cài đặt Memcached
+<a name="2.1.6"> </a> 
+#### 2.1.6 Cài đặt Memcached
 - Cài đặt các gói cần thiết cho `memcached`
 
 	```sh
@@ -205,8 +212,10 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	service memcached restart
 	```
 	
+<a name="2.2"> </a> 	
 ### 2.2 Cài đặt Keystone
 ===
+<a name="2.2.1"> </a> 
 #### 2.2.1 Tạo database cho keystone
 - Đăng nhập vào MariaDB
 
@@ -225,6 +234,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	exit;
 	```
 
+<a name="2.2.2"> </a> 
 #### 2.2.2 Cài đặt và cấu hình `keystone`
 - Không cho `keystone` khởi động tự động sau khi cài
 	```sh
@@ -274,4 +284,232 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
 	```
 
+<a name="2.2.3"> </a> 
+#### 2.2.3 Cấu hình apache cho `keysonte`
+
+- Dùng `vi` để mở và sửa file `/etc/apache2/apache2.conf`. Thêm dòng dưới ngay sau dòng `# Global configuration`
+
+	```sh
+	# Global configuration
+	ServerName controller
+	```
+
+- Sử dụng `vi` để tạo file `/etc/apache2/sites-available/wsgi-keystone.conf` chứa nội dung dưới
+
+	```sh
+	Listen 5000
+	Listen 35357
+
+	<VirtualHost *:5000>
+		WSGIDaemonProcess keystone-public processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}
+		WSGIProcessGroup keystone-public
+		WSGIScriptAlias / /usr/bin/keystone-wsgi-public
+		WSGIApplicationGroup %{GLOBAL}
+		WSGIPassAuthorization On
+		<IfVersion >= 2.4>
+		  ErrorLogFormat "%{cu}t %M"
+		</IfVersion>
+		ErrorLog /var/log/apache2/keystone.log
+		CustomLog /var/log/apache2/keystone_access.log combined
+
+		<Directory /usr/bin>
+			<IfVersion >= 2.4>
+				Require all granted
+			</IfVersion>
+			<IfVersion < 2.4>
+				Order allow,deny
+				Allow from all
+			</IfVersion>
+		</Directory>
+	</VirtualHost>
+
+	<VirtualHost *:35357>
+		WSGIDaemonProcess keystone-admin processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}
+		WSGIProcessGroup keystone-admin
+		WSGIScriptAlias / /usr/bin/keystone-wsgi-admin
+		WSGIApplicationGroup %{GLOBAL}
+		WSGIPassAuthorization On
+		<IfVersion >= 2.4>
+		  ErrorLogFormat "%{cu}t %M"
+		</IfVersion>
+		ErrorLog /var/log/apache2/keystone.log
+		CustomLog /var/log/apache2/keystone_access.log combined
+
+		<Directory /usr/bin>
+			<IfVersion >= 2.4>
+				Require all granted
+			</IfVersion>
+			<IfVersion < 2.4>
+				Order allow,deny
+				Allow from all
+			</IfVersion>
+		</Directory>
+	</VirtualHost>
+	```
+
+- Tạo link để cấu hình virtual host cho dịch vụ `keysonte` trong `apache`
+	```sh
+	ln -s /etc/apache2/sites-available/wsgi-keystone.conf /etc/apache2/sites-enabled
+	```
+
+- Khởi động lại `apache`
+	```sh
+	service apache2 restart
+	```
+
+- Xóa file database mặc định của `keysonte` 
+	```sh
+	rm -f /var/lib/keystone/keystone.db
+	```
+
+<a name="2.3"> </a> 
+### 2.3 Tạo endpoint và các service cho `keysonte`
+
+<a name="2.3.1"> </a> 
+#### 2.3.1 Khai báo xác thực chung 
+	```sh
+	export OS_TOKEN=Welcome123
+	export OS_URL=http://controller:35357/v3
+	export OS_IDENTITY_API_VERSION=3
+	```
+
+<a name="2.3.2"> </a> 
+#### 2.3.2 Khai báo xác thực chung 
+- Tạo các service và endpoint cho `keysonte`
+	```sh
+	openstack service create \
+	  --name keystone --description "OpenStack Identity" identity
+	```
+
+- Tạo các endpoint
+	```sh
+	openstack endpoint create --region RegionOne \
+	  identity public http://controller:5000/v3
+	  
+	openstack endpoint create --region RegionOne \
+	  identity internal http://controller:5000/v3
+	  
+	openstack endpoint create --region RegionOne \
+	  identity admin http://controller:35357/v3
+	```
+
+<a name="2.4"> </a> 
+### 2.4 Tạo domain, projects, users, and roles
+
+- Tạo domain
+
+	```sh
+	openstack domain create --description "Default Domain" default
+	```
+
+- Tạo `admin` project
+
+	```sh
+	openstack project create --domain default  --description "Admin Project" admin
+	```
+
+- Tạo user `admin`
+	```sh
+	openstack user create --domain default --password-prompt admin
+	```
+
+- Tạo role `admin`
+	```sh
+	openstack role create admin
+	```
+
+- Gán user `admin` vào role `admin` thuộc project `admin`
+	```sh
+	openstack role add --project admin --user admin admin
+	```
+
+- Tạo project có tên là `service` để chứa các user service của openstack
+	```sh
+	openstack project create --domain default --description "Service Project" service
+	```
+
  
+- Tạo project tên là `demo`
+	```sh
+	openstack project create --domain default \
+	  --description "Demo Project" demo
+	```
+
+- Tạo user tên là `demo`
+	```sh
+	 openstack user create --domain default \
+	  --password-prompt demo
+	```
+
+- Tạo role tên là `user`
+	```sh
+	openstack role create user
+	```
+
+- Gán tài khoản `demo` có role là `user` vào project `demo`
+	```sh
+	openstack role add --project demo --user demo user
+	```
+
+<a name="2.5"> </a> 
+### 2.5 Kiểm chứng lại các bước cài đặt `keysonte`
+
+- Vô hiệu hóa cơ chế xác thực bằng token tạm thời trong `keysonte` bằng cách chỉnh sửa dòng `admin_token_auth` trong các section `[pipeline:public_api]`,  `[pipeline:admin_api]`  và `[pipeline:api_v3]` của file `/etc/keystone/keystone-paste.ini`
+
+- Bỏ thiết lập trong biến môi trường của `OS_TOKEN` và `OS_URL` bằng lệnh
+```sh
+unset OS_TOKEN OS_URL
+```
+
+- Gõ lần lượt 2 lệnh dưới để nhận kết quả trả về
+	```sh
+	openstack --os-auth-url http://controller:35357/v3 \
+	--os-project-domain-name default --os-user-domain-name default \
+	--os-project-name admin --os-username admin token issue
+
+	và 
+
+	openstack --os-auth-url http://controller:5000/v3 \
+	--os-project-domain-name default --os-user-domain-name default \
+	--os-project-name demo --os-username demo token issue
+	```
+
+<a name="2.6"> </a> 
+### 2.6 Tạo script biến môi trường cho client 
+
+- Tạo file `admin-openrc` chứa nội dung sau
+	```sh
+	export OS_PROJECT_DOMAIN_NAME=default
+	export OS_USER_DOMAIN_NAME=default
+	export OS_PROJECT_NAME=admin
+	export OS_USERNAME=admin
+	export OS_PASSWORD=ADMIN_PASS
+	export OS_AUTH_URL=http://controller:35357/v3
+	export OS_IDENTITY_API_VERSION=3
+	```
+
+- Tạo file `demo-openrc` chứa nội dung sau
+	```sh
+	export OS_PROJECT_DOMAIN_NAME=default
+	export OS_USER_DOMAIN_NAME=default
+	export OS_PROJECT_NAME=demo
+	export OS_USERNAME=demo
+	export OS_PASSWORD=DEMO_PASS
+	export OS_AUTH_URL=http://controller:5000/v3
+	export OS_IDENTITY_API_VERSION=3
+	```	
+
+- Chạy script `admin-openrc`
+	```sh
+	source  admin-openrc
+	```
+
+- Gõ lệnh dưới để kiểm tra biến môi trường ở trên đã chính xác hay chưa
+	```sh
+	openstack token issue
+	```
+
+- Kết quả sẽ như bên dưới (Lưu ý: giá trị sẽ khác nhau)
+	```sh
+	Kết quả 
+	```
