@@ -401,6 +401,19 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	openstack domain create --description "Default Domain" default
 	```
 
+ - Lệnh trên có thể gặp lỗi dưới
+		```sh
+		root@controller:~# openstack domain create --description "Default Domain" default
+		Conflict occurred attempting to store domain - Duplicate Entry (HTTP 409) (Request-ID: req-0560b7fb-7af6-4635-8e49-b86b34917be2)
+		root@controller:~# openstack domain list
+		+---------+---------+---------+----------------------------------------------------------------------+
+		| ID      | Name    | Enabled | Description                                                          |
+		+---------+---------+---------+----------------------------------------------------------------------+
+		| default | Default | True    | Owns users and tenants (i.e. projects) available on Identity API v2. |
+		+---------+---------+---------+----------------------------------------------------------------------+
+		```
+
+		
 - Tạo `admin` project
 
 	```sh
@@ -409,7 +422,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 
 - Tạo user `admin`
 	```sh
-	openstack user create --domain default --password-prompt admin
+	openstack user create admin --domain default --password Welcome123
 	```
 
 - Tạo role `admin`
@@ -435,7 +448,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 
 - Tạo user tên là `demo`
 	```sh
-	 openstack user create --domain default --password-prompt demo
+	openstack user create demo --domain default --password Welcome123
 	```
 
 - Tạo role tên là `user`
@@ -476,22 +489,28 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 
 - Tạo file `admin-openrc` chứa nội dung sau
 	```sh
+	cat << EOF > admin-openrc
 	export OS_PROJECT_DOMAIN_NAME=default
 	export OS_USER_DOMAIN_NAME=default
 	export OS_PROJECT_NAME=admin
 	export OS_USERNAME=admin
-	export OS_PASSWORD=ADMIN_PASS
+	export OS_PASSWORD=Welcome123
 	export OS_AUTH_URL=http://controller:35357/v3
 	export OS_IDENTITY_API_VERSION=3
+	EOF
 	```
 
+
+
+EOF
+	
 - Tạo file `demo-openrc` chứa nội dung sau
 	```sh
 	export OS_PROJECT_DOMAIN_NAME=default
 	export OS_USER_DOMAIN_NAME=default
 	export OS_PROJECT_NAME=demo
 	export OS_USERNAME=demo
-	export OS_PASSWORD=DEMO_PASS
+	export OS_PASSWORD=Welcome123
 	export OS_AUTH_URL=http://controller:5000/v3
 	export OS_IDENTITY_API_VERSION=3
 	```	
@@ -508,5 +527,15 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 
 - Kết quả sẽ như bên dưới (Lưu ý: giá trị sẽ khác nhau)
 	```sh
-	Kết quả 
+	root@controller:~# openstack token issue
+	+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+	| Field      | Value                                                                                                                                                                                   |
+	+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+	| expires    | 2016-03-26T23:10:06.916201Z                                                                                                                                                             |
+	| id         | gAAAAABW9wi_SwsD6CLTlvIuBUtXbn1eHH8wTtthyWNzNlG2bKO-9e-VK2fRVdRJ4oKnJ1ceU72KyK_C7N9MSWVlyedP3tQucQW2dzxu_fKl5YeslehFjw-Phv2EhXTOWPc-Ga9l017T8SvwzG4pKWqM7BRNe11GP7DeTBDGVHxFOxXuh7OJ3iE |
+	| project_id | 38b9ce7973634d83a0390f47f028ed32                                                                                                                                                        |
+	| user_id    | 100f1bf64d184f22bd6babdd5929696c                                                                                                                                                        |
+	+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 	```
+	
+- 
