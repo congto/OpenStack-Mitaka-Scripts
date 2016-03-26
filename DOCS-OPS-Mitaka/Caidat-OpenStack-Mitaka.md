@@ -385,14 +385,11 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 
 - Tạo các endpoint
 	```sh
-	openstack endpoint create --region RegionOne \
-	  identity public http://controller:5000/v3
+	openstack endpoint create --region RegionOne identity public http://controller:5000/v3
 	  
-	openstack endpoint create --region RegionOne \
-	  identity internal http://controller:5000/v3
+	openstack endpoint create --region RegionOne identity internal http://controller:5000/v3
 	  
-	openstack endpoint create --region RegionOne \
-	  identity admin http://controller:35357/v3
+	openstack endpoint create --region RegionOne identity admin http://controller:35357/v3
 	```
 
 <a name="2.4"> </a> 
@@ -433,14 +430,12 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
  
 - Tạo project tên là `demo`
 	```sh
-	openstack project create --domain default \
-	  --description "Demo Project" demo
+	openstack project create --domain default --description "Demo Project" demo
 	```
 
 - Tạo user tên là `demo`
 	```sh
-	 openstack user create --domain default \
-	  --password-prompt demo
+	 openstack user create --domain default --password-prompt demo
 	```
 
 - Tạo role tên là `user`
