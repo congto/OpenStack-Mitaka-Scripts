@@ -245,21 +245,21 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 
  - Trong section `[DEFAULT]` khai báo dòng
  
-	```sh
-	admin_token = Welcome123
-	```
+		```sh
+		admin_token = Welcome123
+		```
 	
  - Trong section `[database]` khai báo dòng
  
-	```sh
-	connection = mysql+pymysql://keystone:Welcome123@controller/keystone
-	```
+		```sh
+		connection = mysql+pymysql://keystone:Welcome123@controller/keystone
+		```
 	
  - Sửa file `[token]`
  
-	```sh
-	provider = fernet
-	```
+		```sh
+		provider = fernet
+		```
 	
 - Đồng bộ database cho keystone
 	```sh
