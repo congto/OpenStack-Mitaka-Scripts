@@ -368,6 +368,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 <a name="2.3.1"> </a> 
 #### 2.3.1 Khai báo xác thực chung 
 - Khai báo sử dụng `token` để xác thực.
+
 	```sh
 	export OS_TOKEN=Welcome123
 	export OS_URL=http://controller:35357/v3
