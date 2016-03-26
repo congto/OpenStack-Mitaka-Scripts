@@ -11,12 +11,14 @@
 
  
 ## 2. Bắt đầu cài đặt
+===
 - Lưu ý:
  - Đăng nhập với quyền root trên tất cả các bước cài đặt.
  - Các thao tác sửa file trong hướng dẫn này sử dụng lệnh `vi` hoặc `vim`
  - Password thống nhất cho tất cả các dịch vụ là `Welcome123`
  
 ### 2.1 Cài đặt trên node controller
+===
 #### 2.1.1 Thiết lập và cài đặt các gói cơ bản
 
 - Chạy lệnh để cập nhật các gói phần mềm
@@ -73,8 +75,7 @@
 - Cập nhật file `/etc/hosts` để phân giải từ IP sang hostname và ngược lại, nội dung như sau
 
 	```sh
-	127.0.0.1       localhost
-	127.0.1.1       controller
+	127.0.0.1      localhost controller
 	10.10.10.40    controller
 	10.10.10.41    compute1
 	```
@@ -186,8 +187,6 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	rabbitmqctl set_permissions openstack ".*" ".*" ".*"
 	```
 
-- 
-
 #### 2.1.5 Cài đặt Memcached
 - Cài đặt các gói cần thiết cho `memcached`
 
@@ -207,6 +206,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	```
 	
 ### 2.2 Cài đặt Keystone
+===
 #### 2.2.1 Tạo database cho keystone
 - Đăng nhập vào MariaDB
 
@@ -220,6 +220,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	CREATE DATABASE keystone;
 	GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost'  IDENTIFIED BY 'Welcome123';
 	GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'Welcome123';
+	FLUSH PRIVILEGES;
 	
 	exit;
 	```
@@ -249,10 +250,10 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 		admin_token = Welcome123
 		```
 	
- - Trong section `[database]` khai báo dòng
+ - Trong section `[database]` thay dòng `connection = sqlite:////var/lib/keystone/keystone.db` bằng dòng dưới
  
 		```sh
-		connection = mysql+pymysql://keystone:Welcome123@controller/keystone
+		connection = mysql+pymysql://keystone:Welcome123@10.10.10.40/keystone
 		```
 	
  - Sửa file `[token]`
@@ -265,6 +266,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	```sh
 	su -s /bin/sh -c "keystone-manage db_sync" keystone
 	```
+	- Lệnh trên sẽ tạo ra các bảng trong database có tên là keysonte
 
 - Thiết lập `Fernet` key
 
