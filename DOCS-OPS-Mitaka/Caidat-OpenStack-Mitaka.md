@@ -236,6 +236,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	```
 
 - Sao lưu file cấu hình của dịch vụ keystone trước khi chỉnh sửa.
+
 	```sh
 	cp /etc/keystone/keystone.conf /etc/keystone/keystone.conf.orig
 	```
@@ -243,14 +244,19 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 - Dùng lệnh `vi` để mở và sửa file `/etc/keystone/keystone.conf`.
 
  - Trong section `[DEFAULT]` khai báo dòng
+ 
 	```sh
 	admin_token = Welcome123
 	```
+	
  - Trong section `[database]` khai báo dòng
+ 
 	```sh
 	connection = mysql+pymysql://keystone:Welcome123@controller/keystone
 	```
+	
  - Sửa file `[token]`
+ 
 	```sh
 	provider = fernet
 	```
@@ -261,6 +267,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	```
 
 - Thiết lập `Fernet` key
+
 	```sh
 	keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
 	```
