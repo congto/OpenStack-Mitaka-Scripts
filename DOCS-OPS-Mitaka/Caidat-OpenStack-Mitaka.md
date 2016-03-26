@@ -14,6 +14,7 @@
 - Lưu ý:
  - Đăng nhập với quyền root trên tất cả các bước cài đặt.
  - Các thao tác sửa file trong hướng dẫn này sử dụng lệnh `vi` hoặc `vim`
+ - Password thống nhất cho tất cả các dịch vụ là `Welcome123`
  
 ### 2.1 Cài đặt trên node controller
 #### 2.1.1 Thiết lập và cài đặt các gói cơ bản
@@ -112,10 +113,19 @@
 	apt-get -y install python-openstackclient
 	```
 
+- Khởi động lại máy chủ
+	```sh
+	init 6
+	```
+- Đăng nhập lại và chuyển sang quyền `root` và thực hiện các bước tiếp theo.
+	
+
 #### 2.1.4 Cài đặt SQL database
 
 - Cài đặt MariaDB
 	```sh
+	su -
+	
 	apt-get -y install mariadb-server python-pymysql
 	```
 - Trong quá trình cài MariaDB, hệ thống yêu cầu người dùng nhập mật khẩu vào ô sau
@@ -160,8 +170,6 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	MariaDB [(none)]>
 	MariaDB [(none)]> exit;
 	```
-
-
 	
 #### 2.1.4 Cài đặt RabbitMQ
 - Cài đặt gói
@@ -187,7 +195,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	apt-get -y install memcached python-memcache
 	```
 	
-- Dùng vi sửa file `/etc/memcached.conf`, thay dòng `-l 127.0.0.1` bằng dòng dưới
+- Dùng vi sửa file `/etc/memcached.conf`, thay dòng `-l 127.0.0.1` bằng dòng dưới.
 
 	```sh
 	-l 10.10.10.40
@@ -227,10 +235,16 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	apt-get -y install keystone apache2 libapache2-mod-wsgi
 	```
 
-- Chỉnh sửa file `/etc/keystone/keystone.conf `
+- Sao lưu file cấu hình của dịch vụ keystone trước khi chỉnh sửa.
+	```sh
+	cp /etc/keystone/keystone.conf /etc/keystone/keystone.conf.orig
+	```
+
+- Dùng lệnh `vi` để mở và sửa file `/etc/keystone/keystone.conf`.
+
  - Trong section `[DEFAULT]` khai báo dòng
 	```sh
-	admin_token = Welcome
+	admin_token = Welcome123
 	```
  - Trong section `[database]` khai báo dòng
 	```sh
