@@ -810,9 +810,9 @@ mysql -u root -p
 		```
 
 - Cài đặt các gói cho `nova` và cấu hình
-		```sh
-		apt-get -y install nova-api nova-cert nova-conductor nova-consoleauth nova-novncproxy nova-scheduler
-		```
+	```sh
+	apt-get -y install nova-api nova-cert nova-conductor nova-consoleauth nova-novncproxy nova-scheduler
+	```
 
 - Sao lưu file `/etc/nova/nova.conf` trước khi cấu hình
 		```sh
@@ -821,42 +821,65 @@ mysql -u root -p
 
 - Sửa file `/etc/nova/nova.conf`. 
 - Lưu ý: Trong trường hợp nếu có dòng khai bao trước đó thì tìm và thay thế, chưa có thì khai báo mới hoàn toàn. 
- - Khai báo trong section `[api_database]` dòng dưới
+ - Khai báo trong section `[api_database]` dòng dưới, do section `[api_database]` chưa có nên ta khai báo thêm
 		```sh
+		[api_database]
 		connection = mysql+pymysql://nova:Welcome123@controller/nova_api
 		```
 
- - Khai báo trong section `[database]` dòng 
+ - Khai báo trong section `[database]` dòng dưới. Do section `[database]` chưa có nên ta khai báo thêm.
 		```sh
+		[database]
 		connection = mysql+pymysql://nova:Welcome123@controller/nova
 		```
  
- - Khai báo trong section `[DEFAULT]` dòng 
+- Trong section `[DEFAULT]` : 
+
+ - Thay dòng 
+		```sh
+		logdir=/var/log/nova
+		```
+		
+ - Bằng dòng 
+		```sh
+		log-dir=/var/log/nova
+		```
+		
+ - Thay dòng 
+	 ```sh
+	 # enabled_apis=ec2,osapi_compute,metadata
+	 ```
+	 
+ - bằng dòng
+	 ```sh
+	 enabled_apis=osapi_compute,metadata
+	 ```
+	 
+ - Bỏ dòng `verbose = True`
+
+ - Trong section `[DEFAULT]` khai báo thêm các dòng sau:
 		```sh
 		rpc_backend = rabbit
-		auth_strategy = keystone		
-		my_ip = 10.10.10.40 #IP MGNT cua node Controller
-		
+		auth_strategy = keystone
+		rootwrap_config = /etc/nova/rootwrap.conf
+		#IP MGNT cua node Controller
+		my_ip = 10.10.10.40 
 		
 		use_neutron = True
 		firewall_driver = nova.virt.firewall.NoopFirewallDriver
-		
-		# disable the EC2 API
-		enabled_apis=osapi_compute,metadata
-		
-		# enable logging
-		verbose = True
 		```
 
- - Khai báo trong section `[oslo_messaging_rabbit]` các dòng dưới
+ - Khai báo trong section `[oslo_messaging_rabbit]` các dòng dưới. Do section `[oslo_messaging_rabbit]` chưa có nên ta khai báo thêm.
 		```sh
+		[oslo_messaging_rabbit]
 		rabbit_host = controller
 		rabbit_userid = openstack
 		rabbit_password = Welcome123
 		```
 
- - Trong section `[keystone_authtoken]` khai báo các dòng dưới
+ - Trong section `[keystone_authtoken]` khai báo các dòng dưới. Do section `[keystone_authtoken]` chưa có nên ta khai báo thêm.
 		```sh
+		[keystone_authtoken]
 		auth_uri = http://controller:5000
 		auth_url = http://controller:35357
 		memcached_servers = controller:11211
@@ -868,19 +891,22 @@ mysql -u root -p
 		password = Welcome123
 		```
 
- - Trong section `[vnc]` khai báo các dòng dưới để cấu hình VNC điều khiển các máy ảo trên web.
+ - Trong section `[vnc]` khai báo các dòng dưới để cấu hình VNC điều khiển các máy ảo trên web.  Do section `[vnc]` chưa có nên ta khai báo thêm.
 		```sh
+		[vnc]
 		vncserver_listen = $my_ip
 		vncserver_proxyclient_address = $my_ip
 		```
 
- - Trong section `[glance]` khai báo dòng để nova kết nối tới API của glance
+ - Trong section `[glance]` khai báo dòng để nova kết nối tới API của glance. Do section `[glance]` chưa có nên ta khai báo thêm.
 		```sh
+		[glance]
 		api_servers = http://controller:9292
 		```
  
-	- Trong section `[oslo_concurrency]` khai báo dòng dưới
+ - Trong section `[oslo_concurrency]` khai báo dòng dưới. Do section `[oslo_concurrency]` chưa có nên ta khai báo thêm.
 		```sh
+		[oslo_concurrency]
 		lock_path = /var/lib/nova/tmp
 		```
 
@@ -910,5 +936,25 @@ mysql -u root -p
 	rm -f /var/lib/nova/nova.sqlite
 	```
 
+- Kiểm tra xem các service của nova hoạt động tốt hay chưa bằng lệnh dưới
+	```sh
+	openstack compute service list
+	```
 
+- Nếu kết quả lệnh trên không giống dưới đây, hãy xem lại các bước cấu hình ở trên.
+	```sh
+	
+	+----+--------------------+------------+----------+---------+-------+----------------------------+
+	| Id | Binary             | Host       | Zone     | Status  | State | Updated At                 |
+	+----+--------------------+------------+----------+---------+-------+----------------------------+
+	|  1 | nova-consoleauth   | controller | internal | enabled | up    | 2016-03-27T16:19:42.000000 |
+	|  2 | nova-scheduler     | controller | internal | enabled | up    | 2016-03-27T16:19:42.000000 |
+	|  3 | nova-conductor     | controller | internal | enabled | up    | 2016-03-27T16:19:42.000000 |
+	|  5 | nova-cert          | controller | internal | enabled | up    | 2016-03-27T16:19:42.000000 |
+	|  6 | nova-osapi_compute | 0.0.0.0    | internal | enabled | down  | None                       |
+	|  7 | nova-metadata      | 0.0.0.0    | internal | enabled | down  | None                       |
+	+----+--------------------+------------+----------+---------+-------+----------------------------+
+	```
+
+- 
 
