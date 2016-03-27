@@ -810,7 +810,105 @@ mysql -u root -p
 		```
 
 - Cài đặt các gói cho `nova` và cấu hình
-```sh
-apt-get -y install nova-api nova-cert nova-conductor nova-consoleauth nova-novncproxy nova-scheduler
-```
+		```sh
+		apt-get -y install nova-api nova-cert nova-conductor nova-consoleauth nova-novncproxy nova-scheduler
+		```
+
+- Sao lưu file `/etc/nova/nova.conf` trước khi cấu hình
+		```sh
+		cp /etc/nova/nova.conf /etc/nova/nova.conf.orig
+		```
+
+- Sửa file `/etc/nova/nova.conf`. 
+- Lưu ý: Trong trường hợp nếu có dòng khai bao trước đó thì tìm và thay thế, chưa có thì khai báo mới hoàn toàn. 
+ - Khai báo trong section `[api_database]` dòng dưới
+		```sh
+		connection = mysql+pymysql://nova:Welcome123@controller/nova_api
+		```
+
+ - Khai báo trong section `[database]` dòng 
+		```sh
+		connection = mysql+pymysql://nova:Welcome123@controller/nova
+		```
+ 
+ - Khai báo trong section `[DEFAULT]` dòng 
+		```sh
+		rpc_backend = rabbit
+		auth_strategy = keystone		
+		my_ip = 10.10.10.40 #IP MGNT cua node Controller
+		
+		
+		use_neutron = True
+		firewall_driver = nova.virt.firewall.NoopFirewallDriver
+		
+		# disable the EC2 API
+		enabled_apis=osapi_compute,metadata
+		
+		# enable logging
+		verbose = True
+		```
+
+ - Khai báo trong section `[oslo_messaging_rabbit]` các dòng dưới
+		```sh
+		rabbit_host = controller
+		rabbit_userid = openstack
+		rabbit_password = Welcome123
+		```
+
+ - Trong section `[keystone_authtoken]` khai báo các dòng dưới
+		```sh
+		auth_uri = http://controller:5000
+		auth_url = http://controller:35357
+		memcached_servers = controller:11211
+		auth_type = password
+		project_domain_name = default
+		user_domain_name = default
+		project_name = service
+		username = nova
+		password = Welcome123
+		```
+
+ - Trong section `[vnc]` khai báo các dòng dưới để cấu hình VNC điều khiển các máy ảo trên web.
+		```sh
+		vncserver_listen = $my_ip
+		vncserver_proxyclient_address = $my_ip
+		```
+
+ - Trong section `[glance]` khai báo dòng để nova kết nối tới API của glance
+		```sh
+		api_servers = http://controller:9292
+		```
+ 
+	- Trong section `[oslo_concurrency]` khai báo dòng dưới
+		```sh
+		lock_path = /var/lib/nova/tmp
+		```
+
+-  Tạo database cho `nova`
+	```sh
+	su -s /bin/sh -c "nova-manage api_db sync" nova
+	su -s /bin/sh -c "nova-manage db sync" nova
+	```
+	
+
+<a name="4.2.2"> </a> 
+#### 4.2.1 Kết thúc bước cài đặt và cấu hình `nova`
+
+- Khởi động lại các dịch vụ của `nova` sau khi cài đặt & cấu hình `nova`
+	```sh
+	service nova-api restart
+	service nova-cert restart
+	service nova-consoleauth restart
+	service nova-scheduler restart
+	service nova-conductor restart
+	service nova-novncproxy restart
+	```
+
+
+- Xóa database mặc định của `nova`
+	```sh
+	rm -f /var/lib/nova/nova.sqlite
+	```
+
+
 
