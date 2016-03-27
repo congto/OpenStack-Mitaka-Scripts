@@ -578,7 +578,7 @@ mysql -u root -p
 #### 3.1.2 Cấu hình xác thực cho dịch vụ `glance`
 - Tạo tài khoản `glance`
 	```sh
-	openstack user create glance --domain default --password glance
+	openstack user create glance --domain default --password Welcome123
 	```
 
 - Gán quyền `admin` và project `service` cho user `glance`
@@ -586,6 +586,11 @@ mysql -u root -p
 	openstack role add --project service --user glance admin
 	```
 
+	- Kiểm tra lại xem user `glance` có role là gì
+		```sh
+		openstack role list --user glance --project service
+		```
+	
 - Tạo dịch vụ có tên là `glance`
 	```sh
 	openstack service create --name glance --description "OpenStack Image service" image
@@ -605,19 +610,32 @@ mysql -u root -p
 
 - Cài đặt gói `glance`
 	```sh
-	apt-get install glance
+	apt-get -y install glance
 	```
 
-- Sửa các mục dưới đây trong hai file `/etc/glance/glance-api.conf` và `/etc/glance/glance-api.conf`
- - Trong section `[DEFAULT] khai báo dòng dưới để hiển thị các thông báo về lỗi khi thao tác với `glance`
-		 ```sh
-		 verbose = True
-		 ```
+- Sao lưu các file `/etc/glance/glance-api.conf` và `/etc/glance/glance-registry.conf` trước khi cấu hình
+	```sh
+	cp /etc/glance/glance-api.conf /etc/glance/glance-api.conf.orig
+	cp /etc/glance/glance-registry.conf /etc/glance/glance-registry.conf.orig
+	```
+
+- Sửa các mục dưới đây trong hai file `/etc/glance/glance-api.conf` và `/etc/glance/glance-registry.conf`
+
+ - Trong section `[DEFAULT]`  thêm hoặc tìm và thay thế dòng cũ bằng dòng dưới để cho phép chế độ ghi log với `glance`
+		```sh
+		verbose = true
+		```
  
- - Trong section `[database]` sửa dòng cũ thành dòng dưới 
-		 ```sh
-		 connection = mysql+pymysql://glance:Welcome123@controller/glance
-		 ```
+ - Trong section `[database]` :
+ 
+ - Comment dòng 
+		```sh
+		#sqlite_db = /var/lib/glance/glance.sqlite
+		```
+ - Thêm dòng dưới 
+		```sh
+		connection = mysql+pymysql://glance:Welcome123@controller/glance
+		```
  
  - Trong section `[keystone_authtoken]` sửa các dòng cũ thành dòng dưới
 		```sh
@@ -631,8 +649,6 @@ mysql -u root -p
 		username = glance
 		password = Welcome123
 		```
- 
- - Lưu ý: comment tất cả các dòng còn lại trong section `[keystone_authtoken]`
  
  - Trong section ` [paste_deploy]` khai báo dòng dưới
 		```sh
@@ -649,6 +665,8 @@ mysql -u root -p
 		```sh
 		driver = noop
 		```
+
+- Lưu ý: Nhớ sửa cả file `/etc/glance/glance-registry.conf` trước khi chạy lệnh dưới.
 
 - Đồng bộ database cho glance
 	```sh
@@ -684,17 +702,30 @@ mysql -u root -p
 
 - Upload file image vừa tải về
 	```sh
-	 openstack image create "cirros" \
-	  --file cirros-0.3.4-x86_64-disk.img \
-	  --disk-format qcow2 --container-format bare \
-	  --public
+	openstack image create "cirros" \
+	 --file cirros-0.3.4-x86_64-disk.img \
+	 --disk-format qcow2 --container-format bare \
+	 --public
 	```
 
 - Kiểm tra lại image đã có hay chưa
 	```sh
 	openstack image list
 	```
+	
+- Nếu kết quả lệnh trên hiển thị như bên dưới thì dịch vụ `glance` đã cài đặt thành công.
+	```sh
+	root@controller:~# openstack image list
+	+--------------------------------------+--------+--------+
+	| ID                                   | Name   | Status |
+	+--------------------------------------+--------+--------+
+	| 19d53e24-2985-4f75-bd63-7568a5f2f10f | cirros | active |
+	+--------------------------------------+--------+--------+
+	root@controller:~#
 
+	```
+
+	
 <a name="4"> </a> 	
 ### 4 Cài đặt NOVA (Compute service)
 ***
