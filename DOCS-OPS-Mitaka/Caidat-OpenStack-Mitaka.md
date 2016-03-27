@@ -526,6 +526,7 @@ EOF
 	```
 
 - Kết quả sẽ như bên dưới (Lưu ý: giá trị sẽ khác nhau)
+
 	```sh
 	root@controller:~# openstack token issue
 	+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -541,10 +542,233 @@ EOF
 <a name="3"> </a> 	
 ### 3 Cài đặt Glance
 ***
-`Glance` là dịch vụ cung cấp cá image (các hệ điều hành đã được đóng gói sẵn, sử dụng theo cơ chế template để tạo ra các máy ảo. )
+`Glance` là dịch vụ cung cấp các image (các hệ điều hành đã được đóng gói sẵn), các image này sử dụng theo cơ chế template để tạo ra các máy ảo. )
+- Lưu ý: Thư mục chứa các file images trong hướng dẫn này là `/var/lib/glance/images/`
+
+
+- Glance có các thành phần sau: 
+ - glance-api:
+ - glance-registry:
+ - Database:
+ - Storage repository for image file:
+ - Metadata definition service:
+
 
 <a name="3.1"> </a> 	
 ### 3.1 Tạo database và endpoint cho `glance`
 ***
+<a name="3.1.1"> </a> 
+#### 3.1.1 Tạo database cho `glance`
+- Đăng nhập vào mysql
+```sh
+mysql -u root -p
+```
 
+- Tạo database và gán các quyền cho user `glance` trong database
+	```sh
+	CREATE DATABASE glance;
+	GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'localhost' IDENTIFIED BY 'Welcome123';
+	GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY 'Welcome123';
+	FLUSH PRIVILEGES;
+		
+	exit;
+	```
+
+<a name="3.1.2"> </a> 
+#### 3.1.2 Cấu hình xác thực cho dịch vụ `glance`
+- Tạo tài khoản `glance`
+	```sh
+	openstack user create glance --domain default --password glance
+	```
+
+- Gán quyền `admin` và project `service` cho user `glance`
+	```sh
+	openstack role add --project service --user glance admin
+	```
+
+- Tạo dịch vụ có tên là `glance`
+	```sh
+	openstack service create --name glance --description "OpenStack Image service" image
+	```
+
+- Tạo các endpoint cho dịch vụ `glance`
+	```sh
+	openstack endpoint create --region RegionOne image public http://controller:9292
+
+	openstack endpoint create --region RegionOne image internal http://controller:9292
+
+	openstack endpoint create --region RegionOne image admin http://controller:9292
+	```
+
+<a name="3.1.3"> </a> 
+#### 3.1.2 Cài đặt các gói và cấu hình cho dịch vụ `glance`
+
+- Cài đặt gói `glance`
+	```sh
+	apt-get install glance
+	```
+
+- Sửa các mục dưới đây trong hai file `/etc/glance/glance-api.conf` và `/etc/glance/glance-api.conf`
+ - Trong section `[DEFAULT] khai báo dòng dưới để hiển thị các thông báo về lỗi khi thao tác với `glance`
+		 ```sh
+		 verbose = True
+		 ```
+ 
+ - Trong section `[database]` sửa dòng cũ thành dòng dưới 
+		 ```sh
+		 connection = mysql+pymysql://glance:Welcome123@controller/glance
+		 ```
+ 
+ - Trong section `[keystone_authtoken]` sửa các dòng cũ thành dòng dưới
+		```sh
+		auth_uri = http://controller:5000
+		auth_url = http://controller:35357
+		memcached_servers = controller:11211
+		auth_type = password
+		project_domain_name = default
+		user_domain_name = default
+		project_name = service
+		username = glance
+		password = Welcome123
+		```
+ 
+ - Lưu ý: comment tất cả các dòng còn lại trong section `[keystone_authtoken]`
+ 
+ - Trong section ` [paste_deploy]` khai báo dòng dưới
+		```sh
+		flavor = keystone
+		```
+ - Khai báo trong section `[glance_store]` nơi lưu trữ file image
+		```sh
+		stores = file,http
+		default_store = file
+		filesystem_store_datadir = /var/lib/glance/images/
+		```
+
+ - Trong section ` [oslo_messaging_rabbit] ` khai báo dòng dưới để vô hiệu hóa tính năng notification bởi vì nó sẽ được kích hoạt khi cài ceilomter
+		```sh
+		driver = noop
+		```
+
+- Đồng bộ database cho glance
+	```sh
+	su -s /bin/sh -c "glance-manage db_sync" glance
+	```
+
+- Khở động lại dịch vụ `Glance`
+	```sh
+	service glance-registry restart
+	service glance-api restart
+	```
+
+- Xóa file database mặc định trong `glance`
+	```sh
+	rm -f /var/lib/glance/glance.sqlite
+	```
+
+<a name="3.2"> </a> 	
+### 3.2 Kiểm chứng lại việc cài đặt `glance`
+***
+
+- Khai báo biến môi trường cho dịch vụ `glance`
+	```sh
+	echo "export OS_IMAGE_API_VERSION=2" | tee -a admin-openrc demo-openrc
+
+	source admin-openrc
+	```
+
+- Tải file image cho `glance`
+	```sh
+	wget http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
+	```
+
+- Upload file image vừa tải về
+	```sh
+	 openstack image create "cirros" \
+	  --file cirros-0.3.4-x86_64-disk.img \
+	  --disk-format qcow2 --container-format bare \
+	  --public
+	```
+
+- Kiểm tra lại image đã có hay chưa
+	```sh
+	openstack image list
+	```
+
+<a name="4"> </a> 	
+### 4 Cài đặt NOVA (Compute service)
+***
+
+<a name="4.1"> </a> 	
+### 4.1 Tóm tắt về dịch vụ `nova` trong OpenStack
+***
+- Đây là bước cài đặt các thành phần của `nova` trên máy chủ `Controller`
+- `nova` đảm nhiệm chức năng cung cấp và quản lý tài nguyên trong OpenStack để cấp cho các VM. Trong hướng dẫn nãy sẽ sử dụng KVM làm hypervisor. Nova sẽ tác động vào KVM thông qua `libvirt`
+- `nova` có các thành phần như sau: 
+ - nova-api: 
+ - nova-api-metadata: 
+ - nova-compute:
+ - nova-schedule:
+ - nova-conductor:
+ - nova-cert: 
+ - nova-network:
+ - nova-novncproxy: 
+ - nova-spicehtml5proxy: 
+ - nova-xvpvncproxy:
+ - nova-cert: 
+ - euca2ools: 
+ - nova client: 
+ - The queue:
+ - SQL database: 
+ 
+<a name="4.2"> </a> 	
+### 4.2 Cài đặt và cấu hình `nova`
+***
+
+<a name="4.2.1"> </a> 
+#### 4.2.1 Tạo database và endpoint cho `nova`
+
+- Đăng nhập vào database với quyền `root`
+	```sh
+	mysql -u root -p
+	```
+
+- Tạo database
+	```sh
+	CREATE DATABASE nova_api;
+	CREATE DATABASE nova;
+
+	GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'localhost' IDENTIFIED BY 'Welcome123';
+	GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'%' IDENTIFIED BY 'Welcome123';
+	GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY 'Welcome123';
+	GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY 'Welcome123';
+
+	FLUSH PRIVILEGES;
+
+	exit;
+	```
+- Khai báo biến môi trường
+	```sh
+	source admin-openrc
+	```
+
+- Tạo user,  phân quyền và tạo endpoint cho dịch vụ nova
+ - Tạo user có tên là `nova`
+		```sh
+		openstack user create nova --domain default  --password Welcome123
+		```
+
+ - Phân quyền cho tài khoản `nova`
+		```sh
+		openstack role add --project service --user nova admin
+		```
+
+ - Tạo endpoint
+		```sh
+		openstack endpoint create --region RegionOne compute public http://controller:8774/v2.1/%\(tenant_id\)s
+		openstack endpoint create --region RegionOne compute internal http://controller:8774/v2.1/%\(tenant_id\)s
+		openstack endpoint create --region RegionOne ompute admin http://controller:8774/v2.1/%\(tenant_id\)s
+		```
+
+- Cài đặt các gói cho `nova` và cấu hình
 
