@@ -761,7 +761,7 @@ mysql -u root -p
 
 - Đăng nhập vào database với quyền `root`
 	```sh
-	mysql -u root -p
+	mysql -uroot -pWelcome123
 	```
 
 - Tạo database
@@ -793,13 +793,24 @@ mysql -u root -p
 		```sh
 		openstack role add --project service --user nova admin
 		```
+ - Kiểm chứng lại xem tài khoản `nova` đã có quyền `admin` hay chưa bằng lệnh dưới
+		```sh
+		openstack role list --user nova --project service
+		```
+ - Tạo service có tên là `nova`
+		```sh
+		openstack service create --name nova --description "OpenStack Compute" compute
+		```
 
  - Tạo endpoint
 		```sh
 		openstack endpoint create --region RegionOne compute public http://controller:8774/v2.1/%\(tenant_id\)s
 		openstack endpoint create --region RegionOne compute internal http://controller:8774/v2.1/%\(tenant_id\)s
-		openstack endpoint create --region RegionOne ompute admin http://controller:8774/v2.1/%\(tenant_id\)s
+		openstack endpoint create --region RegionOne compute admin http://controller:8774/v2.1/%\(tenant_id\)s
 		```
 
 - Cài đặt các gói cho `nova` và cấu hình
+```sh
+apt-get -y install nova-api nova-cert nova-conductor nova-consoleauth nova-novncproxy nova-scheduler
+```
 
