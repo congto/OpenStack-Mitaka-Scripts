@@ -1257,7 +1257,7 @@ external_network_bridge =
 
 - Cài đặt các thành phần cho dashboad
 	```sh
-	apt-get install openstack-dashboard
+	apt-get -y install openstack-dashboard
 	```
 
 - Tìm các dòng sau trong file ` /etc/openstack-dashboard/local_settings.py` và chỉnh sửa như bên dưới
@@ -1333,6 +1333,265 @@ service apache2 restart
 	 
 	 
 	 
-	 
+## II. Cài đặt trên node compute
+***
+### 1. Bước chuẩn bị
+***
+#### 1.1. Thiết lập hostname
+- Sửa file `/etc/hosts` với nội dung như bên dưới
+	```sh
+	127.0.0.1       localhost compute1
+	10.10.10.41     compute1
+	10.10.10.40     controller
+	```
 
+
+- Sửa file /etc/hostname
+	```sh
+	compute1
+	```
+
+
+#### 1.2. Thiết lập về network
+- Dùng vi mở file và thiết lập như dưới
+	```sh
+	# This file describes the network interfaces available on your system
+	# and how to activate them. For more information, see interfaces(5).
+
+	# The loopback network interface
+	auto lo
+	iface lo inet loopback
+
+	# NIC MGNT
+	auto eth0
+	iface eth0 inet static
+	address 10.10.10.41
+	netmask 255.255.255.0
+
+	# NIC EXT
+	auto eth1
+	iface eth1 inet static
+	address 172.16.69.41
+	netmask 255.255.255.0
+	gateway 172.16.69.1
+	dns-nameservers 8.8.8.8
+	```
+
+- Khởi động lại network và đăng nhập lại với quyền root
+	```sh
+	ifdown -a && ifup -a
+	```
+
+- Đăng nhập với quyền `root` và kiểm tra kết nối
+```sh
+
+KẾT QUẢ PING
+
+```
+
+#### 1.3. Cài đặt các gói phần mềm bổ trợ
+- Cài đặt và cấu hình NTP trên Compute node
+ - Cài đặt NTP Client
+		```sh
+		apt-get -y install chrony
+		```
+
+ - Sao lưu file `/etc/chrony/chrony.conf`
+		```sh
+		cp /etc/chrony/chrony.conf /etc/chrony/chrony.conf.orig
+		```
+
+- Chỉnh sửa file `/etc/chrony/chrony.conf`.
+ - Thay các dòng dưới
+		```sh
+		server 0.debian.pool.ntp.org offline minpoll 8
+		server 1.debian.pool.ntp.org offline minpoll 8
+		server 2.debian.pool.ntp.org offline minpoll 8
+		server 3.debian.pool.ntp.org offline minpoll 8
+		```
+
+ bằng dòng
+		```sh
+		server controller iburst
+		```
+
+ - Khởi động lại dịch vụ NTP
+		```sh
+		service chrony restart
+		```
+
+ - Kiểm chứng lại xem NTP đã cài đặt thành công và đồng bộ được thời gian hay chưa
+		```sh
+		chronyc sources
+		```
+ 
+ - Kết quả của lệnh trên làm
+		```sh
+		root@compute1:/etc/chrony# chronyc sources
+		210 Number of sources = 1
+		MS Name/IP address         Stratum Poll Reach LastRx Last sample
+		===============================================================================
+		^? controller                    3   6     3     1    -25ms[  -25ms] +/-  129ms
+		root@compute1:/etc/chrony#
+		```
+
+- Cài đặt gói để tải các bộ cài cho bản OpenStack Mitaka
+	```sh
+	apt-get install software-properties-common
+	add-apt-repository cloud-archive:mitaka
+	```
+
+- Cập nhật các gói phần mềm và khởi động lại máy.
+	```sh
+	apt-get update && apt-get dist-upgrade && init 6
+	```
+
+- Đăng nhập với quyền root và cài đặt các gói client cho node Compute
+	```sh
+	apt-get -y install python-openstackclient
+	```
+
+
+### 2. Cài đặt NOVA trên node compute
+***
+- Cài đặt gói nova-compute
+```sh
+apt-get -y install nova-compute
+```
+
+- Cấu hình nova
+ - Sao lưu file `/etc/nova/nova.conf` 
+ ```sh
+ cp /etc/nova/nova.conf /etc/nova/nova.conf.orig
+ ```
+ 
+ - Trong section `[DEFAULT]` khai báo các dòng sau
+		```sh
+		rpc_backend = rabbit
+		auth_strategy = keystone
+		my_ip = 10.10.10.41
+
+		use_neutron = True
+		firewall_driver = nova.virt.firewall.NoopFirewallDriver
+
+		verbose = True
+		```
+ 
+ - Khai báo thêm section `[oslo_messaging_rabbit]` và các dòng dưới
+		```sh
+		[oslo_messaging_rabbit]
+		rabbit_host = controller
+		rabbit_userid = openstack
+		rabbit_password = Welcome123
+		```
+
+ - Khai báo thêm section `[keystone_authtoken]` và các dòng dưới
+		```sh
+		[keystone_authtoken]
+		auth_uri = http://controller:5000
+		auth_url = http://controller:35357
+		memcached_servers = controller:11211
+		auth_type = password
+		project_domain_name = default
+		user_domain_name = default
+		project_name = service
+		username = nova
+		password = Welcome123
+		```
+
+ - Khai báo thêm section `[vnc]` và các dòng dưới.
+		```sh
+		[vnc]
+		enabled = True
+		vncserver_listen = 0.0.0.0
+		vncserver_proxyclient_address = $my_ip
+		novncproxy_base_url = http://controller:6080/vnc_auto.html
+		```
+
+ - Khai báo thêm section `[glance]` và các dòng dưới
+		```sh
+		[glance]
+		api_servers = http://controller:9292
+		```
+
+ - Khai báo thêm section `[oslo_concurrency]` và các dòng dưới
+		```sh
+		[oslo_concurrency]
+		lock_path = /var/lib/nova/tmp
+		```
+
+- Khởi động lại dịch vụ `nova-compute`
+```sh
+service nova-compute restart
+```
+
+- Xóa database mặc định của hệ thống tạo ra
+```sh
+rm -f /var/lib/nova/nova.sqlite
+```
+
+- Dùng  lệnh `vi admin-openrc` chứa nội dung dưới
+	```sh
+	export OS_PROJECT_DOMAIN_NAME=default
+	export OS_USER_DOMAIN_NAME=default
+	export OS_PROJECT_NAME=admin
+	export OS_USERNAME=admin
+	export OS_PASSWORD=Welcome123
+	export OS_AUTH_URL=http://controller:35357/v3
+	export OS_IDENTITY_API_VERSION=3
+	export OS_IMAGE_API_VERSION=2
+	```
+
+- Thực thi file `admin-openrc`
+	```sh
+	source admin-openrc
+	```
+
+
+- Kiểm tra lại các dịch vụ của `nova` đã được cài đặt thành công hay chưa
+	```sh
+	openstack compute service list
+	```
+
+### 2. Cài đặt và cấu hình `NEUTRON` trên node compute
+***
+
+- Cài đặt các gói
+```sh
+apt-get -y install neutron-plugin-linuxbridge-agent conntrack
+```
+
+- Cấu hình `NEUTRON`
+ - Sao lưu file `/etc/neutron/neutron.conf ` gốc
+ ```sh
+ cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.orig
+ ```
+ - Trong section `[DEFAULT]` khai báo hoặc chỉnh sửa các dòng sau
+ ```sh
+ rpc_backend = rabbit
+ auth_strategy = keystone
+ ```
+ 
+ - Trong section `[oslo_messaging_rabbit]` khai báo hoặc chỉnh sửa các dòng sau
+		```sh
+		rabbit_host = controller
+		rabbit_userid = openstack
+		rabbit_password = Welcome123
+		```
+		
+ - Trong section `[keystone_authtoken]` khai báo hoặc chỉnh sửa các dòng sau
+		```sh
+		auth_uri = http://controller:5000
+		auth_url = http://controller:35357
+		memcached_servers = controller:11211
+		auth_type = password
+		project_domain_name = default
+		user_domain_name = default
+		project_name = service
+		username = neutron
+		password = Welcome123
+		```
+		
+- Cấu hình  Linux bridge trên node compute
+ - Sao lưu file `/etc/neutron/plugins/ml2/linuxbridge_agent.ini`
 
