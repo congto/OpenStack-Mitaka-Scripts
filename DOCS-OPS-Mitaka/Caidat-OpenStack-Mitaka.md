@@ -910,6 +910,23 @@ mysql -u root -p
 		lock_path = /var/lib/nova/tmp
 		```
 
+- Khai báo thêm section mới `[neutron]` để `nova` làm việc với `neutron`
+		```sh
+		[neutron]
+		url = http://controller:9696
+		auth_url = http://controller:35357
+		auth_type = password
+		project_domain_name = default
+		user_domain_name = default
+		region_name = RegionOne
+		project_name = service
+		username = neutron
+		password = Welcome123
+
+		service_metadata_proxy = True
+		metadata_proxy_shared_secret = Welcome123
+		```
+
 -  Tạo database cho `nova`
 	```sh
 	su -s /bin/sh -c "nova-manage api_db sync" nova
@@ -956,5 +973,267 @@ mysql -u root -p
 	+----+--------------------+------------+----------+---------+-------+----------------------------+
 	```
 
-- 
+
+<a name="5"> </a> 	
+### 5. Cài đặt NEUTRON(Networking service)
+***
+
+<a name="5.1"> </a>
+### 5.1. Giới thiệu về `neutron`
+***
+- Đây là bước cài đặt `NEUTRON` trên node Controller
+- Có 2 cơ chế cung cấp network cho các máy ảo là:
+ - Provider network (không sử dụng L3 agent trong Neutron)
+ - Self-service network:
+- Trong hướng dẫn này sẽ lựa chọn cơ chế Self-service để viết tài liệu
+- Các thành phần của `neutron` bao gồm:
+ - neutron-server: 
+ - OpenStack Networking plug-ins and agents: 
+ - Messaging queue: 
+ 
+-<a name="5.2"> </a>
+### 5.2. Cài đặt và cấu hình `neutron`
+***
+
+<a name="5.2.1"> </a>
+### 5.2.1 Tạo database và endpoint cho neutron.
+***
+
+- Tạo database cho neutron
+ - Đăng nhập vào `neutron`
+		```sh
+		mysql -uroot -pWelcome123
+		```
+ 
+ - Tạo database và phân quyền
+		```sh
+		CREATE DATABASE neutron;
+		GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'localhost' IDENTIFIED BY 'NEUTRON_DBPASS';
+		GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' IDENTIFIED BY 'NEUTRON_DBPASS';
+
+		FLUSH PRIVILEGES;
+		exit;
+		```
+
+- Tạo user, endpoint cho dịch vụ `neutron`
+ - Khai báo biến môi trường
+		```sh
+		source admin-openrc
+		```
+
+ - Tạo tài khoản tên là `neutron`
+		```sh
+		openstack user create neutron --domain default --password-prompt Welcome123
+		```
+
+ - Gán role cho tài khoản `neutron`
+		```sh
+		openstack role add --project service --user neutron admin
+		```
+ 
+ - Tạo dịch vụ tên là `neutron`
+		```sh
+		openstack service create --name neutron --description "OpenStack Networking" network
+		```
+		
+ - Tạo endpoint tên cho `neutron`
+		```sh
+		openstack endpoint create --region RegionOne network public http://controller:9696
+
+		openstack endpoint create --region RegionOne network internal http://controller:9696
+
+		openstack endpoint create --region RegionOne network admin http://controller:9696
+		```
+		
+- Cài đặt và cấu hình cho dịch vụ `neutron`. Trong hướng dẫn này lựa chọn cơ chế self-service netwok (có sử dụng L3 Agent của neutron).
+
+- Cài đặt các thành phần cho `neutron`
+
+	```sh
+	apt-get install neutron-server neutron-plugin-ml2 \
+	  neutron-plugin-linuxbridge-agent neutron-l3-agent neutron-dhcp-agent \
+	  neutron-metadata-agent conntrack
+	```
+
+- Cấu hình cho dịch vụ `neutron`
+ - Sao lưu file cấu hình gốc của `neutron`
+		```sh
+		cp /etc/neutron/neutron.conf  /etc/neutron/neutron.conf.orig
+		```
+
+ - Trong section `[database]` khai báo mới hoặc sửa các dòng dưới.
+		```sh
+		connection = mysql+pymysql://neutron:Welcome123@controller/neutron
+		```
+ 
+ - Trong section `[DEFAULT]` khai báo lại hoặc thêm mới các dòng dưới: 
+		```sh
+		core_plugin = ml2
+		service_plugins = router
+		allow_overlapping_ips = True
+		rpc_backend = rabbit
+		auth_strategy = keystone
+		notify_nova_on_port_status_changes = True
+		notify_nova_on_port_data_changes = True
+
+		```
+
+ - Trong section `[oslo_messaging_rabbit]` khai báo hoặc thêm mới các dòng dưới: 
+		```sh
+		rabbit_host = controller
+		rabbit_userid = openstack
+		rabbit_password = RABBIT_PASS
+		```
+ 
+ - Trong section `[keystone_authtoken]` khai báo hoặc thêm mới các dòng dưới:
+		```sh
+		auth_uri = http://controller:5000
+		auth_url = http://controller:35357
+		memcached_servers = controller:11211
+		auth_type = password
+		project_domain_name = default
+		user_domain_name = default
+		project_name = service
+		username = neutron
+		password = Welcome123
+		```
+
+ - Trong section `[nova]` khai báo mới hoặc thêm các dòng dưới
+		```sh
+		auth_url = http://controller:35357
+		auth_type = password
+		project_domain_name = default
+		user_domain_name = default
+		region_name = RegionOne
+		project_name = service
+		username = nova
+		password = Welcome123
+		```
+
+- Cài đặt và cấu hình plug-in `Modular Layer 2 (ML2)`
+- Sao lưu file `/etc/neutron/plugins/ml2/ml2_conf.ini`
+	```sh
+	cp /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugins/ml2/ml2_conf.ini.orig
+	```
+
+- Sửa file `/etc/neutron/plugins/ml2/ml2_conf.ini`
+ - Trong section `[ml2] khai báo thêm hoặc sửa dòng dưới
+		```sh
+		type_drivers = flat,vlan,vxlan
+		tenant_network_types = vxlan
+		mechanism_drivers = linuxbridge,l2population
+		extension_drivers = port_security
+
+		```
+ 
+ - Trong section `[ml2_type_flat]` khai báo thêm hoặc sửa thành dòng dưới
+		```sh
+		flat_networks = provider
+		```
+		
+ - Trong section `[ml2_type_vxlan]` khai báo thêm hoặc sửa thành dòng dưới
+		```sh
+		vni_ranges = 1:1000
+		```
+		
+ - Trong section `[securitygroup]` khai báo thêm hoặc sửa thành dòng dưới
+		```sh
+		enable_ipset = True
+		```
+		
+- Cấu hình `linuxbridge`
+ - Sao lưu file  `/etc/neutron/plugins/ml2/linuxbridge_agent.ini`
+		```sh
+		cp  /etc/neutron/plugins/ml2/linuxbridge_agent.ini.  /etc/neutron/plugins/ml2/linuxbridge_agent.ini.orig
+		```
+
+ - Trong section `[linux_bridge]` khai báo mới hoặc sửa thành dòng
+		```sh
+		physical_interface_mappings = provider:eth1
+		```
+
+ - Trong section `[vlan]` khai báo mới hoặc sửa thành dòng
+		```sh
+		enable_vxlan = True
+		local_ip = eth0
+		l2_population = True
+		```
+
+ - Trong section `[securitygroup]` khai báo mới hoặc sửa thành dòng
+		```sh
+		enable_security_group = True
+		firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+		```
+	
+- Cấu hình `l3-agent`
+ - Sao lưu file `/etc/neutron/l3_agent.ini`
+		```sh
+		cp /etc/neutron/l3_agent.ini /etc/neutron/l3_agent.ini.orig
+		```
+
+ - Trong section `[DEFAULT]` khai báo mới hoặc sửa thành dòng dưới: 
+```sh
+interface_driver = neutron.agent.linux.interface.BridgeInterfaceDriver
+external_network_bridge =
+```
+	 
+- Cấu hình `DHCP Agent`
+ - Sao lưu file ` /etc/neutron/dhcp_agent.ini` gốc
+		```sh
+		cp  /etc/neutron/dhcp_agent.ini  /etc/neutron/dhcp_agent.ini.orig
+		```
+
+ - Trong section `[DEFAULT]` khai báo mới hoặc sửa thành dòng dưới
+		```sh
+		interface_driver = neutron.agent.linux.interface.BridgeInterfaceDriver
+		dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
+		enable_isolated_metadata = True
+		```
+
+- Cấu hình `metadata agent`
+ - Sao lưu file `/etc/neutron/metadata_agent.ini` 
+		```sh
+		cp /etc/neutron/metadata_agent.ini /etc/neutron/metadata_agent.ini.orig
+		```
+
+ - Trong section `[DEFAULT]` khai báo mới hoặc sửa thành dòng dưới:
+		```sh
+		nova_metadata_ip = controller
+		metadata_proxy_shared_secret = METADATA_SECRET
+		```
+- Kết thúc quá trình cài đặt `neutron` trên `controller` node
+ - Đồng bộ database cho `neutron`
+		```sh
+		su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf \
+		--config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
+		```
+		
+ - Khởi động lại `nova-api`
+		```sh
+		service nova-api restart
+		```
+  
+  - Khởi động lại các dịch vụ của `neutron`
+		```sh
+		service neutron-server restart
+		service neutron-plugin-linuxbridge-agent restart
+		service neutron-dhcp-agent restart
+		service neutron-metadata-agent restart
+		service neutron-l3-agent restart
+		```
+  - Xóa database mặc định của `neutron`
+		```sh
+		rm -f /var/lib/neutron/neutron.sqlite
+		```
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+
 
