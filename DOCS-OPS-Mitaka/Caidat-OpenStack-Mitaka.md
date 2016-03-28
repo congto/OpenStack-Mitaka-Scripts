@@ -1008,8 +1008,8 @@ mysql -u root -p
  - Tạo database và phân quyền
 		```sh
 		CREATE DATABASE neutron;
-		GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'localhost' IDENTIFIED BY 'NEUTRON_DBPASS';
-		GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' IDENTIFIED BY 'NEUTRON_DBPASS';
+		GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'localhost' IDENTIFIED BY 'Welcome123';
+		GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' IDENTIFIED BY 'Welcome123';
 
 		FLUSH PRIVILEGES;
 		exit;
@@ -1045,7 +1045,7 @@ mysql -u root -p
 		openstack endpoint create --region RegionOne network admin http://controller:9696
 		```
 		
-- Cài đặt và cấu hình cho dịch vụ `neutron`. Trong hướng dẫn này lựa chọn cơ chế self-service netwok (có sử dụng L3 Agent của neutron).
+- Cài đặt và cấu hình cho dịch vụ `neutron`. Trong hướng dẫn này lựa chọn cơ chế self-service netwok (có sử dụng L3 agent của neutron).
 
 - Cài đặt các thành phần cho `neutron`
 
@@ -1082,7 +1082,7 @@ mysql -u root -p
 		```sh
 		rabbit_host = controller
 		rabbit_userid = openstack
-		rabbit_password = RABBIT_PASS
+		rabbit_password = Welcome123
 		```
  
  - Trong section `[keystone_authtoken]` khai báo hoặc thêm mới các dòng dưới:
@@ -1199,7 +1199,7 @@ external_network_bridge =
  - Trong section `[DEFAULT]` khai báo mới hoặc sửa thành dòng dưới:
 		```sh
 		nova_metadata_ip = controller
-		metadata_proxy_shared_secret = METADATA_SECRET
+		metadata_proxy_shared_secret = Welcome123
 		```
 - Kết thúc quá trình cài đặt `neutron` trên `controller` node
  - Đồng bộ database cho `neutron`
