@@ -1514,10 +1514,24 @@ apt-get -y install nova-compute
 		api_servers = http://controller:9292
 		```
 
- - Khai báo thêm section `[oslo_concurrency]` và các dòng dưới
+ - Khai báo thêm section `[oslo_concurrency]` và các dòng dưới.
 		```sh
 		[oslo_concurrency]
 		lock_path = /var/lib/nova/tmp
+		```
+		
+ - Khai báo thêm section `[neutron]` và các dòng dưới.
+ ```sh
+		[neutron]
+		url = http://controller:9696
+		auth_url = http://controller:35357
+		auth_type = password
+		project_domain_name = default
+		user_domain_name = default
+		region_name = RegionOne
+		project_name = service
+		username = neutron
+		password = Welcome123
 		```
 
 - Khởi động lại dịch vụ `nova-compute`
@@ -1594,4 +1608,35 @@ apt-get -y install neutron-plugin-linuxbridge-agent conntrack
 		
 - Cấu hình  Linux bridge trên node compute
  - Sao lưu file `/etc/neutron/plugins/ml2/linuxbridge_agent.ini`
+ ```sh
+ cp /etc/neutron/plugins/ml2/linuxbridge_agent.ini /etc/neutron/plugins/ml2/linuxbridge_agent.ini.orig
+ ```
+ 
+ - Trong section `[linux_bridge]` khai báo dòng dưới.
+		 ```sh
+		 [linux_bridge]
+		 # eth1 là card EXT
+		 physical_interface_mappings = provider:eth1
+		 ```
+ 
+ - Trong section [vxlan] khai báo dòng dưới.
+		```sh
+		[vxlan]
+		enable_vxlan = True
+		local_ip = 10.10.10.41
+		l2_population = True
+		```
 
+ - Trong section `[securitygroup]` khai báo dòng dưới.
+		```sh
+		[securitygroup]
+		enable_security_group = True
+		firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+		```
+
+ - Khởi động lại Linux bridge agent:
+		 ```sh
+		 service neutron-plugin-linuxbridge-agent restart
+		 ```
+ 
+- 
