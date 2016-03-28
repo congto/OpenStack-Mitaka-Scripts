@@ -1023,7 +1023,7 @@ mysql -u root -p
 
  - Tạo tài khoản tên là `neutron`
 		```sh
-		openstack user create neutron --domain default --password-prompt Welcome123
+		openstack user create neutron --domain default --password Welcome123
 		```
 
  - Gán role cho tài khoản `neutron`
@@ -1050,7 +1050,7 @@ mysql -u root -p
 - Cài đặt các thành phần cho `neutron`
 
 	```sh
-	apt-get install neutron-server neutron-plugin-ml2 \
+	apt-get -y install neutron-server neutron-plugin-ml2 \
 	  neutron-plugin-linuxbridge-agent neutron-l3-agent neutron-dhcp-agent \
 	  neutron-metadata-agent conntrack
 	```
@@ -1061,14 +1061,19 @@ mysql -u root -p
 		cp /etc/neutron/neutron.conf  /etc/neutron/neutron.conf.orig
 		```
 
- - Trong section `[database]` khai báo mới hoặc sửa các dòng dưới.
+ - Trong section `[database]` comment dòng:
+		 ```sh
+		 # connection = sqlite:////var/lib/neutron/neutron.sqlite
+		 ```
+		 
+ và thêm dòng dưới
+  
 		```sh
 		connection = mysql+pymysql://neutron:Welcome123@controller/neutron
 		```
  
  - Trong section `[DEFAULT]` khai báo lại hoặc thêm mới các dòng dưới: 
 		```sh
-		core_plugin = ml2
 		service_plugins = router
 		allow_overlapping_ips = True
 		rpc_backend = rabbit
@@ -1100,6 +1105,7 @@ mysql -u root -p
 
  - Trong section `[nova]` khai báo mới hoặc thêm các dòng dưới
 		```sh
+		[nova]
 		auth_url = http://controller:35357
 		auth_type = password
 		project_domain_name = default
@@ -1117,7 +1123,7 @@ mysql -u root -p
 	```
 
 - Sửa file `/etc/neutron/plugins/ml2/ml2_conf.ini`
- - Trong section `[ml2] khai báo thêm hoặc sửa dòng dưới
+ - Trong section `[ml2]` khai báo thêm hoặc sửa dòng dưới
 		```sh
 		type_drivers = flat,vlan,vxlan
 		tenant_network_types = vxlan
@@ -1144,7 +1150,7 @@ mysql -u root -p
 - Cấu hình `linuxbridge`
  - Sao lưu file  `/etc/neutron/plugins/ml2/linuxbridge_agent.ini`
 		```sh
-		cp  /etc/neutron/plugins/ml2/linuxbridge_agent.ini.  /etc/neutron/plugins/ml2/linuxbridge_agent.ini.orig
+		cp /etc/neutron/plugins/ml2/linuxbridge_agent.ini  /etc/neutron/plugins/ml2/linuxbridge_agent.ini.orig
 		```
 
  - Trong section `[linux_bridge]` khai báo mới hoặc sửa thành dòng
@@ -1152,7 +1158,7 @@ mysql -u root -p
 		physical_interface_mappings = provider:eth1
 		```
 
- - Trong section `[vlan]` khai báo mới hoặc sửa thành dòng
+ - Trong section `[vxlan]` khai báo mới hoặc sửa thành dòng
 		```sh
 		enable_vxlan = True
 		local_ip = eth0
@@ -1221,15 +1227,108 @@ external_network_bridge =
 		service neutron-metadata-agent restart
 		service neutron-l3-agent restart
 		```
-  - Xóa database mặc định của `neutron`
-		```sh
+		
+ - Xóa database mặc định của `neutron`
+  		```sh
 		rm -f /var/lib/neutron/neutron.sqlite
 		```
 	 
-	 
-	 
-	 
-	 
+ - Kiểm tra lại hoạt động của các dịch vụ trong `neutron`
+		```sh
+		root@controller:~# neutron agent-list
+		+--------------------------------------+----------------+------------+-------------------+-------+----------------+------------------------+
+		| id                                   | agent_type     | host       | availability_zone | alive | admin_state_up | binary                 |
+		+--------------------------------------+----------------+------------+-------------------+-------+----------------+------------------------+
+		| 0da48098-4f27-46e4-ac91-f2c636814559 | Metadata agent | controller |                   | :-)   | True           | neutron-metadata-agent |
+		| 384da2b3-4c14-4436-9c2f-73396499bdbd | DHCP agent     | controller | nova              | :-)   | True           | neutron-dhcp-agent     |
+		| e6d2fa51-ff09-44f9-a510-72817f17fb31 | L3 agent       | controller | nova              | :-)   | True           | neutron-l3-agent       |
+		+--------------------------------------+----------------+------------+-------------------+-------+----------------+------------------------+
+		````
+
+
+<a name="6"> </a> 	
+### 6. Cài đặt HORIZON (dashboad)
+***
+- HORIZON hay còn gọi là dashboad - cung cấp giao diện trên web để người dùng có thể sử dụng OpenStack
+
+<a name="6.1"> </a> 	
+#### 6.1 Cài đặt và cấu hình HORIZON (dashboad)
+***
+
+- Cài đặt các thành phần cho dashboad
+	```sh
+	apt-get install openstack-dashboard
+	```
+
+- Tìm các dòng sau trong file ` /etc/openstack-dashboard/local_settings.py` và chỉnh sửa như bên dưới
+
+```sh
+OPENSTACK_HOST = "controller"
+```
+
+```sh
+ALLOWED_HOSTS = ['*', ]
+```
+
+```
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
+CACHES = {
+    'default': {
+         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+         'LOCATION': '127.0.0.1:11211',
+    }
+}
+```
+ 
+```sh
+OPENSTACK_KEYSTONE_URL = "http://%s:5000/v3" % OPENSTACK_HOST
+```
+
+```sh
+OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
+```
+
+```sh
+OPENSTACK_API_VERSIONS = {
+    "identity": 3,
+    "image": 2,
+    "volume": 2,
+}
+
+
+```sh
+OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "default"
+```
+
+```sh
+OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
+```
+
+```sh
+OPENSTACK_NEUTRON_NETWORK = {
+    ...
+    'enable_router': False,
+    'enable_quotas': False,
+    'enable_distributed_router': False,
+    'enable_ha_router': False,
+    'enable_lb': False,
+    'enable_firewall': False,
+    'enable_vpn': False,
+    'enable_fip_topology_check': False,
+}
+```
+
+```sh
+TIME_ZONE = "TIME_ZONE"
+```
+
+- Khởi động lại apache
+```sh
+service apache2 restart
+```
+
+- Mở web với địa chỉ  http://172.16.69.40/horizon để vào dashboad
 	 
 	 
 	 
