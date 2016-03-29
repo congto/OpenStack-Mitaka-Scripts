@@ -1,5 +1,9 @@
 # Cài đặt openStack Mitaka
+***
 
+<a name="I."> </a> 
+# I. Cài đặt cơ bản
+***
 <a name="1"> </a> 
 ## 1. Chuẩn bị môi trường
 <a name="1.1"> </a> 
@@ -212,11 +216,15 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	service memcached restart
 	```
 	
-<a name="2.2"> </a> 	
-### 2.2 Cài đặt Keystone
+<a name="3"> </a> 	
+## 3. Cài đặt Keystone
 ***
-<a name="2.2.1"> </a> 
-#### 2.2.1 Tạo database cho keystone
+<a name="3.1."> </a> 
+### 3.1 Cài đặt và cấu hình cho keysonte
+***
+
+<a name="3.1.1."> </a> 
+#### 3.1.1. Tạo database cài đặt các gói và cấu hình keystone
 - Đăng nhập vào MariaDB
 
 	```sh
@@ -234,8 +242,8 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	exit;
 	```
 
-<a name="2.2.2"> </a> 
-#### 2.2.2 Cài đặt và cấu hình `keystone`
+<a name="3.1.2."> </a> 
+#### 3.1.2. Cài đặt và cấu hình `keystone`
 - Không cho `keystone` khởi động tự động sau khi cài
 	```sh
 	echo "manual" > /etc/init/keystone.override
@@ -284,73 +292,72 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
 	```
 
-<a name="2.2.3"> </a> 
-#### 2.2.3 Cấu hình apache cho `keysonte`
+- Cấu hình apache cho `keysonte`
 
-- Dùng `vi` để mở và sửa file `/etc/apache2/apache2.conf`. Thêm dòng dưới ngay sau dòng `# Global configuration`
+ - Dùng `vi` để mở và sửa file `/etc/apache2/apache2.conf`. Thêm dòng dưới ngay sau dòng `# Global configuration`
 
-	```sh
-	# Global configuration
-	ServerName controller
-	```
+		```sh
+		# Global configuration
+		ServerName controller
+		```
 
-- Sử dụng `vi` để tạo file `/etc/apache2/sites-available/wsgi-keystone.conf` chứa nội dung dưới
+ - Sử dụng `vi` để tạo file `/etc/apache2/sites-available/wsgi-keystone.conf` chứa nội dung dưới
 
-	```sh
-	Listen 5000
-	Listen 35357
+		```sh
+		Listen 5000
+		Listen 35357
 
-	<VirtualHost *:5000>
-		WSGIDaemonProcess keystone-public processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}
-		WSGIProcessGroup keystone-public
-		WSGIScriptAlias / /usr/bin/keystone-wsgi-public
-		WSGIApplicationGroup %{GLOBAL}
-		WSGIPassAuthorization On
-		<IfVersion >= 2.4>
-		  ErrorLogFormat "%{cu}t %M"
-		</IfVersion>
-		ErrorLog /var/log/apache2/keystone.log
-		CustomLog /var/log/apache2/keystone_access.log combined
-
-		<Directory /usr/bin>
+		<VirtualHost *:5000>
+			WSGIDaemonProcess keystone-public processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}
+			WSGIProcessGroup keystone-public
+			WSGIScriptAlias / /usr/bin/keystone-wsgi-public
+			WSGIApplicationGroup %{GLOBAL}
+			WSGIPassAuthorization On
 			<IfVersion >= 2.4>
-				Require all granted
+			  ErrorLogFormat "%{cu}t %M"
 			</IfVersion>
-			<IfVersion < 2.4>
-				Order allow,deny
-				Allow from all
-			</IfVersion>
-		</Directory>
-	</VirtualHost>
+			ErrorLog /var/log/apache2/keystone.log
+			CustomLog /var/log/apache2/keystone_access.log combined
 
-	<VirtualHost *:35357>
-		WSGIDaemonProcess keystone-admin processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}
-		WSGIProcessGroup keystone-admin
-		WSGIScriptAlias / /usr/bin/keystone-wsgi-admin
-		WSGIApplicationGroup %{GLOBAL}
-		WSGIPassAuthorization On
-		<IfVersion >= 2.4>
-		  ErrorLogFormat "%{cu}t %M"
-		</IfVersion>
-		ErrorLog /var/log/apache2/keystone.log
-		CustomLog /var/log/apache2/keystone_access.log combined
+			<Directory /usr/bin>
+				<IfVersion >= 2.4>
+					Require all granted
+				</IfVersion>
+				<IfVersion < 2.4>
+					Order allow,deny
+					Allow from all
+				</IfVersion>
+			</Directory>
+		</VirtualHost>
 
-		<Directory /usr/bin>
+		<VirtualHost *:35357>
+			WSGIDaemonProcess keystone-admin processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}
+			WSGIProcessGroup keystone-admin
+			WSGIScriptAlias / /usr/bin/keystone-wsgi-admin
+			WSGIApplicationGroup %{GLOBAL}
+			WSGIPassAuthorization On
 			<IfVersion >= 2.4>
-				Require all granted
+			  ErrorLogFormat "%{cu}t %M"
 			</IfVersion>
-			<IfVersion < 2.4>
-				Order allow,deny
-				Allow from all
-			</IfVersion>
-		</Directory>
-	</VirtualHost>
-	```
+			ErrorLog /var/log/apache2/keystone.log
+			CustomLog /var/log/apache2/keystone_access.log combined
 
-- Tạo link để cấu hình virtual host cho dịch vụ `keysonte` trong `apache`
-	```sh
-	ln -s /etc/apache2/sites-available/wsgi-keystone.conf /etc/apache2/sites-enabled
-	```
+			<Directory /usr/bin>
+				<IfVersion >= 2.4>
+					Require all granted
+				</IfVersion>
+				<IfVersion < 2.4>
+					Order allow,deny
+					Allow from all
+				</IfVersion>
+			</Directory>
+		</VirtualHost>
+		```
+
+ - Tạo link để cấu hình virtual host cho dịch vụ `keysonte` trong `apache`
+		```sh
+		ln -s /etc/apache2/sites-available/wsgi-keystone.conf /etc/apache2/sites-enabled
+		```
 
 - Khởi động lại `apache`
 	```sh
@@ -362,11 +369,10 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	rm -f /var/lib/keystone/keystone.db
 	```
 
-<a name="3"> </a> 
-### 2.3 Tạo endpoint và các service cho `keysonte`
+<a name="3.1.3."> </a> 
+#### 3.1.3. Tạo endpoint và các service cho `keysonte`
 
-<a name="2.3.1"> </a> 
-#### 2.3.1 Khai báo xác thực chung 
+
 - Khai báo sử dụng `token` để xác thực.
 
 	```sh
@@ -375,8 +381,6 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	export OS_IDENTITY_API_VERSION=3
 	```
 
-<a name="2.3.2"> </a> 
-#### 2.3.2 Khai báo xác thực chung 
 - Tạo các service và endpoint cho `keysonte`
 	```sh
 	openstack service create \
@@ -392,8 +396,8 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	openstack endpoint create --region RegionOne identity admin http://controller:35357/v3
 	```
 
-<a name="2.4"> </a> 
-### 2.4 Tạo domain, projects, users, and roles
+<a name="3.1.4."> </a> 
+#### 3.1.4. Tạo domain, projects, users, and roles
 
 - Tạo domain
 
@@ -440,7 +444,6 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	openstack project create --domain default --description "Service Project" service
 	```
 
- 
 - Tạo project tên là `demo`
 	```sh
 	openstack project create --domain default --description "Demo Project" demo
@@ -461,8 +464,9 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	openstack role add --project demo --user demo user
 	```
 
-<a name="2.5"> </a> 
-### 2.5 Kiểm chứng lại các bước cài đặt `keysonte`
+<a name="3.1.5."> </a> 
+#### 3.1.5. Kiểm chứng lại các bước cài đặt `keysonte`
+
 
 - Vô hiệu hóa cơ chế xác thực bằng token tạm thời trong `keysonte` bằng cách chỉnh sửa dòng `admin_token_auth` trong các section `[pipeline:public_api]`,  `[pipeline:admin_api]`  và `[pipeline:api_v3]` của file `/etc/keystone/keystone-paste.ini`
 
@@ -484,8 +488,8 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	--os-project-name demo --os-username demo token issue
 	```
 
-<a name="2.6"> </a> 
-### 2.6 Tạo script biến môi trường cho client 
+<a name="3.1.6."> </a> 
+#### 3.1.6. Tạo script biến môi trường cho client 
 
 - Tạo file `admin-openrc` chứa nội dung sau
 	```sh
@@ -501,9 +505,6 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	```
 
 
-
-EOF
-	
 - Tạo file `demo-openrc` chứa nội dung sau
 	```sh
 	export OS_PROJECT_DOMAIN_NAME=default
@@ -539,8 +540,8 @@ EOF
 	+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 	```
 
-<a name="3"> </a> 	
-### 3 Cài đặt Glance
+<a name="4."> </a> 	
+### 4. Cài đặt Glance
 ***
 `Glance` là dịch vụ cung cấp các image (các hệ điều hành đã được đóng gói sẵn), các image này sử dụng theo cơ chế template để tạo ra các máy ảo. )
 - Lưu ý: Thư mục chứa các file images trong hướng dẫn này là `/var/lib/glance/images/`
@@ -554,11 +555,11 @@ EOF
  - Metadata definition service:
 
 
-<a name="3.1"> </a> 	
-### 3.1 Tạo database và endpoint cho `glance`
+<a name="4.1."> </a> 	
+### 4.1. Tạo database và endpoint cho `glance`
 ***
-<a name="3.1.1"> </a> 
-#### 3.1.1 Tạo database cho `glance`
+<a name="4.1.1."> </a> 
+#### 4.1.1 Tạo database cho `glance`
 - Đăng nhập vào mysql
 ```sh
 mysql -u root -p
@@ -574,8 +575,8 @@ mysql -u root -p
 	exit;
 	```
 
-<a name="3.1.2"> </a> 
-#### 3.1.2 Cấu hình xác thực cho dịch vụ `glance`
+<a name="4.1.2."> </a> 
+#### 4.1.2. Cấu hình xác thực cho dịch vụ `glance`
 - Tạo tài khoản `glance`
 	```sh
 	openstack user create glance --domain default --password Welcome123
@@ -605,8 +606,8 @@ mysql -u root -p
 	openstack endpoint create --region RegionOne image admin http://controller:9292
 	```
 
-<a name="3.1.3"> </a> 
-#### 3.1.2 Cài đặt các gói và cấu hình cho dịch vụ `glance`
+<a name="4.1.3."> </a> 
+#### 4.1.3. Cài đặt các gói và cấu hình cho dịch vụ `glance`
 
 - Cài đặt gói `glance`
 	```sh
@@ -684,8 +685,8 @@ mysql -u root -p
 	rm -f /var/lib/glance/glance.sqlite
 	```
 
-<a name="3.2"> </a> 	
-### 3.2 Kiểm chứng lại việc cài đặt `glance`
+<a name="4.2."> </a> 	
+### 4.2. Kiểm chứng lại việc cài đặt `glance`
 ***
 
 - Khai báo biến môi trường cho dịch vụ `glance`
@@ -726,12 +727,12 @@ mysql -u root -p
 	```
 
 	
-<a name="4"> </a> 	
-### 4 Cài đặt NOVA (Compute service)
+<a name="5."> </a> 	
+### 5. Cài đặt NOVA (Compute service)
 ***
 
-<a name="4.1"> </a> 	
-### 4.1 Tóm tắt về dịch vụ `nova` trong OpenStack
+<a name="5.1."> </a> 	
+### 5.1. Tóm tắt về dịch vụ `nova` trong OpenStack
 ***
 - Đây là bước cài đặt các thành phần của `nova` trên máy chủ `Controller`
 - `nova` đảm nhiệm chức năng cung cấp và quản lý tài nguyên trong OpenStack để cấp cho các VM. Trong hướng dẫn nãy sẽ sử dụng KVM làm hypervisor. Nova sẽ tác động vào KVM thông qua `libvirt`
@@ -752,12 +753,12 @@ mysql -u root -p
  - The queue:
  - SQL database: 
  
-<a name="4.2"> </a> 	
-### 4.2 Cài đặt và cấu hình `nova`
+<a name="5.2."> </a> 	
+### 5.2. Cài đặt và cấu hình `nova`
 ***
 
-<a name="4.2.1"> </a> 
-#### 4.2.1 Tạo database và endpoint cho `nova`
+<a name="5.2.1."> </a> 
+#### 5.2.1. Tạo database và endpoint cho `nova`
 
 - Đăng nhập vào database với quyền `root`
 	```sh
@@ -934,8 +935,8 @@ mysql -u root -p
 	```
 	
 
-<a name="4.2.2"> </a> 
-#### 4.2.1 Kết thúc bước cài đặt và cấu hình `nova`
+<a name="5.2.2."> </a> 
+#### 5.2.2. Kết thúc bước cài đặt và cấu hình `nova`
 
 - Khởi động lại các dịch vụ của `nova` sau khi cài đặt & cấu hình `nova`
 	```sh
@@ -974,12 +975,12 @@ mysql -u root -p
 	```
 
 
-<a name="5"> </a> 	
-### 5. Cài đặt NEUTRON(Networking service)
+<a name="6."> </a> 	
+### 6. Cài đặt NEUTRON(Networking service)
 ***
 
-<a name="5.1"> </a>
-### 5.1. Giới thiệu về `neutron`
+<a name="6.1."> </a>
+### 6.1. Giới thiệu về `neutron`
 ***
 - Đây là bước cài đặt `NEUTRON` trên node Controller
 - Có 2 cơ chế cung cấp network cho các máy ảo là:
@@ -991,12 +992,12 @@ mysql -u root -p
  - OpenStack Networking plug-ins and agents: 
  - Messaging queue: 
  
--<a name="5.2"> </a>
-### 5.2. Cài đặt và cấu hình `neutron`
+-<a name="6.2."> </a>
+### 6.2. Cài đặt và cấu hình `neutron`
 ***
 
-<a name="5.2.1"> </a>
-### 5.2.1 Tạo database và endpoint cho neutron.
+<a name="6.2.1."> </a>
+### 6.2.1. Tạo database và endpoint cho neutron.
 ***
 
 - Tạo database cho neutron
@@ -1049,11 +1050,11 @@ mysql -u root -p
 
 - Cài đặt các thành phần cho `neutron`
 
-	```sh
-	apt-get -y install neutron-server neutron-plugin-ml2 \
-	  neutron-plugin-linuxbridge-agent neutron-l3-agent neutron-dhcp-agent \
-	  neutron-metadata-agent conntrack
-	```
+		```sh
+		apt-get install neutron-server neutron-plugin-ml2 \
+		neutron-linuxbridge-agent neutron-l3-agent neutron-dhcp-agent \
+		neutron-metadata-agent
+		```
 
 - Cấu hình cho dịch vụ `neutron`
  - Sao lưu file cấu hình gốc của `neutron`
@@ -1222,7 +1223,7 @@ external_network_bridge =
   - Khởi động lại các dịch vụ của `neutron`
 		```sh
 		service neutron-server restart
-		service neutron-plugin-linuxbridge-agent restart
+		service neutron-linuxbridge-agent restart
 		service neutron-dhcp-agent restart
 		service neutron-metadata-agent restart
 		service neutron-l3-agent restart
@@ -1236,23 +1237,24 @@ external_network_bridge =
  - Kiểm tra lại hoạt động của các dịch vụ trong `neutron`
 		```sh
 		root@controller:~# neutron agent-list
-		+--------------------------------------+----------------+------------+-------------------+-------+----------------+------------------------+
-		| id                                   | agent_type     | host       | availability_zone | alive | admin_state_up | binary                 |
-		+--------------------------------------+----------------+------------+-------------------+-------+----------------+------------------------+
-		| 0da48098-4f27-46e4-ac91-f2c636814559 | Metadata agent | controller |                   | :-)   | True           | neutron-metadata-agent |
-		| 384da2b3-4c14-4436-9c2f-73396499bdbd | DHCP agent     | controller | nova              | :-)   | True           | neutron-dhcp-agent     |
-		| e6d2fa51-ff09-44f9-a510-72817f17fb31 | L3 agent       | controller | nova              | :-)   | True           | neutron-l3-agent       |
-		+--------------------------------------+----------------+------------+-------------------+-------+----------------+------------------------+
+		+--------------------------------------+--------------------+------------+-------------------+-------+----------------+---------------------------+
+		| id                                   | agent_type         | host       | availability_zone | alive | admin_state_up | binary                    |
+		+--------------------------------------+--------------------+------------+-------------------+-------+----------------+---------------------------+
+		| 0da48098-4f27-46e4-ac91-f2c636814559 | Metadata agent     | controller |                   | :-)   | True           | neutron-metadata-agent    |
+		| 384da2b3-4c14-4436-9c2f-73396499bdbd | DHCP agent         | controller | nova              | :-)   | True           | neutron-dhcp-agent        |
+		| 5f6cc6b1-7789-4eab-afcb-27186aec44c6 | Linux bridge agent | controller |                   | :-)   | True           | neutron-linuxbridge-agent |
+		| e6d2fa51-ff09-44f9-a510-72817f17fb31 | L3 agent           | controller | nova              | :-)   | True           | neutron-l3-agent          |
+		+--------------------------------------+--------------------+------------+-------------------+-------+----------------+---------------------------+
 		````
 
 
-<a name="6"> </a> 	
-### 6. Cài đặt HORIZON (dashboad)
+<a name="7."> </a> 	
+### 7. Cài đặt HORIZON (dashboad)
 ***
 - HORIZON hay còn gọi là dashboad - cung cấp giao diện trên web để người dùng có thể sử dụng OpenStack
 
-<a name="6.1"> </a> 	
-#### 6.1 Cài đặt và cấu hình HORIZON (dashboad)
+<a name="7.1."> </a> 	
+#### 7.1. Cài đặt và cấu hình HORIZON (dashboad)
 ***
 
 - Cài đặt các thành phần cho dashboad
@@ -1323,6 +1325,11 @@ OPENSTACK_NEUTRON_NETWORK = {
 TIME_ZONE = "TIME_ZONE"
 ```
 
+- Xóa theme mặc định của ubuntu
+```sh
+apt-get -y remove --auto-remove openstack-dashboard-ubuntu-theme
+```
+
 - Khởi động lại apache
 ```sh
 service apache2 restart
@@ -1332,12 +1339,14 @@ service apache2 restart
 	 
 	 
 	 
-	 
-## II. Cài đặt trên node compute
+<a name="8."> </a> 		 
+## 8. Cài đặt trên node compute
 ***
-### 1. Bước chuẩn bị
+<a name="8.1."> </a> 	
+### 8.1. Bước chuẩn bị
 ***
-#### 1.1. Thiết lập hostname
+<a name="8.1.1."> </a> 	
+#### 8.1.1.Thiết lập hostname
 - Sửa file `/etc/hosts` với nội dung như bên dưới
 	```sh
 	127.0.0.1       localhost compute1
@@ -1351,8 +1360,8 @@ service apache2 restart
 	compute1
 	```
 
-
-#### 1.2. Thiết lập về network
+<a name="8.1.2."> </a> 	
+#### 8.1.2. Thiết lập về network
 - Dùng vi mở file và thiết lập như dưới
 	```sh
 	# This file describes the network interfaces available on your system
@@ -1389,7 +1398,8 @@ KẾT QUẢ PING
 
 ```
 
-#### 1.3. Cài đặt các gói phần mềm bổ trợ
+<a name="8.1.3."> </a> 	
+#### 8.1.3. Cài đặt các gói phần mềm bổ trợ
 - Cài đặt và cấu hình NTP trên Compute node
  - Cài đặt NTP Client
 		```sh
@@ -1403,13 +1413,14 @@ KẾT QUẢ PING
 
 - Chỉnh sửa file `/etc/chrony/chrony.conf`.
  - Thay các dòng dưới
+ 
 		```sh
 		server 0.debian.pool.ntp.org offline minpoll 8
 		server 1.debian.pool.ntp.org offline minpoll 8
 		server 2.debian.pool.ntp.org offline minpoll 8
 		server 3.debian.pool.ntp.org offline minpoll 8
 		```
-
+		
  bằng dòng
 		```sh
 		server controller iburst
@@ -1437,13 +1448,13 @@ KẾT QUẢ PING
 
 - Cài đặt gói để tải các bộ cài cho bản OpenStack Mitaka
 	```sh
-	apt-get install software-properties-common
-	add-apt-repository cloud-archive:mitaka
+	apt-get -y install software-properties-common
+	add-apt-repository -y cloud-archive:mitaka
 	```
 
 - Cập nhật các gói phần mềm và khởi động lại máy.
 	```sh
-	apt-get update && apt-get dist-upgrade && init 6
+	apt-get -y update && apt-get -y dist-upgrade && init 6
 	```
 
 - Đăng nhập với quyền root và cài đặt các gói client cho node Compute
@@ -1451,8 +1462,8 @@ KẾT QUẢ PING
 	apt-get -y install python-openstackclient
 	```
 
-
-### 2. Cài đặt NOVA trên node compute
+<a name="9."> </a> 
+### 9. Cài đặt NOVA trên node compute
 ***
 - Cài đặt gói nova-compute
 ```sh
@@ -1474,7 +1485,6 @@ apt-get -y install nova-compute
 		use_neutron = True
 		firewall_driver = nova.virt.firewall.NoopFirewallDriver
 
-		verbose = True
 		```
  
  - Khai báo thêm section `[oslo_messaging_rabbit]` và các dòng dưới
@@ -1521,7 +1531,7 @@ apt-get -y install nova-compute
 		```
 		
  - Khai báo thêm section `[neutron]` và các dòng dưới.
- ```sh
+		```sh
 		[neutron]
 		url = http://controller:9696
 		auth_url = http://controller:35357
@@ -1535,14 +1545,14 @@ apt-get -y install nova-compute
 		```
 
 - Khởi động lại dịch vụ `nova-compute`
-```sh
-service nova-compute restart
-```
+	```sh
+	service nova-compute restart
+	```
 
 - Xóa database mặc định của hệ thống tạo ra
-```sh
-rm -f /var/lib/nova/nova.sqlite
-```
+	```sh
+	rm -f /var/lib/nova/nova.sqlite
+	```
 
 - Dùng  lệnh `vi admin-openrc` chứa nội dung dưới
 	```sh
@@ -1567,24 +1577,26 @@ rm -f /var/lib/nova/nova.sqlite
 	openstack compute service list
 	```
 
-### 2. Cài đặt và cấu hình `NEUTRON` trên node compute
+<a name="10."> </a> 
+### 10. Cài đặt và cấu hình `NEUTRON` trên node compute
 ***
 
 - Cài đặt các gói
-```sh
-apt-get -y install neutron-plugin-linuxbridge-agent conntrack
-```
+	```sh
+	apt-get install neutron-linuxbridge-agent
+	```
 
 - Cấu hình `NEUTRON`
  - Sao lưu file `/etc/neutron/neutron.conf ` gốc
- ```sh
- cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.orig
- ```
+	 ```sh
+	 cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.orig
+	 ```
+- Sửa file `/etc/neutron/neutron.conf`
  - Trong section `[DEFAULT]` khai báo hoặc chỉnh sửa các dòng sau
- ```sh
- rpc_backend = rabbit
- auth_strategy = keystone
- ```
+	 ```sh
+	 rpc_backend = rabbit
+	 auth_strategy = keystone
+	 ```
  
  - Trong section `[oslo_messaging_rabbit]` khai báo hoặc chỉnh sửa các dòng sau
 		```sh
@@ -1639,4 +1651,22 @@ apt-get -y install neutron-plugin-linuxbridge-agent conntrack
 		 service neutron-plugin-linuxbridge-agent restart
 		 ```
  
-- 
+- Thực thi file `admin-openrc` để khai báo biến môi trường
+	```sh
+	source admin-openrc
+	```
+
+- Kiểm tra dịch vụ của `neutron`
+	```sh
+	neutron agent-list
+	```
+
+- Kết thúc bước cài đặt Neutron trên compute node. Tới đây đã có thể bắt đầu tạo máy ảo.
+
+
+# CÀI ĐẶT NÂNG CAO
+***
+
+# CÀI ĐẶT ỨNG DỤNG THU THẬP LOG
+***
+
