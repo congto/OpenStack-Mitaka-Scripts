@@ -57,6 +57,8 @@
 	```sh
 	ifdown -a && ifup -a
 	```
+
+- Đăng nhập lại máy `Controller` với quyền `root` và thực hiện kiểm tra kết nối. 
 - Kiểm tra kết nối tới gateway và internet sau khi thiết lập xong.
 	```sh
 	ping 172.16.69.1 -c 4
@@ -77,9 +79,11 @@
 	```
 - Cấu hình hostname
 - Dùng `vi` sửa file `/etc/hostname` với tên là `controller`
+
 	```sh
 	controller
 	```
+	
 - Cập nhật file `/etc/hosts` để phân giải từ IP sang hostname và ngược lại, nội dung như sau
 
 	```sh
@@ -95,7 +99,17 @@
 	apt-get -y install chrony
 	```
 	
-- Sửa file  `/etc/chrony/chrony.conf`
+- Mở file `/etc/chrony/chrony.conf` và tìm các dòng dưới
+
+	```sh
+	server 0.debian.pool.ntp.org offline minpoll 8
+	server 1.debian.pool.ntp.org offline minpoll 8
+	server 2.debian.pool.ntp.org offline minpoll 8
+	server 3.debian.pool.ntp.org offline minpoll 8
+	```
+
+- Thay bằng các dòng sau 
+
 	```sh
 	server 1.vn.pool.ntp.org iburst
 	server 0.asia.pool.ntp.org iburst
@@ -103,6 +117,26 @@
 	```
 
 - Khởi động lại dịch vụ NTP
+	```sh
+	service chrony restart
+	```
+
+- Kiểm tra lại hoạt động của NTP bằng lệnh dưới
+	```sh
+	root@controller:~# chronyc sources
+	```
+	
+	- Kết quả như sau
+	
+		```sh
+		210 Number of sources = 3
+		MS Name/IP address         Stratum Poll Reach LastRx Last sample
+		===============================================================================
+		^+ 220.231.122.105               3   6    17    16    +12ms[+4642us] +/-  139ms
+		^* 103.245.79.2                  2   6    17    17    -10ms[  -12ms] +/-  176ms
+		^? routerida1.soprano-asm.ne     0   6     0   10y     +0ns[   +0ns] +/-    0ns
+		root@controller:~#
+		```
 
 <a name="2.1.3"> </a> 
 #### 2.1.3 Cài đặt repos để cài OpenStack Mitaka
@@ -245,6 +279,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 <a name="3.1.2."> </a> 
 #### 3.1.2. Cài đặt và cấu hình `keystone`
 - Không cho `keystone` khởi động tự động sau khi cài
+
 	```sh
 	echo "manual" > /etc/init/keystone.override
 	```
@@ -264,9 +299,9 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 
  - Trong section `[DEFAULT]` khai báo dòng
  
-		```sh
-		admin_token = Welcome123
-		```
+	```sh
+	admin_token = Welcome123
+	```
 	
  - Trong section `[database]` thay dòng `connection = sqlite:////var/lib/keystone/keystone.db` bằng dòng dưới
  
