@@ -674,7 +674,7 @@ mysql -u root -p
 	su -s /bin/sh -c "glance-manage db_sync" glance
 	```
 
-- Khở động lại dịch vụ `Glance`
+- Khởi động lại dịch vụ `Glance`
 	```sh
 	service glance-registry restart
 	service glance-api restart
