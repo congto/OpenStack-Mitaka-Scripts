@@ -35,7 +35,7 @@
 	```
 
 - Thiết lập địa chỉ IP
-- Dùng lệnh `vi` để sửa file `/etc/network/interface` với nội dung như sau.
+- Dùng lệnh `vi` để sửa file `/etc/network/interfaces` với nội dung như sau.
 
 	```sh
 	# Interface MGNT
@@ -338,56 +338,56 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 
  - Sử dụng `vi` để tạo file `/etc/apache2/sites-available/wsgi-keystone.conf` chứa nội dung dưới
 
-		```sh
-		Listen 5000
-		Listen 35357
+```sh
+Listen 5000
+Listen 35357
 
-		<VirtualHost *:5000>
-			WSGIDaemonProcess keystone-public processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}
-			WSGIProcessGroup keystone-public
-			WSGIScriptAlias / /usr/bin/keystone-wsgi-public
-			WSGIApplicationGroup %{GLOBAL}
-			WSGIPassAuthorization On
-			<IfVersion >= 2.4>
-			  ErrorLogFormat "%{cu}t %M"
-			</IfVersion>
-			ErrorLog /var/log/apache2/keystone.log
-			CustomLog /var/log/apache2/keystone_access.log combined
+<VirtualHost *:5000>
+	WSGIDaemonProcess keystone-public processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}
+	WSGIProcessGroup keystone-public
+	WSGIScriptAlias / /usr/bin/keystone-wsgi-public
+	WSGIApplicationGroup %{GLOBAL}
+	WSGIPassAuthorization On
+	<IfVersion >= 2.4>
+	  ErrorLogFormat "%{cu}t %M"
+	</IfVersion>
+	ErrorLog /var/log/apache2/keystone.log
+	CustomLog /var/log/apache2/keystone_access.log combined
 
-			<Directory /usr/bin>
-				<IfVersion >= 2.4>
-					Require all granted
-				</IfVersion>
-				<IfVersion < 2.4>
-					Order allow,deny
-					Allow from all
-				</IfVersion>
-			</Directory>
-		</VirtualHost>
+	<Directory /usr/bin>
+		<IfVersion >= 2.4>
+			Require all granted
+		</IfVersion>
+		<IfVersion < 2.4>
+			Order allow,deny
+			Allow from all
+		</IfVersion>
+	</Directory>
+</VirtualHost>
 
-		<VirtualHost *:35357>
-			WSGIDaemonProcess keystone-admin processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}
-			WSGIProcessGroup keystone-admin
-			WSGIScriptAlias / /usr/bin/keystone-wsgi-admin
-			WSGIApplicationGroup %{GLOBAL}
-			WSGIPassAuthorization On
-			<IfVersion >= 2.4>
-			  ErrorLogFormat "%{cu}t %M"
-			</IfVersion>
-			ErrorLog /var/log/apache2/keystone.log
-			CustomLog /var/log/apache2/keystone_access.log combined
+<VirtualHost *:35357>
+	WSGIDaemonProcess keystone-admin processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}
+	WSGIProcessGroup keystone-admin
+	WSGIScriptAlias / /usr/bin/keystone-wsgi-admin
+	WSGIApplicationGroup %{GLOBAL}
+	WSGIPassAuthorization On
+	<IfVersion >= 2.4>
+	  ErrorLogFormat "%{cu}t %M"
+	</IfVersion>
+	ErrorLog /var/log/apache2/keystone.log
+	CustomLog /var/log/apache2/keystone_access.log combined
 
-			<Directory /usr/bin>
-				<IfVersion >= 2.4>
-					Require all granted
-				</IfVersion>
-				<IfVersion < 2.4>
-					Order allow,deny
-					Allow from all
-				</IfVersion>
-			</Directory>
-		</VirtualHost>
-		```
+	<Directory /usr/bin>
+		<IfVersion >= 2.4>
+			Require all granted
+		</IfVersion>
+		<IfVersion < 2.4>
+			Order allow,deny
+			Allow from all
+		</IfVersion>
+	</Directory>
+</VirtualHost>
+```
 
  - Tạo link để cấu hình virtual host cho dịch vụ `keysonte` trong `apache`
 		```sh
@@ -440,19 +440,6 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	openstack domain create --description "Default Domain" default
 	```
 
- - Lệnh trên có thể gặp lỗi dưới
-		```sh
-		root@controller:~# openstack domain create --description "Default Domain" default
-		Conflict occurred attempting to store domain - Duplicate Entry (HTTP 409) (Request-ID: req-0560b7fb-7af6-4635-8e49-b86b34917be2)
-		root@controller:~# openstack domain list
-		+---------+---------+---------+----------------------------------------------------------------------+
-		| ID      | Name    | Enabled | Description                                                          |
-		+---------+---------+---------+----------------------------------------------------------------------+
-		| default | Default | True    | Owns users and tenants (i.e. projects) available on Identity API v2. |
-		+---------+---------+---------+----------------------------------------------------------------------+
-		```
-
-		
 - Tạo `admin` project
 
 	```sh
@@ -510,7 +497,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	unset OS_TOKEN OS_URL
 	```
 
-- Gõ lần lượt 2 lệnh dưới để nhận kết quả trả về
+- Gõ lần lượt 2 lệnh dưới sau đó nhập mật khẩu
 	```sh
 	openstack --os-auth-url http://controller:35357/v3 \
 	--os-project-domain-name default --os-user-domain-name default \
@@ -542,6 +529,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 
 - Tạo file `demo-openrc` chứa nội dung sau
 	```sh
+	cat << EOF > demo-openrc
 	export OS_PROJECT_DOMAIN_NAME=default
 	export OS_USER_DOMAIN_NAME=default
 	export OS_PROJECT_NAME=demo
@@ -549,6 +537,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 	export OS_PASSWORD=Welcome123
 	export OS_AUTH_URL=http://controller:5000/v3
 	export OS_IDENTITY_API_VERSION=3
+	EOF
 	```	
 
 - Chạy script `admin-openrc`
@@ -597,7 +586,7 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 #### 4.1.1 Tạo database cho `glance`
 - Đăng nhập vào mysql
 ```sh
-mysql -u root -p
+mysql -uroot -pWelcome123
 ```
 
 - Tạo database và gán các quyền cho user `glance` trong database
@@ -851,9 +840,10 @@ mysql -u root -p
 	```
 
 - Sao lưu file `/etc/nova/nova.conf` trước khi cấu hình
-		```sh
-		cp /etc/nova/nova.conf /etc/nova/nova.conf.orig
-		```
+
+	```sh
+	cp /etc/nova/nova.conf /etc/nova/nova.conf.orig
+	```
 
 - Sửa file `/etc/nova/nova.conf`. 
 - Lưu ý: Trong trường hợp nếu có dòng khai bao trước đó thì tìm và thay thế, chưa có thì khai báo mới hoàn toàn. 
@@ -877,13 +867,13 @@ mysql -u root -p
 		```
 		
  - Bằng dòng 
-		```sh
-		log-dir=/var/log/nova
-		```
+	 ```sh
+	 log-dir=/var/log/nova
+	 ```
 		
  - Thay dòng 
 	 ```sh
-	 # enabled_apis=ec2,osapi_compute,metadata
+	 enabled_apis=ec2,osapi_compute,metadata
 	 ```
 	 
  - bằng dòng
@@ -894,16 +884,16 @@ mysql -u root -p
  - Bỏ dòng `verbose = True`
 
  - Trong section `[DEFAULT]` khai báo thêm các dòng sau:
-		```sh
-		rpc_backend = rabbit
-		auth_strategy = keystone
-		rootwrap_config = /etc/nova/rootwrap.conf
-		#IP MGNT cua node Controller
-		my_ip = 10.10.10.40 
-		
-		use_neutron = True
-		firewall_driver = nova.virt.firewall.NoopFirewallDriver
-		```
+	 ```sh
+	 rpc_backend = rabbit
+	 auth_strategy = keystone
+	 rootwrap_config = /etc/nova/rootwrap.conf
+	 #IP MGNT cua node Controller
+	 my_ip = 10.10.10.40 
+	
+	 use_neutron = True
+	 firewall_driver = nova.virt.firewall.NoopFirewallDriver
+	 ```
 
  - Khai báo trong section `[oslo_messaging_rabbit]` các dòng dưới. Do section `[oslo_messaging_rabbit]` chưa có nên ta khai báo thêm.
 		```sh
