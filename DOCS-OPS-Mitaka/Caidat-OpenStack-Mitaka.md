@@ -1076,7 +1076,7 @@ mysql -uroot -pWelcome123
 
 - Cài đặt các thành phần cho `neutron`
 	```sh
-	apt-get install neutron-server neutron-plugin-ml2 \
+	apt-get -y install neutron-server neutron-plugin-ml2 \
 	neutron-linuxbridge-agent neutron-l3-agent neutron-dhcp-agent \
 	neutron-metadata-agent
 	```
@@ -1093,10 +1093,10 @@ mysql -uroot -pWelcome123
 	 ```
 	 
  và thêm dòng dưới
-  
-		```sh
-		connection = mysql+pymysql://neutron:Welcome123@controller/neutron
-		```
+
+	```sh
+	connection = mysql+pymysql://neutron:Welcome123@controller/neutron
+	```
  
  - Trong section `[DEFAULT]` khai báo lại hoặc thêm mới các dòng dưới: 
 	 ```sh
@@ -1185,7 +1185,7 @@ mysql -uroot -pWelcome123
  - Trong section `[vxlan]` khai báo mới hoặc sửa thành dòng
 	 ```sh
 	 enable_vxlan = True
-	 local_ip = eth0
+	 local_ip = 10.10.10.40
 	 l2_population = True
 	 ```
 
@@ -1382,10 +1382,10 @@ service apache2 restart
 	```sh
 	compute1
 	```
-
+	
 <a name="8.1.2."> </a> 	
 #### 8.1.2. Thiết lập về network
-- Dùng vi mở file và thiết lập như dưới
+- Dùng vi mở file `/etc/network/interfaces` và thiết lập như dưới
 	```sh
 	# This file describes the network interfaces available on your system
 	# and how to activate them. For more information, see interfaces(5).
@@ -1425,39 +1425,40 @@ KẾT QUẢ PING
 #### 8.1.3. Cài đặt các gói phần mềm bổ trợ
 - Cài đặt và cấu hình NTP trên Compute node
  - Cài đặt NTP Client
-		```sh
-		apt-get -y install chrony
-		```
+	 ```sh
+	 apt-get -y install chrony
+	 ```
 
  - Sao lưu file `/etc/chrony/chrony.conf`
-		```sh
-		cp /etc/chrony/chrony.conf /etc/chrony/chrony.conf.orig
-		```
+	 ```sh
+	 cp /etc/chrony/chrony.conf /etc/chrony/chrony.conf.orig
+	 ```
 
 - Chỉnh sửa file `/etc/chrony/chrony.conf`.
  - Thay các dòng dưới
  
-		```sh
-		server 0.debian.pool.ntp.org offline minpoll 8
-		server 1.debian.pool.ntp.org offline minpoll 8
-		server 2.debian.pool.ntp.org offline minpoll 8
-		server 3.debian.pool.ntp.org offline minpoll 8
-		```
+	 ```sh
+	 server 0.debian.pool.ntp.org offline minpoll 8
+	 server 1.debian.pool.ntp.org offline minpoll 8
+	 server 2.debian.pool.ntp.org offline minpoll 8
+	 server 3.debian.pool.ntp.org offline minpoll 8
+	 ```
 		
  bằng dòng
-		```sh
-		server controller iburst
-		```
+ 
+	```sh
+	server controller iburst
+	```
 
  - Khởi động lại dịch vụ NTP
-		```sh
-		service chrony restart
-		```
+	 ```sh
+	 service chrony restart
+	 ```
 
  - Kiểm chứng lại xem NTP đã cài đặt thành công và đồng bộ được thời gian hay chưa
-		```sh
-		chronyc sources
-		```
+	 ```sh
+	 chronyc sources
+	 ```
  
  - Kết quả của lệnh trên làm
 		```sh
@@ -1500,72 +1501,71 @@ apt-get -y install nova-compute
  ```
  
  - Trong section `[DEFAULT]` khai báo các dòng sau
-		```sh
-		rpc_backend = rabbit
-		auth_strategy = keystone
-		my_ip = 10.10.10.41
+	 ```sh
+	 rpc_backend = rabbit
+	 auth_strategy = keystone
+	 my_ip = 10.10.10.41
 
-		use_neutron = True
-		firewall_driver = nova.virt.firewall.NoopFirewallDriver
-
-		```
+	 use_neutron = True
+	 firewall_driver = nova.virt.firewall.NoopFirewallDriver
+ 	 ```
  
  - Khai báo thêm section `[oslo_messaging_rabbit]` và các dòng dưới
-		```sh
-		[oslo_messaging_rabbit]
-		rabbit_host = controller
-		rabbit_userid = openstack
-		rabbit_password = Welcome123
-		```
+	 ```sh
+	 [oslo_messaging_rabbit]
+	 rabbit_host = controller
+	 rabbit_userid = openstack
+	 rabbit_password = Welcome123
+	 ```
 
  - Khai báo thêm section `[keystone_authtoken]` và các dòng dưới
-		```sh
-		[keystone_authtoken]
-		auth_uri = http://controller:5000
-		auth_url = http://controller:35357
-		memcached_servers = controller:11211
-		auth_type = password
-		project_domain_name = default
-		user_domain_name = default
-		project_name = service
-		username = nova
-		password = Welcome123
-		```
+	 ```sh
+	 [keystone_authtoken]
+	 auth_uri = http://controller:5000
+	 auth_url = http://controller:35357
+	 memcached_servers = controller:11211
+	 auth_type = password
+	 project_domain_name = default
+	 user_domain_name = default
+	 project_name = service
+	 username = nova
+	 password = Welcome123
+	 ```
 
  - Khai báo thêm section `[vnc]` và các dòng dưới.
-		```sh
-		[vnc]
-		enabled = True
-		vncserver_listen = 0.0.0.0
-		vncserver_proxyclient_address = $my_ip
-		novncproxy_base_url = http://controller:6080/vnc_auto.html
-		```
+	 ```sh
+	 [vnc]
+	 enabled = True
+	 vncserver_listen = 0.0.0.0
+	 vncserver_proxyclient_address = $my_ip
+	 novncproxy_base_url = http://controller:6080/vnc_auto.html
+	 ```
 
  - Khai báo thêm section `[glance]` và các dòng dưới
-		```sh
-		[glance]
-		api_servers = http://controller:9292
-		```
+	 ```sh
+	 [glance]
+	 api_servers = http://controller:9292
+	 ```
 
  - Khai báo thêm section `[oslo_concurrency]` và các dòng dưới.
-		```sh
-		[oslo_concurrency]
-		lock_path = /var/lib/nova/tmp
-		```
+	 ```sh
+	 [oslo_concurrency]
+	 lock_path = /var/lib/nova/tmp
+	 ```
 		
  - Khai báo thêm section `[neutron]` và các dòng dưới.
-		```sh
-		[neutron]
-		url = http://controller:9696
-		auth_url = http://controller:35357
-		auth_type = password
-		project_domain_name = default
-		user_domain_name = default
-		region_name = RegionOne
-		project_name = service
-		username = neutron
-		password = Welcome123
-		```
+	 ```sh
+	 [neutron]
+	 url = http://controller:9696
+	 auth_url = http://controller:35357
+	 auth_type = password
+	 project_domain_name = default
+	 user_domain_name = default
+	 region_name = RegionOne
+	 project_name = service
+	 username = neutron
+	 password = Welcome123
+	 ```
 
 - Khởi động lại dịch vụ `nova-compute`
 	```sh
@@ -1622,24 +1622,24 @@ apt-get -y install nova-compute
 	 ```
  
  - Trong section `[oslo_messaging_rabbit]` khai báo hoặc chỉnh sửa các dòng sau
-		```sh
-		rabbit_host = controller
-		rabbit_userid = openstack
-		rabbit_password = Welcome123
-		```
-		
+	 ```sh
+	 rabbit_host = controller
+	 rabbit_userid = openstack
+	 rabbit_password = Welcome123
+	 ```
+	
  - Trong section `[keystone_authtoken]` khai báo hoặc chỉnh sửa các dòng sau
-		```sh
-		auth_uri = http://controller:5000
-		auth_url = http://controller:35357
-		memcached_servers = controller:11211
-		auth_type = password
-		project_domain_name = default
-		user_domain_name = default
-		project_name = service
-		username = neutron
-		password = Welcome123
-		```
+	 ```sh
+	 auth_uri = http://controller:5000
+	 auth_url = http://controller:35357
+	 memcached_servers = controller:11211
+	 auth_type = password
+	 project_domain_name = default
+	 user_domain_name = default
+	 project_name = service
+	 username = neutron
+	 password = Welcome123
+	 ```
 		
 - Cấu hình  Linux bridge trên node compute
  - Sao lưu file `/etc/neutron/plugins/ml2/linuxbridge_agent.ini`
@@ -1648,31 +1648,31 @@ apt-get -y install nova-compute
  ```
  
  - Trong section `[linux_bridge]` khai báo dòng dưới.
-		 ```sh
-		 [linux_bridge]
-		 # eth1 là card EXT
-		 physical_interface_mappings = provider:eth1
-		 ```
- 
+	 ```sh
+	 [linux_bridge]
+	 # eth1 là card EXT
+	 physical_interface_mappings = provider:eth1
+	 ```
+
  - Trong section [vxlan] khai báo dòng dưới.
-		```sh
-		[vxlan]
-		enable_vxlan = True
-		local_ip = 10.10.10.41
-		l2_population = True
-		```
+	 ```sh
+	 [vxlan]
+	 enable_vxlan = True
+	 local_ip = 10.10.10.41
+	 l2_population = True
+	 ```
 
  - Trong section `[securitygroup]` khai báo dòng dưới.
-		```sh
-		[securitygroup]
-		enable_security_group = True
-		firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
-		```
+	 ```sh
+	 [securitygroup]
+	 enable_security_group = True
+	 firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+	 ```
 
  - Khởi động lại Linux bridge agent:
-		 ```sh
-		 service neutron-plugin-linuxbridge-agent restart
-		 ```
+	 ```sh
+	 service neutron-plugin-linuxbridge-agent restart
+	 ```
  
 - Thực thi file `admin-openrc` để khai báo biến môi trường
 	```sh
