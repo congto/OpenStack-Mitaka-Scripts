@@ -1296,12 +1296,11 @@ ALLOWED_HOSTS = ['*', ]
 ```
 
 ```
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 CACHES = {
     'default': {
          'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-         'LOCATION': '127.0.0.1:11211',
+         'LOCATION': 'controller:11211',
     }
 }
 ```
@@ -1538,7 +1537,7 @@ apt-get -y install nova-compute
 	 enabled = True
 	 vncserver_listen = 0.0.0.0
 	 vncserver_proxyclient_address = $my_ip
-	 novncproxy_base_url = http://controller:6080/vnc_auto.html
+	 novncproxy_base_url = http://172.16.69.40:6080/vnc_auto.html
 	 ```
 
  - Khai báo thêm section `[glance]` và các dòng dưới
@@ -1599,14 +1598,29 @@ apt-get -y install nova-compute
 	```sh
 	openstack compute service list
 	```
-
+	
+- Kết quả sẽ hiển thị như bên dưới.
+	```sh
+	root@compute1:~# openstack compute service list
+	+----+------------------+------------+----------+---------+-------+----------------------------+
+	| Id | Binary           | Host       | Zone     | Status  | State | Updated At                 |
+	+----+------------------+------------+----------+---------+-------+----------------------------+
+	|  3 | nova-cert        | controller | internal | enabled | up    | 2016-04-15T15:10:30.000000 |
+	|  4 | nova-consoleauth | controller | internal | enabled | up    | 2016-04-15T15:10:30.000000 |
+	|  5 | nova-scheduler   | controller | internal | enabled | up    | 2016-04-15T15:10:31.000000 |
+	|  6 | nova-conductor   | controller | internal | enabled | up    | 2016-04-15T15:10:32.000000 |
+	|  7 | nova-compute     | compute1   | nova     | enabled | up    | 2016-04-15T15:10:25.000000 |
+	+----+------------------+------------+----------+---------+-------+----------------------------+
+	root@compute1:~#
+	```
+	
 <a name="10."> </a> 
 ### 10. Cài đặt và cấu hình `NEUTRON` trên node compute
 ***
 
 - Cài đặt các gói
 	```sh
-	apt-get install neutron-linuxbridge-agent
+	apt-get -y install neutron-linuxbridge-agent
 	```
 
 - Cấu hình `NEUTRON`
@@ -1614,7 +1628,9 @@ apt-get -y install nova-compute
 	 ```sh
 	 cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.orig
 	 ```
+	 
 - Sửa file `/etc/neutron/neutron.conf`
+
  - Trong section `[DEFAULT]` khai báo hoặc chỉnh sửa các dòng sau
 	 ```sh
 	 rpc_backend = rabbit
@@ -1671,7 +1687,7 @@ apt-get -y install nova-compute
 
  - Khởi động lại Linux bridge agent:
 	 ```sh
-	 service neutron-plugin-linuxbridge-agent restart
+	 service neutron-linuxbridge-agent restart
 	 ```
  
 - Thực thi file `admin-openrc` để khai báo biến môi trường
