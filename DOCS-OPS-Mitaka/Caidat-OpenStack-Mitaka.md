@@ -331,10 +331,10 @@ Hãy nhập password là `Welcome123` để thống nhất cho toàn bộ các b
 
  - Dùng `vi` để mở và sửa file `/etc/apache2/apache2.conf`. Thêm dòng dưới ngay sau dòng `# Global configuration`
 
-		```sh
-		# Global configuration
-		ServerName controller
-		```
+	 ```sh
+	 # Global configuration
+	 ServerName controller
+	 ```
 
 - Sử dụng `vi` để tạo file `/etc/apache2/sites-available/wsgi-keystone.conf` chứa nội dung dưới
 
