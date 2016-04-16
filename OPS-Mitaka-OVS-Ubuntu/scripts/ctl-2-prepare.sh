@@ -16,27 +16,27 @@ sleep 5
 
 echocolor "Install and config NTP"
 sleep 3 
-apt-get install ntp -y
-cp /etc/ntp.conf /etc/ntp.conf.bka
-rm /etc/ntp.conf
-cat /etc/ntp.conf.bka | grep -v ^# | grep -v ^$ >> /etc/ntp.conf
 
 
-## Config NTP in LIBERTY
-sed -i 's/server ntp.ubuntu.com/ \
-server 0.vn.pool.ntp.org iburst \
-server 1.asia.pool.ntp.org iburst \
-server 2.asia.pool.ntp.org iburst/g' /etc/ntp.conf
+apt-get -y install chrony
+ntpfile=/etc/chrony/chrony.conf
+cp $ntpfile $ntpfile.orig
 
-sed -i 's/restrict -4 default kod notrap nomodify nopeer noquery/ \
-#restrict -4 default kod notrap nomodify nopeer noquery/g' /etc/ntp.conf
+sed -e 's/server 0.debian.pool.ntp.org offline minpoll 8/ \
+server 1.vn.pool.ntp.org iburst \
+server 0.asia.pool.ntp.org iburst \
+server 3.asia.pool.ntp.org iburst/g' $ntpfile
 
-sed -i 's/restrict -6 default kod notrap nomodify nopeer noquery/ \
-restrict -4 default kod notrap nomodify \
-restrict -6 default kod notrap nomodify/g' /etc/ntp.conf
 
-# sed -i 's/server/#server/' /etc/ntp.conf
-# echocolor "server $LOCAL_IP" >> /etc/ntp.conf
+sed -e 's/server 1.debian.pool.ntp.org offline minpoll 8/ \
+# server 1.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
+
+sed -e 's/server 2.debian.pool.ntp.org offline minpoll 8/ \
+# server 2.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
+
+sed -e 's/server 3.debian.pool.ntp.org offline minpoll 8/ \
+# server 3.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
+
 
 ##############################################
 echocolor "Install and Config RabbitMQ"
