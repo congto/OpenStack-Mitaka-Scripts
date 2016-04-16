@@ -19,25 +19,26 @@ echo "manual" > /etc/init/keystone.override
 
 apt-get -y install keystone apache2 libapache2-mod-wsgi \
         memcached python-memcache
+		
+sed -i 's/-l 127.0.0.1 /-l $CTL_MGNT_IP/g' /etc/memcached.conf
   
-# Back-up file nova.conf
+# Back-up file keystone.conf
 filekeystone=/etc/keystone/keystone.conf
 test -f $filekeystone.orig || cp $filekeystone $filekeystone.orig
  
-#Config file /etc/keystone/keystone.conf
+# Config file /etc/keystone/keystone.conf
 ops_edit $filekeystone DEFAULT admin_token $TOKEN_PASS
-ops_edit $filekeystone DEFAULT verbose True
 ops_edit $filekeystone database \
 connection mysql+pymysql://keystone:$KEYSTONE_DBPASS@$CTL_MGNT_IP/keystone
 
-ops_edit $filekeystone memcache servers localhost:11211
-ops_edit $filekeystone token provider uuid
-ops_edit $filekeystone token driver memcache
-ops_edit $filekeystone revoke driver sql
+ops_edit $filekeystone token provider fernet
+
 
 #
 su -s /bin/sh -c "keystone-manage db_sync" keystone
- 
+
+keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
+
 echo "ServerName $CTL_MGNT_IP" >>  /etc/apache2/apache2.conf
 
  
@@ -89,9 +90,7 @@ Listen 35357
             Allow from all
         </IfVersion>
     </Directory>
-</VirtualHost>
-
- 
+</VirtualHost> 
 EOF
  
 ln -s /etc/apache2/sites-available/wsgi-keystone.conf \
@@ -102,54 +101,59 @@ service apache2 restart
 rm -f /var/lib/keystone/keystone.db
 
 export OS_TOKEN="$TOKEN_PASS"
-export OS_URL=http://$CTL_MGNT_IP:35357/v2.0
+export OS_URL=http://$CTL_MGNT_IP:35357/v3
+export OS_IDENTITY_API_VERSION=3
  
  
 ###  Identity service
 openstack service create \
---name keystone --description "OpenStack Identity" identity
+  --name keystone --description "OpenStack Identity" identity
 
-### Create the Identity service API endpoint
-openstack endpoint create \
---publicurl http://$CTL_MGNT_IP:5000/v2.0 \
---internalurl http://$CTL_MGNT_IP:5000/v2.0 \
---adminurl http://$CTL_MGNT_IP:35357/v2.0 \
---region RegionOne \
-identity
- 
-#### To create tenants, users, and roles ADMIN
-openstack project create --description "Admin Project" admin
-openstack user create --password  $ADMIN_PASS admin
+
+openstack endpoint create --region RegionOne \
+identity public http://$CTL_MGNT_IP:5000/v3
+
+openstack endpoint create --region RegionOne \
+identity internal http://$CTL_MGNT_IP:5000/v3
+
+openstack endpoint create --region RegionOne \
+identity admin http://$CTL_MGNT_IP:35357/v3
+
+
+openstack domain create --description "Default Domain" default
+
+
+openstack project create --domain default  --description "Admin Project" admin
+
+openstack user create admin --domain default --password $ADMIN_PASS
+
 openstack role create admin
+
 openstack role add --project admin --user admin admin
- 
-#### To create tenants, users, and roles  SERVICE
-openstack project create --description "Service Project" service
- 
- 
-#### To create tenants, users, and roles  DEMO
-openstack project create --description "Demo Project" demo
-openstack user create --password $ADMIN_PASS demo
- 
-### Create the user role
+
+openstack project create --domain default --description "Service Project" service
+
+openstack project create --domain default --description "Demo Project" demo
+
+openstack user create demo --domain default --password $ADMIN_PASS
+
 openstack role create user
+
 openstack role add --project demo --user demo user
- 
-#################
- 
+
 unset OS_TOKEN OS_URL
+
  
 # Tao bien moi truong
  
-cat << EOF > admin-openrc.sh
-export OS_PROJECT_DOMAIN_ID=default
-export OS_USER_DOMAIN_ID=default
+cat << EOF > admin-openrc
+export OS_PROJECT_DOMAIN_NAME=default
+export OS_USER_DOMAIN_NAME=default
 export OS_PROJECT_NAME=admin
-export OS_TENANT_NAME=admin
 export OS_USERNAME=admin
 export OS_PASSWORD=$ADMIN_PASS
 export OS_AUTH_URL=http://$CTL_MGNT_IP:35357/v3
-export OS_VOLUME_API_VERSION=2
+export OS_IDENTITY_API_VERSION=3
 EOF
 
 sleep 5
@@ -160,16 +164,18 @@ cp  admin-openrc.sh /root/admin-openrc.sh
 source admin-openrc.sh
 
 
-cat << EOF > demo-openrc.sh
-export OS_PROJECT_DOMAIN_ID=default
-export OS_USER_DOMAIN_ID=default
+cat << EOF > demo-openrc
+export OS_PROJECT_DOMAIN_NAME=default
+export OS_USER_DOMAIN_NAME=default
 export OS_PROJECT_NAME=demo
-export OS_TENANT_NAME=demo
 export OS_USERNAME=demo
-export OS_PASSWORD=$ADMIN_PASS
-export OS_AUTH_URL=http://$CTL_MGNT_IP:35357/v3
-export OS_VOLUME_API_VERSION=2
+export OS_PASSWORD=$DEMO_PASS
+export OS_AUTH_URL=http://$CTL_MGNT_IP:5000/v3
+export OS_IDENTITY_API_VERSION=3
 EOF
-
 chmod +x demo-openrc.sh
 cp  demo-openrc.sh /root/demo-openrc.sh
+
+
+echocolor "Verify keystone"
+openstack token issue
