@@ -22,19 +22,19 @@ apt-get -y install chrony
 ntpfile=/etc/chrony/chrony.conf
 cp $ntpfile $ntpfile.orig
 
-sed -e 's/server 0.debian.pool.ntp.org offline minpoll 8/ \
+sed -i 's/server 0.debian.pool.ntp.org offline minpoll 8/ \
 server 1.vn.pool.ntp.org iburst \
 server 0.asia.pool.ntp.org iburst \
 server 3.asia.pool.ntp.org iburst/g' $ntpfile
 
 
-sed -e 's/server 1.debian.pool.ntp.org offline minpoll 8/ \
+sed -i 's/server 1.debian.pool.ntp.org offline minpoll 8/ \
 # server 1.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
 
-sed -e 's/server 2.debian.pool.ntp.org offline minpoll 8/ \
+sed -i 's/server 2.debian.pool.ntp.org offline minpoll 8/ \
 # server 2.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
 
-sed -e 's/server 3.debian.pool.ntp.org offline minpoll 8/ \
+sed -i 's/server 3.debian.pool.ntp.org offline minpoll 8/ \
 # server 3.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
 
 
@@ -51,7 +51,7 @@ sleep 3
 service rabbitmq-server restart
 echocolor "Finish setup pre-install package !!!"
 
-echocolor "##### Install MYSQL #####"
+echocolor "Install MYSQL"
 sleep 3
 
 echo mysql-server mysql-server/root_password password \
@@ -60,10 +60,10 @@ echo mysql-server mysql-server/root_password_again password \
 $MYSQL_PASS | debconf-set-selections
 apt-get -y install mariadb-server python-mysqldb curl 
 
-echocolor "##### Configuring MYSQL #####"
+echocolor "Configuring MYSQL"
 sleep 3
 
-echocolor "########## CONFIGURING FOR MYSQL ##########"
+echocolor "CONFIGURING FOR MYSQL "
 sleep 5
 touch /etc/mysql/conf.d/mysqld_openstack.cnf
 cat << EOF > /etc/mysql/conf.d/mysqld_openstack.cnf

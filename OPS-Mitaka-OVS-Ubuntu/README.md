@@ -30,9 +30,9 @@ apt-get update
 apt-get -y install git 
 
 git clone https://github.com/congto/OpenStack-Mitaka-Scripts.git
-mv /root/OpenStack-Mitaka-Scripts/OPS-Mitaka-OVS-Ubuntu/ /root/
+mv /root/OpenStack-Mitaka-Scripts/OPS-Mitaka-OVS-Ubuntu/scripts/ /root/
 rm -rf OpenStack-Mitaka-Scripts/
-cd OPS-Mitaka-OVS-Ubuntu/
+cd scripts/
 chmod +x *.sh
 
 ```
