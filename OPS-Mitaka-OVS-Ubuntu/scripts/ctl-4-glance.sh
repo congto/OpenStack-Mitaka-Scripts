@@ -55,7 +55,7 @@ ops_edit $glanceapi_ctl keystone_authtoken \
 ops_edit $glanceapi_ctl keystone_authtoken \
 	auth_url http://$CTL_MGNT_IP:35357
 ops_edit $glanceapi_ctl keystone_authtoken memcached_servers controller:11211
-ops_edit $glanceapi_ctl keystone_authtoken auth_plugin password
+ops_edit $glanceapi_ctl keystone_authtoken auth_type password
 ops_edit $glanceapi_ctl keystone_authtoken project_domain_id default
 ops_edit $glanceapi_ctl keystone_authtoken user_domain_id default
 ops_edit $glanceapi_ctl keystone_authtoken project_name service
@@ -88,7 +88,7 @@ ops_edit $glancereg_ctl keystone_authtoken \
 ops_edit $glancereg_ctl keystone_authtoken \
 	auth_url http://$CTL_MGNT_IP:35357
 ops_edit $glanceapi_ctl keystone_authtoken memcached_servers controller:11211
-ops_edit $glancereg_ctl keystone_authtoken auth_plugin password
+ops_edit $glancereg_ctl keystone_authtoken auth_type password
 ops_edit $glancereg_ctl keystone_authtoken project_domain_id default
 ops_edit $glancereg_ctl keystone_authtoken user_domain_id default
 ops_edit $glancereg_ctl keystone_authtoken project_name service
@@ -122,14 +122,15 @@ mkdir images
 cd images /
 wget http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
 
-glance image-create --name "cirros" \
---file cirros-0.3.4-x86_64-disk.img \
---disk-format qcow2 --container-format bare \
---visibility public --progress
+openstack image create "cirros" \
+ --file cirros-0.3.4-x86_64-disk.img \
+ --disk-format qcow2 --container-format bare \
+ --public
+ 
 cd /root/
 # rm -r /tmp/images
 
 
 echocolor "Testing Glance"
 sleep 5
-glance image-list
+openstack image list
