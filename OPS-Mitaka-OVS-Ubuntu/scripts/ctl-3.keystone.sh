@@ -20,7 +20,7 @@ echo "manual" > /etc/init/keystone.override
 apt-get -y install keystone apache2 libapache2-mod-wsgi \
         memcached python-memcache
 		
-sed -i 's/-l 127.0.0.1 /-l $CTL_MGNT_IP/g' /etc/memcached.conf
+sed -i 's/-l 127.0.0.1/-l $CTL_MGNT_IP/g' /etc/memcached.conf
   
 # Back-up file keystone.conf
 filekeystone=/etc/keystone/keystone.conf
@@ -40,7 +40,6 @@ su -s /bin/sh -c "keystone-manage db_sync" keystone
 keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
 
 echo "ServerName $CTL_MGNT_IP" >>  /etc/apache2/apache2.conf
-
  
 cat << EOF > /etc/apache2/sites-available/wsgi-keystone.conf
 Listen 5000
@@ -119,9 +118,7 @@ identity internal http://$CTL_MGNT_IP:5000/v3
 openstack endpoint create --region RegionOne \
 identity admin http://$CTL_MGNT_IP:35357/v3
 
-
 openstack domain create --description "Default Domain" default
-
 
 openstack project create --domain default  --description "Admin Project" admin
 
@@ -158,10 +155,10 @@ EOF
 
 sleep 5
 echocolor "Execute environment script"
-chmod +x admin-openrc.sh
-cat  admin-openrc.sh >> /etc/profile
-cp  admin-openrc.sh /root/admin-openrc.sh
-source admin-openrc.sh
+chmod +x admin-openrc
+cat  admin-openrc >> /etc/profile
+cp  admin-openrc /root/admin-openrc
+source admin-openrc
 
 
 cat << EOF > demo-openrc
@@ -173,8 +170,8 @@ export OS_PASSWORD=$DEMO_PASS
 export OS_AUTH_URL=http://$CTL_MGNT_IP:5000/v3
 export OS_IDENTITY_API_VERSION=3
 EOF
-chmod +x demo-openrc.sh
-cp  demo-openrc.sh /root/demo-openrc.sh
+chmod +x demo-openrc
+cp  demo-openrc /root/demo-openrc
 
 
 echocolor "Verify keystone"
