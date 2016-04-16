@@ -18,23 +18,22 @@ EOF
 echocolor " Create user, endpoint for GLANCE"
 sleep 3
 
-openstack user create --password $GLANCE_PASS glance
+openstack user create glance --domain default --password $GLANCE_PASS
+
 openstack role add --project service --user glance admin
 
-openstack service create --name glance \
---description "OpenStack Image service" image
+openstack service create --name glance --description "OpenStack Image service" image
 
-openstack endpoint create \
---publicurl http://$CTL_MGNT_IP:9292 \
---internalurl http://$CTL_MGNT_IP:9292 \
---adminurl http://$CTL_MGNT_IP:9292 \
---region RegionOne \
-image
+openstack endpoint create --region RegionOne image public http://$CTL_MGNT_IP:9292
+
+openstack endpoint create --region RegionOne image internal http://$CTL_MGNT_IP:9292
+
+openstack endpoint create --region RegionOne image admin http://$CTL_MGNT_IP:9292
+
 
 echocolor "Install GLANCE"
 sleep 5
-apt-get -y install glance python-glanceclient
-
+apt-get -y install glance
 
 echocolor "Configuring GLANCE API"
 sleep 5 
@@ -44,16 +43,18 @@ test -f $glanceapi_ctl.orig || cp $glanceapi_ctl $glanceapi_ctl.orig
 
 #Configuring glance config file /etc/glance/glance-api.conf
 
+ops_edit $glanceapi_ctl DEFAULT  verbose True
+
+
 ops_edit $glanceapi_ctl database \
 connection  mysql+pymysql://glance:$GLANCE_DBPASS@$CTL_MGNT_IP/glance
 ops_del $glanceapi_ctl database sqlite_db
 
 ops_edit $glanceapi_ctl keystone_authtoken \
-auth_uri http://$CTL_MGNT_IP:5000
-
+	auth_uri http://$CTL_MGNT_IP:5000
 ops_edit $glanceapi_ctl keystone_authtoken \
-auth_url http://$CTL_MGNT_IP:35357
-
+	auth_url http://$CTL_MGNT_IP:35357
+ops_edit $glanceapi_ctl keystone_authtoken memcached_servers controller:11211
 ops_edit $glanceapi_ctl keystone_authtoken auth_plugin password
 ops_edit $glanceapi_ctl keystone_authtoken project_domain_id default
 ops_edit $glanceapi_ctl keystone_authtoken user_domain_id default
@@ -64,12 +65,9 @@ ops_edit $glanceapi_ctl keystone_authtoken password $GLANCE_PASS
 ops_edit $glanceapi_ctl paste_deploy flavor keystone
 
 ops_edit $glanceapi_ctl glance_store default_store file
+ops_edit $glanceapi_ctl glance_store stores file,http
 ops_edit $glanceapi_ctl glance_store \
 filesystem_store_datadir /var/lib/glance/images/
-
-ops_edit $glanceapi_ctl DEFAULT  notification_driver noop
-ops_edit $glanceapi_ctl DEFAULT  verbose True
-
 
 #
 sleep 10
@@ -78,16 +76,18 @@ echocolor "Configuring GLANCE REGISTER"
 glancereg_ctl=/etc/glance/glance-registry.conf
 test -f $glancereg_ctl.orig || cp $glancereg_ctl $glancereg_ctl.orig
 
+
+ops_edit $glancereg_ctl DEFAULT  verbose True
+
 ops_edit $glancereg_ctl database \
 connection  mysql+pymysql://glance:$GLANCE_DBPASS@$CTL_MGNT_IP/glance
 ops_del $glancereg_ctl database sqlite_db
 
 ops_edit $glancereg_ctl keystone_authtoken \
-auth_uri http://$CTL_MGNT_IP:5000
-
+	auth_uri http://$CTL_MGNT_IP:5000
 ops_edit $glancereg_ctl keystone_authtoken \
-auth_url http://$CTL_MGNT_IP:35357
-
+	auth_url http://$CTL_MGNT_IP:35357
+ops_edit $glanceapi_ctl keystone_authtoken memcached_servers controller:11211
 ops_edit $glancereg_ctl keystone_authtoken auth_plugin password
 ops_edit $glancereg_ctl keystone_authtoken project_domain_id default
 ops_edit $glancereg_ctl keystone_authtoken user_domain_id default
@@ -98,25 +98,11 @@ ops_edit $glancereg_ctl keystone_authtoken password $GLANCE_PASS
 
 ops_edit $glancereg_ctl paste_deploy flavor keystone
 
-
-ops_edit $glancereg_ctl DEFAULT  notification_driver noop
-ops_edit $glancereg_ctl DEFAULT  verbose True
-
-
-# echocolor "########## Remove Glance default DB ##########"
-# sleep 7
-# rm /var/lib/glance/glance.sqlite
-
-# chown glance:glance $glanceapi_ctl
-# chown glance:glance $glancereg_ctl
-
-
-echocolor "########## Syncing DB for Glance ##########"
+echocolor "Syncing DB for Glance"
 sleep 7
-glance-manage db_sync
+su -s /bin/sh -c "glance-manage db_sync" glance
 
-
-echocolor "########## Restarting GLANCE service ... ##########"
+echocolor "Restarting GLANCE service ..."
 sleep 5
 
 service glance-registry restart
@@ -126,14 +112,10 @@ sleep 3
 service glance-registry restart
 service glance-api restart
 
-#
-
 echocolor "Remove glance.sqlite "
 rm -f /var/lib/glance/glance.sqlite
 
-
-
-echocolor "########## Registering Cirros IMAGE for GLANCE ... ##########"
+echocolor "Registering Cirros IMAGE for GLANCE"
 sleep 3
 
 mkdir images
@@ -148,6 +130,6 @@ cd /root/
 # rm -r /tmp/images
 
 
-echocolor "########## Testing Glance ##########"
+echocolor "Testing Glance"
 sleep 5
 glance image-list

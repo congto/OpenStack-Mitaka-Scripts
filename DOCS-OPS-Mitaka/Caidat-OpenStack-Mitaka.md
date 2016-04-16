@@ -644,23 +644,23 @@ mysql -uroot -pWelcome123
 	cp /etc/glance/glance-registry.conf /etc/glance/glance-registry.conf.orig
 	```
 
-- Sửa các mục dưới đây trong hai file `/etc/glance/glance-api.conf` và `/etc/glance/glance-registry.conf`
+- Sửa các mục dưới đây trong hai file `/etc/glance/glance-api.conf`
 
  - Trong section `[DEFAULT]`  thêm hoặc tìm và thay thế dòng cũ bằng dòng dưới để cho phép chế độ ghi log với `glance`
-		```sh
-		verbose = true
-		```
+	 ```sh
+	 verbose = true
+	 ```
  
  - Trong section `[database]` :
  
  - Comment dòng 
-		```sh
-		#sqlite_db = /var/lib/glance/glance.sqlite
-		```
+	 ```sh
+	 #sqlite_db = /var/lib/glance/glance.sqlite
+	 ```
  - Thêm dòng dưới 
-		```sh
-		connection = mysql+pymysql://glance:Welcome123@controller/glance
-		```
+	 ```sh
+	 connection = mysql+pymysql://glance:Welcome123@controller/glance
+	 ```
  
  - Trong section `[keystone_authtoken]` sửa các dòng cũ thành dòng dưới
 		```sh
@@ -686,13 +686,36 @@ mysql -uroot -pWelcome123
 		filesystem_store_datadir = /var/lib/glance/images/
 		```
 
- - Trong section ` [oslo_messaging_rabbit] ` khai báo dòng dưới để vô hiệu hóa tính năng notification bởi vì nó sẽ được kích hoạt khi cài ceilomter
-		```sh
-		driver = noop
-		```
+- Sửa các mục dưới đây trong hai file `/etc/glance/glance-registry.conf`
+ - Trong section `[database]` :
+ 
+ - Comment dòng 
+	 ```sh
+	 #sqlite_db = /var/lib/glance/glance.sqlite
+	 ```
+ - Thêm dòng dưới 
+	 ```sh
+	 connection = mysql+pymysql://glance:Welcome123@controller/glance
+	 ```
 
-- Lưu ý: Nhớ sửa cả file `/etc/glance/glance-registry.conf` trước khi chạy lệnh dưới.
+ - Trong section `[keystone_authtoken]` sửa các dòng cũ thành dòng dưới
+	 ```sh
+	 auth_uri = http://controller:5000
+	 auth_url = http://controller:35357
+	 memcached_servers = controller:11211
+	 auth_type = password
+	 project_domain_name = default
+	 user_domain_name = default
+	 project_name = service
+	 username = glance
+	 password = Welcome123
+	 ```
 
+ - Trong section ` [paste_deploy]` khai báo dòng dưới
+	 ```sh
+	 flavor = keystone
+	 ```
+	
 - Đồng bộ database cho glance
 	```sh
 	su -s /bin/sh -c "glance-manage db_sync" glance
