@@ -20,7 +20,7 @@ echo "manual" > /etc/init/keystone.override
 apt-get -y install keystone apache2 libapache2-mod-wsgi \
         memcached python-memcache
 		
-sed -i 's/-l 127.0.0.1/-l $CTL_MGNT_IP/g' /etc/memcached.conf
+sed -i "s/-l 127.0.0.1/-l $CTL_MGNT_IP/g" /etc/memcached.conf
   
 # Back-up file keystone.conf
 filekeystone=/etc/keystone/keystone.conf
