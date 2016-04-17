@@ -18,6 +18,8 @@ EOF
 echocolor " Create user, endpoint for GLANCE"
 sleep 3
 
+source admin-openrc
+
 openstack user create glance --domain default --password $GLANCE_PASS
 
 openstack role add --project service --user glance admin
