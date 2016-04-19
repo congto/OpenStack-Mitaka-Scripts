@@ -98,11 +98,12 @@ su -
 apt-get update
 apt-get -y install git 
 
-git clone https://github.com/congto/OpenStack-Liberty-Script.git
-mv /root/OpenStack-Liberty-Script/LIBERTY-U14.04-OVS/ /root/
-rm -rf OpenStack-Liberty-Script/
-cd LIBERTY-U14.04-OVS/
+git clone https://github.com/congto/OpenStack-Mitaka-Scripts.git
+mv /root/OpenStack-Mitaka-Scripts/OPS-Mitaka-OVS-Ubuntu/scripts/ /root/
+rm -rf OpenStack-Mitaka-Scripts/
+cd scripts/
 chmod +x *.sh
+```
 
 ### Thiết lập IP và hostname
 - Sửa file config để có IP phù hợp với máy hiện tại.
