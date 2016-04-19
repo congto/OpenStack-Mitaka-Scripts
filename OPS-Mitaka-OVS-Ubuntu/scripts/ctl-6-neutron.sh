@@ -121,7 +121,7 @@ ops_edit $ml2_clt ml2_type_flat flat_networks external
 ops_edit $ml2_clt ml2_type_gre tunnel_id_ranges 100:200
 
 ## [ml2_type_vxlan] section
-ops_edit $ml2_clt ml2_type_vxlan vni_ranges 201:30
+ops_edit $ml2_clt ml2_type_vxlan vni_ranges 201:300
 
 ## [securitygroup] section
 ops_edit $ml2_clt securitygroup enable_security_group True
@@ -166,10 +166,10 @@ ops_edit $netdhcp DEFAULT enable_isolated_metadata True
 ops_edit $netdhcp DEFAULT dnsmasq_config_file /etc/neutron/dnsmasq-neutron.conf
 
 
-echocolor "Fix loi MTU"
+echocolor "Config MTU"
 sleep 3
 echo "dhcp-option-force=26,1454" > /etc/neutron/dnsmasq-neutron.conf
-killall dnsmasq
+# killall dnsmasq
 
 echocolor "Configuring METADATA AGENT"
 sleep 7 
