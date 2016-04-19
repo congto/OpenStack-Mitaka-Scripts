@@ -1,0 +1,34 @@
+clouds:
+  devstack:
+    auth:
+      auth_url: http://172.16.69.215:35357
+      password: openstack
+      project_domain_id: default
+      project_name: demo
+      user_domain_id: default
+      username: demo
+    identity_api_version: '3'
+    region_name: RegionOne
+    volume_api_version: '2'
+  devstack-admin:
+    auth:
+      auth_url: http://172.16.69.215:35357
+      password: openstack
+      project_domain_id: default
+      project_name: admin
+      user_domain_id: default
+      username: admin
+    identity_api_version: '3'
+    region_name: RegionOne
+    volume_api_version: '2'
+  devstack-alt:
+    auth:
+      auth_url: http://172.16.69.215:35357
+      password: openstack
+      project_domain_id: default
+      project_name: alt_demo
+      user_domain_id: default
+      username: alt_demo
+    identity_api_version: '3'
+    region_name: RegionOne
+    volume_api_version: '2'
