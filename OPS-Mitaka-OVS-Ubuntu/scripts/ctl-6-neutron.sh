@@ -101,7 +101,7 @@ ops_edit $neutron_ctl nova username nova
 ops_edit $neutron_ctl nova password $NOVA_PASS
 
 ######## Backup configuration of ML2 ##################"
-echocolor "########## Configuring ML2 ##########"
+echocolor "Configuring ML2"
 sleep 7
 
 ml2_clt=/etc/neutron/plugins/ml2/ml2_conf.ini
