@@ -129,7 +129,6 @@ ops_edit $ml2_clt securitygroup enable_ipset True
 ops_edit $ml2_clt securitygroup firewall_driver \
 	neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
 
-
 ## [ovs] section
 ops_edit $ml2_clt ovs local_ip $CTL_MGNT_IP
 ops_edit $ml2_clt ovs bridge_mappings external:br-ex

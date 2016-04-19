@@ -116,7 +116,7 @@ bash com1-ipdd.sh
 
 ```sh
 su -
-cd LIBERTY-U14.04-OVS/
+cd scripts/
 bash com1-prepare.sh
 ```
 
