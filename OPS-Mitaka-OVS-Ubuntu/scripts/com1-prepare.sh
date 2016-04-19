@@ -19,42 +19,40 @@ EOF
 echocolor "Install python openstack client"
 apt-get -y install python-openstackclient
 
-echocolor "Install NTP"
+echocolor "Install and config NTP"
+sleep 3 
 
-apt-get install ntp -y
-apt-get install python-mysqldb -y
-#
-echocolor "Backup NTP configuration"
-sleep 7 
-cp /etc/ntp.conf /etc/ntp.conf.bka
-rm /etc/ntp.conf
-cat /etc/ntp.conf.bka | grep -v ^# | grep -v ^$ >> /etc/ntp.conf
-#
-sed -i 's/server 0.ubuntu.pool.ntp.org/ \
-#server 0.ubuntu.pool.ntp.org/g' /etc/ntp.conf
 
-sed -i 's/server 1.ubuntu.pool.ntp.org/ \
-#server 1.ubuntu.pool.ntp.org/g' /etc/ntp.conf
+apt-get -y install chrony
+ntpfile=/etc/chrony/chrony.conf
+cp $ntpfile $ntpfile.orig
 
-sed -i 's/server 2.ubuntu.pool.ntp.org/ \
-#server 2.ubuntu.pool.ntp.org/g' /etc/ntp.conf
+sed -i "s/server 0.debian.pool.ntp.org offline minpoll 8/ \
+server $CTL_MGNT_IP iburst/g" $ntpfile
 
-sed -i 's/server 3.ubuntu.pool.ntp.org/ \
-#server 3.ubuntu.pool.ntp.org/g' /etc/ntp.conf
 
-sed -i "s/server ntp.ubuntu.com/server $CTL_MGNT_IP iburst/g" /etc/ntp.conf
+sed -i 's/server 1.debian.pool.ntp.org offline minpoll 8/ \
+# server 1.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
+
+sed -i 's/server 2.debian.pool.ntp.org offline minpoll 8/ \
+# server 2.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
+
+sed -i 's/server 3.debian.pool.ntp.org offline minpoll 8/ \
+# server 3.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
+
 
 sleep 5
 echocolor "Installl package for NOVA"
+
 apt-get -y install nova-compute 
-echo "libguestfs-tools libguestfs/update-appliance boolean true" \
-	| debconf-set-selections
-apt-get -y install libguestfs-tools sysfsutils guestfsd python-guestfs
+# echo "libguestfs-tools libguestfs/update-appliance boolean true" \
+# 	| debconf-set-selections
+# apt-get -y install libguestfs-tools sysfsutils guestfsd python-guestfs
 
 #fix loi chen pass tren hypervisor la KVM
-update-guestfs-appliance
-chmod 0644 /boot/vmlinuz*
-usermod -a -G kvm root
+# update-guestfs-appliance
+# chmod 0644 /boot/vmlinuz*
+# usermod -a -G kvm root
 
 
 echocolor "Configuring in nova.conf"

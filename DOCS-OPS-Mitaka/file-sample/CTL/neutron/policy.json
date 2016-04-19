@@ -1,5 +1,5 @@
 {
-    "context_is_admin":  "role:admin or user_name:neutron",
+    "context_is_admin":  "role:admin",
     "owner": "tenant_id:%(tenant_id)s",
     "admin_or_owner": "rule:context_is_admin or rule:owner",
     "context_is_advsvc":  "role:advsvc",
@@ -194,10 +194,6 @@
     "create_policy_bandwidth_limit_rule": "rule:admin_only",
     "delete_policy_bandwidth_limit_rule": "rule:admin_only",
     "update_policy_bandwidth_limit_rule": "rule:admin_only",
-    "get_policy_dscp_marking_rule": "rule:regular_user",
-    "create_policy_dscp_marking_rule": "rule:admin_only",
-    "delete_policy_dscp_marking_rule": "rule:admin_only",
-    "update_policy_dscp_marking_rule": "rule:admin_only",
     "get_rule_type": "rule:regular_user",
 
     "restrict_wildcard": "(not field:rbac_policy:target_tenant=*) or rule:admin_only",

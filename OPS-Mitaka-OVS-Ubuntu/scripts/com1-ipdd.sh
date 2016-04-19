@@ -59,7 +59,7 @@ dns-nameservers 8.8.8.8
 EOF
 
 sleep 5
-echocolor "##### Rebooting machine ... #####"
+echocolor "Rebooting machine ..."
 init 6
 #
 
