@@ -128,15 +128,6 @@ ops_edit $ml2_clt ml2_type_vxlan vni_ranges 201:300
 ## [securitygroup] section
 ops_edit $ml2_clt securitygroup enable_ipset True
 
-## [ovs] section
-ops_edit $ml2_clt ovs local_ip $CTL_MGNT_IP
-ops_edit $ml2_clt ovs bridge_mappings external:br-ex
-
-## [agent] section
-ops_edit $ml2_clt agent tunnel_types gre,vxlan
-ops_edit $ml2_clt agent l2_population True
-ops_edit $ml2_clt agent prevent_arp_spoofing True
-
 echocolor "Configuring linuxbridge_agent"
 sleep 5
 lbfile=/etc/neutron/plugins/ml2/linuxbridge_agent.ini
@@ -166,7 +157,7 @@ test -f $netl3agent.orig || cp $netl3agent $netl3agent.orig
 
 ## [DEFAULT] section 
 ops_edit $netl3agent DEFAULT interface_driver \
-	neutron.agent.linux.interface.OVSInterfaceDriver
+	neutron.agent.linux.interface.BridgeInterfaceDriver
 ops_edit $netl3agent DEFAULT external_network_bridge 
 # ops_edit $netl3agent DEFAULT router_delete_namespaces True
 # ops_edit $netl3agent DEFAULT verbose True
@@ -214,7 +205,7 @@ service nova-conductor restart
 echocolor "Restarting NEUTRON service"
 sleep 7 
 service neutron-server restart
-service neutron-openvswitch-agent restart
+service neutron-linuxbridge-agent restart
 service neutron-dhcp-agent restart
 service neutron-metadata-agent restart
 service neutron-l3-agent restart
