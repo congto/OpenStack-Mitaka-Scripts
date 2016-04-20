@@ -219,9 +219,14 @@ External Network: check
 
 ![mitaka-instance11.png](./images/mitaka-instance11.png)
 
-![mitaka-instance12.png](./images/mitaka-instance12.png)
+![mitaka-instance13.png](./images/mitaka-instance13.png)
 
-
+![mitaka-instance13.png](./images/mitaka-instance13.png)
+- Nhập mật khẩu với thông tin dưới
+```sh
+user: cirros
+password: cubsin:)
+```
 
 
 
