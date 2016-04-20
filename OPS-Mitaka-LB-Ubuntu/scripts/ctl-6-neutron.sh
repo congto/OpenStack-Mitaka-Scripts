@@ -30,7 +30,8 @@ openstack user create neutron --domain default --password $NEUTRON_PASS
 
 openstack role add --project service --user neutron admin
 
-openstack service create --name neutron --description "OpenStack Networking" network
+openstack service create --name neutron \
+	--description "OpenStack Networking" network
 
 openstack endpoint create --region RegionOne \
 	network public http://$CTL_MGNT_IP:9696
@@ -111,7 +112,7 @@ test -f $ml2_clt.orig || cp $ml2_clt $ml2_clt.orig
 
 ## [ml2] section
 ops_edit $ml2_clt ml2 type_drivers flat,vlan,vxlan
-ops_edit $ml2_clt ml2 tenant_network_types vlan,gre,vxlan
+ops_edit $ml2_clt ml2 tenant_network_types vxlan
 ops_edit $ml2_clt ml2 mechanism_drivers linuxbridge,l2population
 ops_edit $ml2_clt ml2 extension_drivers port_security
 

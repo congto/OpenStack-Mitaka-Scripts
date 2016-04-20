@@ -19,7 +19,6 @@ iface eth0 inet static
 address $CTL_MGNT_IP
 netmask $NETMASK_ADD_MGNT
 
-
 # EXT NETWORK
 auto eth1
 iface eth1 inet static
@@ -29,12 +28,10 @@ gateway $GATEWAY_IP_EXT
 dns-nameservers 8.8.8.8
 EOF
 
-
 echocolor "Configuring hostname in CONTROLLER node"
 sleep 3
 echo "$HOST_CTL" > /etc/hostname
 hostname -F /etc/hostname
-
 
 echocolor "Configuring for file /etc/hosts"
 sleep 3
@@ -51,7 +48,6 @@ $COM1_MGNT_IP   compute1
 
 EOF
 
-
 echocolor "Enable the OpenStack Mitaka repository"
 apt-get install software-properties-common -y
 add-apt-repository cloud-archive:mitaka -y
@@ -66,5 +62,3 @@ echocolor "Reboot Server"
 #sleep 5
 init 6
 #
-
-

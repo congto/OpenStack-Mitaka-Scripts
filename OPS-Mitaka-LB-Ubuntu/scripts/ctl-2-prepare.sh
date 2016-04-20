@@ -27,7 +27,6 @@ server 1.vn.pool.ntp.org iburst \
 server 0.asia.pool.ntp.org iburst \
 server 3.asia.pool.ntp.org iburst/g' $ntpfile
 
-
 sed -i 's/server 1.debian.pool.ntp.org offline minpoll 8/ \
 # server 1.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
 
@@ -36,7 +35,6 @@ sed -i 's/server 2.debian.pool.ntp.org offline minpoll 8/ \
 
 sed -i 's/server 3.debian.pool.ntp.org offline minpoll 8/ \
 # server 3.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
-
 
 ##############################################
 echocolor "Install and Config RabbitMQ"
@@ -83,5 +81,3 @@ EOF
 sleep 5
 echocolor "Restart MYSQL"
 service mysql restart
-
-

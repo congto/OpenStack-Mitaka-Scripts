@@ -24,13 +24,17 @@ openstack user create glance --domain default --password $GLANCE_PASS
 
 openstack role add --project service --user glance admin
 
-openstack service create --name glance --description "OpenStack Image service" image
+openstack service create --name glance --description \
+"OpenStack Image service" image
 
-openstack endpoint create --region RegionOne image public http://$CTL_MGNT_IP:9292
+openstack endpoint create --region RegionOne \
+	image public http://$CTL_MGNT_IP:9292
 
-openstack endpoint create --region RegionOne image internal http://$CTL_MGNT_IP:9292
+openstack endpoint create --region RegionOne \
+	image internal http://$CTL_MGNT_IP:9292
 
-openstack endpoint create --region RegionOne image admin http://$CTL_MGNT_IP:9292
+openstack endpoint create --region RegionOne \
+	image admin http://$CTL_MGNT_IP:9292
 
 
 echocolor "Install GLANCE"
@@ -54,7 +58,8 @@ ops_edit $glanceapi_ctl keystone_authtoken \
 auth_uri http://$CTL_MGNT_IP:5000
 ops_edit $glanceapi_ctl keystone_authtoken \
 auth_url http://$CTL_MGNT_IP:35357
-ops_edit $glanceapi_ctl keystone_authtoken memcached_servers $CTL_MGNT_IP:11211
+ops_edit $glanceapi_ctl keystone_authtoken \
+	memcached_servers $CTL_MGNT_IP:11211
 ops_edit $glanceapi_ctl keystone_authtoken auth_type password
 ops_edit $glanceapi_ctl keystone_authtoken project_domain_name default
 ops_edit $glanceapi_ctl keystone_authtoken user_domain_name default
@@ -87,7 +92,8 @@ ops_edit $glanceapi_ctl keystone_authtoken \
 auth_uri http://$CTL_MGNT_IP:5000
 ops_edit $glanceapi_ctl keystone_authtoken \
 auth_url http://$CTL_MGNT_IP:35357
-ops_edit $glanceapi_ctl keystone_authtoken memcached_servers $CTL_MGNT_IP:11211
+ops_edit $glanceapi_ctl keystone_authtoken \
+	memcached_servers $CTL_MGNT_IP:11211
 ops_edit $glanceapi_ctl keystone_authtoken auth_type password
 ops_edit $glanceapi_ctl keystone_authtoken project_domain_name default
 ops_edit $glanceapi_ctl keystone_authtoken user_domain_name default
@@ -128,7 +134,6 @@ openstack image create "cirros" \
  
 cd /root/
 # rm -r /tmp/images
-
 
 echocolor "Testing Glance"
 sleep 5

@@ -15,7 +15,6 @@ EOF
 echocolor "Install keystone"
  
 echo "manual" > /etc/init/keystone.override
- 
 
 apt-get -y install keystone apache2 libapache2-mod-wsgi \
         memcached python-memcache
@@ -32,7 +31,6 @@ ops_edit $filekeystone database \
 connection mysql+pymysql://keystone:$KEYSTONE_DBPASS@$CTL_MGNT_IP/keystone
 
 ops_edit $filekeystone token provider fernet
-
 
 #
 su -s /bin/sh -c "keystone-manage db_sync" keystone
@@ -102,8 +100,7 @@ rm -f /var/lib/keystone/keystone.db
 export OS_TOKEN="$TOKEN_PASS"
 export OS_URL=http://$CTL_MGNT_IP:35357/v3
 export OS_IDENTITY_API_VERSION=3
- 
- 
+  
 ###  Identity service
 openstack service create \
   --name keystone --description "OpenStack Identity" identity
@@ -120,7 +117,7 @@ identity admin http://$CTL_MGNT_IP:35357/v3
 
 openstack domain create --description "Default Domain" default
 
-openstack project create --domain default  --description "Admin Project" admin
+openstack project create --domain default --description "Admin Project" admin
 
 openstack user create admin --domain default --password $ADMIN_PASS
 
@@ -174,7 +171,6 @@ export OS_IMAGE_API_VERSION=2
 EOF
 chmod +x demo-openrc
 cp  demo-openrc /root/demo-openrc
-
 
 echocolor "Verify keystone"
 openstack token issue
