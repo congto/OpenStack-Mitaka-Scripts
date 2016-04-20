@@ -14,7 +14,6 @@ GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY '$NOVA_DBPASS';
 FLUSH PRIVILEGES;
 EOF
 
-
 echocolor "Creat user, endpoint for NOVA"
 
 openstack user create nova --domain default  --password $NOVA_PASS
