@@ -148,7 +148,7 @@ Shared: check
 External Network: check
 ```
 
-- Click to newly created `ext-net` to declare subnet for external range.
+- Click to newly created `provider` to declare subnet for external range.
 ![mitaka-net-ext3.png](./images/mitaka-net-ext3.png)
 
 - Select tab `Creat Subnet`
