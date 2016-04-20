@@ -1725,7 +1725,7 @@ After install COMPUTE NODE, move to step that guide to use dashboard
 
 
 ## Using dashboard to initialize network, VM, rules.
-### Initialize rule for project admin
+
 - Login to dasboard
 ![mitaka-horizon1.png](./images/mitaka-horizon1.png)
 
