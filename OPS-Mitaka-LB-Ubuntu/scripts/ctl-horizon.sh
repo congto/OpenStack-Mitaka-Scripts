@@ -33,6 +33,10 @@ cat << EOF >> $filehtml
 </body>
 </html>
 EOF
+
+cp /etc/openstack-dashboard/local_settings.py \
+	/etc/openstack-dashboard/local_settings.py.orig
+	
 # Allowing insert password in dashboard ( only apply in image )
 sed -i "s/'can_set_password': False/'can_set_password': True/g" \
 /etc/openstack-dashboard/local_settings.py
@@ -51,8 +55,8 @@ OPENSTACK_API_VERSIONS = {
 }
 EOF
 
-sed -i "s/#OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'/ \
-OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'/g" \
+sed -i "s/#OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'/\
+	OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'/g" \
 /etc/openstack-dashboard/local_settings.py 
 
 ## /* Restarting apache2 and memcached
