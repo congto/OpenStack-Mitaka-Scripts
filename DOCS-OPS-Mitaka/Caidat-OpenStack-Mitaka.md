@@ -1353,7 +1353,7 @@ OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
 ```
 
 ```sh
-TIME_ZONE = "TIME_ZONE"
+TIME_ZONE = "asia/Ho_Chi_Minh"
 ```
 
 - Xóa theme mặc định của ubuntu

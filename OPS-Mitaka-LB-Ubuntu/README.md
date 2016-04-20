@@ -40,7 +40,7 @@ chmod +x *.sh
 
 ## Install on CONTROLLER NODE
 ### install IP establishment script and repos for mitaka
-- Edit file config in dicrectory with IP that you want to use.
+- Edit file `config.cfg` in dicrectory with IP that you want to use.
  
 ```sh
 bash ctl-1-ipadd.sh
