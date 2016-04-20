@@ -56,7 +56,7 @@ OPENSTACK_API_VERSIONS = {
 EOF
 
 sed -i "s/#OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'/\
-	OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'/g" \
+OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'/g" \
 /etc/openstack-dashboard/local_settings.py 
 
 ## /* Restarting apache2 and memcached
