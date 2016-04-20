@@ -5,6 +5,7 @@
 
 #### Configure CONTROLLER NODE
 ```sh
+OS: Ubuntu Server 14.04 64 bit
 RAM: 4GB
 CPU: 2x2,  VT supported
 NIC1: eth0: 10.10.10.0/24 (interntel range, using vmnet or hostonly in VMware Workstation)
@@ -15,6 +16,7 @@ HDD: +60GB
 
 #### Configure COMPUTE NODE
 ```sh
+OS: Ubuntu Server 14.04 64 bit
 RAM: 4GB
 CPU: 2x2, VT supported
 NIC1: eth0: 10.10.10.0/24 (interntel range, using vmnet or hostonly in VMware Workstation)
@@ -57,7 +59,7 @@ bash ctl-3.keystone.sh
 
 - Declare enviroment parameter
 ```sh
-source admin-openrc.sh
+source admin-openrc
 ```
 
 ### Install GLANCE
