@@ -185,16 +185,16 @@ External Network: check
 
 ![mitaka-r4.png](/images/mitaka-r4.png)
 
-![mitaka-r5.png](/images/mitaka-r5.png)
+![mitaka-r5.png](./images/mitaka-r5.png)
 - ending of initializing steps:  exteral network, internal network, router
 
 
 
 ## Initialize virtual machine (Instance)
 - Project admin => Instances => Launch Instance"
-![mitaka-instance1.png](/images/mitaka-instance1.png)
+![mitaka-instance1.png](./images/mitaka-instance1.png)
 
-![mitaka-instance2.png](/images/mitaka-instance2.png)
+![mitaka-instance2.png](./images/mitaka-instance2.png)
 
 ![mitaka-instance3.png](/images/mitaka-instance3.png)
 
