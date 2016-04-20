@@ -215,7 +215,11 @@ External Network: check
 ![mitaka-instance10.png](./images/mitaka-instance10.png)
 
 
+## Check virtual machine (Instance)
 
+![mitaka-instance11.png](./images/mitaka-instance11.png)
+
+![mitaka-instance12.png](./images/mitaka-instance12.png)
 
 
 
