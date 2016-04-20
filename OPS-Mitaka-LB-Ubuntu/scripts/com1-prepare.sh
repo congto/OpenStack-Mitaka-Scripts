@@ -183,14 +183,9 @@ ops_edit $lbfile_com securitygroup firewall_driver \
 # [vxlan] section
 ops_edit $lbfile_com vxlan enable_vxlan True
 ops_edit $lbfile_com vxlan local_ip $COM1_MGNT_IP
-	
-## [agent] section
-ops_edit $ml2_com agent tunnel_types gre,vxlan
-ops_edit $ml2_com agent l2_population True
-ops_edit $ml2_com agent prevent_arp_spoofing True
+ops_edit $lbfile_com vxlan l2_population True
 
-
-echocolor "Reset service nova-compute,openvswitch-agent"
+echocolor "Reset service nova-compute,linuxbridge-agent"
 sleep 5
 service nova-compute restart
 service neutron-linuxbridge-agent restart
