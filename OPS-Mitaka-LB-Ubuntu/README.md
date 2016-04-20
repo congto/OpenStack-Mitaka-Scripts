@@ -9,17 +9,17 @@ RAM: 4GB
 CPU: 2x2,  VT supported
 NIC1: eth0: 10.10.10.0/24 (interntel range, using vmnet or hostonly in VMware Workstation)
 NIC2: eth1: 172.16.69.0/24, gateway 172.16.69.1 (external range - using NAT or Bridge VMware Workstation)
-HDD: 60GB
+HDD: +60GB
 ```
 
 
-#### Configure CONTROLLER NODE
+#### Configure COMPUTE NODE
 ```sh
 RAM: 4GB
 CPU: 2x2, VT supported
 NIC1: eth0: 10.10.10.0/24 (interntel range, using vmnet or hostonly in VMware Workstation)
 NIC2: eth1: 172.16.69.0/24, gateway 172.16.69.1 (external range - using NAT or Bridge VMware Workstation  )
-HDD: 1000GB
+HDD: +100GB
 ```
 
 ### Execute script
@@ -37,7 +37,7 @@ chmod +x *.sh
 ```
 
 ## Install on CONTROLLER NODE
-### install IP establishment script and repos for Liberty
+### install IP establishment script and repos for mitaka
 - Edit file config in dicrectory with IP that you want to use.
  
 ```sh
@@ -119,79 +119,98 @@ After install COMPUTE NODE, move to step that guide to use dashboard
 ## Using dashboard to initialize network, VM, rules.
 ### Initialize rule for project admin
 - Login to dasboard
-![liberty-horizon1.png](/images/liberty-horizon1.png)
+![mitaka-horizon1.png](/images/mitaka-horizon1.png)
 
 - Select tab `admin => Access & Security => Manage Rules`
-![liberty-horizon2.png](/images/liberty-horizon2.png)
+![mitaka-horizon2.png](/images/mitaka-horizon2.png)
 
 - Select tab `Add Rule`
-![liberty-horizon3.png](/images/liberty-horizon3.png)
+![mitaka-horizon3.png](/images/mitaka-horizon3.png)
 
-- Open rule to allow SSH from outside to virtual machine
-![liberty-horizon4.png](/images/liberty-horizon4.png)
-- Do the same with ICMP rule to allow ping to virtual machine and the other rules.
+- Open all rule from outside to virtual machine
+![mitaka-horizon4.png](/images/mitaka-horizon4.png)
+
 
 ### Initialize network
 #### Initialize external network range
 - Select tab `Admin => Networks => Create Network`
-![liberty-net-ext1.png](/images/liberty-net-ext1.png)
+![mitaka-net-ext1.png](/images/mitaka-net-ext1.png)
 
 - Enter and select tabs like picture below.
-![liberty-net-ext2.png](/images/liberty-net-ext2.png)
+![mitaka-net-ext2.png](/images/mitaka-net-ext2.png)
+```sh
+Name: provider
+Project: admin
+Provider Network Typy: Flat
+Physical Network: provider
+Admin State: UP
+Shared: check
+External Network: check
+```
 
 - Click to newly created `ext-net` to declare subnet for external range.
-![liberty-net-ext3.png](/images/liberty-net-ext3.png)
+![mitaka-net-ext3.png](/images/mitaka-net-ext3.png)
 
 - Select tab `Creat Subnet`
-![liberty-net-ext4.png](/images/liberty-net-ext4.png)
+![mitaka-net-ext4.png](/images/mitaka-net-ext4.png)
 
 - Declare IP range of subnet for external range
-![liberty-net-ext5.png](/images/liberty-net-ext5.png)
+![mitaka-net-ext5.png](/images/mitaka-net-ext5.png)
 
 - Declare pools and DNS
-![liberty-net-ext6.png](/images/liberty-net-ext6.png)
+![mitaka-net-ext6.png](/images/mitaka-net-ext6.png)
 
 #### Initialize internal network range
-- Select tabs in turn of rank : `Project admin => Network => Networks => Create Network"
-![liberty-net-int1.png](/images/liberty-net-int1.png)
+- Select tabs in turn of rank : "admin => Project => Network => Networks => Create Network"
+![mitaka-net-int1.png](/images/mitaka-net-int1.png)
 
 - Declare name for internal network
-![liberty-net-int2.png](/images/liberty-net-int2.png)
+![mitaka-net-int2.png](/images/mitaka-net-int2.png)
 
 - Declare subnet for internal network
-![liberty-net-int3.png](/images/liberty-net-int3.png)
+![mitaka-net-int3.png](/images/mitaka-net-int3.png)
 
 - Declare IP range for Internal network
-![liberty-net-int4.png](/images/liberty-net-int4.png)
+![mitaka-net-int4.png](/images/mitaka-net-int4.png)
 
 #### Initialize Router for project admin
-- Select by tabs "Project admin => Routers => Create Router
-![liberty-r1.png](/images/liberty-r1.png)
+- Select by tabs "admin => Project => Network => Routers => Create Router"
+![mitaka-r1.png](/images/mitaka-r1.png)
 
 - Initialize router name and select like picture below
-![liberty-r2.png](/images/liberty-r2.png)
+![mitaka-r2.png](/images/mitaka-r2.png)
 
 - Apply interface for router
-![liberty-r3.png](/images/liberty-r3.png)
+![mitaka-r3.png](/images/mitaka-r3.png)
 
-![liberty-r4.png](/images/liberty-r4.png)
+![mitaka-r4.png](/images/mitaka-r4.png)
 
-![liberty-r5.png](/images/liberty-r5.png)
+![mitaka-r5.png](/images/mitaka-r5.png)
 - ending of initializing steps:  exteral network, internal network, router
 
 
 
 ## Initialize virtual machine (Instance)
-- L?a ch?n các tab d??i `Project admin => Instances => Launch Instance`
-![liberty-instance1.png](/images/liberty-instance1.png)
+- Project admin => Instances => Launch Instance"
+![mitaka-instance1.png](/images/mitaka-instance1.png)
 
-![liberty-instance2.png](/images/liberty-instance2.png)
+![mitaka-instance2.png](/images/mitaka-instance2.png)
 
-![liberty-instance3.png](/images/liberty-instance3.png)
+![mitaka-instance3.png](/images/mitaka-instance3.png)
 
+![mitaka-instance4.png](/images/mitaka-instance4.png)
 
+![mitaka-instance5.png](/images/mitaka-instance5.png)
 
+![mitaka-instance6.png](/images/mitaka-instance6.png)
 
+![mitaka-instance7.png](/images/mitaka-instance7.png)
+
+![mitaka-instance8.png](/images/mitaka-instance8.png)
+
+![mitaka-instance9.png](/images/mitaka-instance9.png)
+
+![mitaka-instance10.png](/images/mitaka-instance10.png)
 
 
 
