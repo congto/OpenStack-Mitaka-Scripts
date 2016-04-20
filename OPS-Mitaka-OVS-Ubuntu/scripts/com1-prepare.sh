@@ -198,7 +198,6 @@ ops_edit $ml2_com agent tunnel_types gre,vxlan
 ops_edit $ml2_com agent l2_population True
 ops_edit $ml2_com agent prevent_arp_spoofing True
 
-
 echocolor "Reset service nova-compute,openvswitch-agent"
 sleep 5
 service nova-compute restart
