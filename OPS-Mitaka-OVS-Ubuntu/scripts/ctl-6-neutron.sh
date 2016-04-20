@@ -48,7 +48,6 @@ neutron-plugin-openvswitch-agent neutron-l3-agent neutron-dhcp-agent \
 neutron-metadata-agent
 
 
-
 ######## Backup configuration NEUTRON.CONF ##################"
 echocolor "Config NEUTRON"
 sleep 5
