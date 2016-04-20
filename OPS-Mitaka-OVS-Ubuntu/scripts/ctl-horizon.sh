@@ -26,7 +26,7 @@ touch $filehtml
 cat << EOF >> $filehtml
 <html>
 <head>
-<META HTTP-EQUIV="Refresh" Content="0.5; URL=http://$CON_EXT_IP/horizon">
+<META HTTP-EQUIV="Refresh" Content="0.5; URL=http://$CTL_EXT_IP/horizon">
 </head>
 <body>
 <center> <h1>Dang chuyen den Dashboard cua OpenStack</h1> </center>
