@@ -26,22 +26,22 @@ openstack role add --project service --user nova admin
 openstack service create --name nova --description "OpenStack Compute" compute
 
 openstack endpoint create --region RegionOne \
-	compute public http://$CTL_MGNT_IP:8774/v2.1/%\(tenant_id\)s
-	
+        compute public http://$CTL_MGNT_IP:8774/v2.1/%\(tenant_id\)s
+
 openstack endpoint create --region RegionOne \
-	compute internal http://$CTL_MGNT_IP:8774/v2.1/%\(tenant_id\)s
-	
+        compute internal http://$CTL_MGNT_IP:8774/v2.1/%\(tenant_id\)s
+
 openstack endpoint create --region RegionOne \
-	compute admin http://$CTL_MGNT_IP:8774/v2.1/%\(tenant_id\)s
+        compute admin http://$CTL_MGNT_IP:8774/v2.1/%\(tenant_id\)s
 
 
 echocolor "Install NOVA in $CTL_MGNT_IP"
-sleep 5 
+sleep 5
 apt-get -y install nova-api nova-cert \
-	nova-conductor nova-consoleauth \
-	nova-novncproxy nova-scheduler
+        nova-conductor nova-consoleauth \
+        nova-novncproxy nova-scheduler
 
-# Cai tu dong libguestfs-tools 
+# Cai tu dong libguestfs-tools
 # echo "libguestfs-tools        libguestfs/update-appliance     boolean true"  | debconf-set-selections
 # apt-get -y install libguestfs-tools sysfsutils guestfsd python-guestfs
 
@@ -121,7 +121,7 @@ su -s /bin/sh -c "nova-manage api_db sync" nova
 su -s /bin/sh -c "nova-manage db sync" nova
 
 echocolor "Restarting NOVA "
-sleep 7 
+sleep 7
 service nova-api restart
 service nova-cert restart
 service nova-consoleauth restart
@@ -129,7 +129,7 @@ service nova-scheduler restart
 service nova-conductor restart
 service nova-novncproxy restart
 
-sleep 7 
+sleep 7
 echocolor "Restarting NOVA"
 service nova-api restart
 service nova-cert restart
