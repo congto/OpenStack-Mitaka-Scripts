@@ -4,10 +4,6 @@
 source config.cfg
 source functions.sh
 
-# Cong cu de sua file cau hinh
-apt-get -y install python-pip
-pip install https://pypi.python.org/packages/source/c/crudini/crudini-0.7.tar.gz
-
 ####################################   
 # Ceilomter agent for Compute node #
 ####################################
@@ -54,7 +50,7 @@ ops_edit $ceilomter_com service_credentials os_username ceilometer
 ops_edit $ceilomter_com service_credentials os_tenant_name service
 ops_edit $ceilomter_com service_credentials os_password $CEILOMETER_PASS
 ops_edit $ceilomter_com service_credentials os_endpoint_type internalURL
-ops_edit $ceilomter_com service_credentials os_region_name RegionOne	
+ops_edit $ceilomter_com service_credentials os_region_name RegionOne
 
 echo "Edit file /etc/nova/nova.conf on Compute node"
 sleep 3

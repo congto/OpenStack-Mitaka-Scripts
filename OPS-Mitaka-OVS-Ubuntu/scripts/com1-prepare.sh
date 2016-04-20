@@ -5,7 +5,8 @@ source config.cfg
 source functions.sh
 
 apt-get -y install python-pip
-pip install https://pypi.python.org/packages/source/c/crudini/crudini-0.7.tar.gz
+pip install \
+https://pypi.python.org/packages/source/c/crudini/crudini-0.7.tar.gz
 
 #
 
@@ -20,8 +21,7 @@ echocolor "Install python openstack client"
 apt-get -y install python-openstackclient
 
 echocolor "Install and config NTP"
-sleep 3 
-
+sleep 3
 
 apt-get -y install chrony
 ntpfile=/etc/chrony/chrony.conf
@@ -68,14 +68,8 @@ ops_edit $nova_com DEFAULT auth_strategy keystone
 ops_edit $nova_com DEFAULT my_ip $COM1_MGNT_IP
 ops_edit $nova_com DEFAULT use_neutron  True
 ops_edit $nova_com DEFAULT \
-	firewall_driver nova.virt.firewall.NoopFirewallDriver
+ firewall_driver nova.virt.firewall.NoopFirewallDriver
 
-# ops_edit $nova_com DEFAULT network_api_class nova.network.neutronv2.api.API
-# ops_edit $nova_com DEFAULT security_group_api neutron
-# ops_edit $nova_com DEFAULT \
-#	linuxnet_interface_driver nova.network.linux_net.LinuxOVSInterfaceDriver
-
-# ops_edit $nova_com DEFAULT enable_instance_password True
 
 ## [oslo_messaging_rabbit] section
 ops_edit $nova_com oslo_messaging_rabbit rabbit_host $CTL_MGNT_IP
@@ -100,7 +94,7 @@ ops_edit $nova_com vnc vncserver_listen 0.0.0.0
 ops_edit $nova_com vnc vncserver_proxyclient_address \$my_ip
 ops_edit $nova_com vnc vncserver_proxyclient_address \$my_ip
 ops_edit $nova_com vnc \
-	novncproxy_base_url http://$CTL_EXT_IP:6080/vnc_auto.html
+novncproxy_base_url http://$CTL_EXT_IP:6080/vnc_auto.html
 	
 	
 ## [glance] section
@@ -192,8 +186,8 @@ ops_edit $ml2_com ml2_type_vxlan vni_ranges 201:300
 ## [securitygroup] section 
 ops_edit $ml2_com securitygroup enable_security_group True
 ops_edit $ml2_com securitygroup enable_ipset True
-ops_edit $ml2_com securitygroup \
-firewall_driver neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+ops_edit $ml2_com securitygroup firewall_driver \
+neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
 
 ## [ovs] section
 ops_edit $ml2_com ovs local_ip $COM1_MGNT_IP
