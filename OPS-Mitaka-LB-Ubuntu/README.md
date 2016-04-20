@@ -119,25 +119,25 @@ After install COMPUTE NODE, move to step that guide to use dashboard
 ## Using dashboard to initialize network, VM, rules.
 ### Initialize rule for project admin
 - Login to dasboard
-![mitaka-horizon1.png](/images/mitaka-horizon1.png)
+![mitaka-horizon1.png](./images/mitaka-horizon1.png)
 
 - Select tab `admin => Access & Security => Manage Rules`
-![mitaka-horizon2.png](/images/mitaka-horizon2.png)
+![mitaka-horizon2.png](./images/mitaka-horizon2.png)
 
 - Select tab `Add Rule`
-![mitaka-horizon3.png](/images/mitaka-horizon3.png)
+![mitaka-horizon3.png](./images/mitaka-horizon3.png)
 
 - Open all rule from outside to virtual machine
-![mitaka-horizon4.png](/images/mitaka-horizon4.png)
+![mitaka-horizon4.png](./images/mitaka-horizon4.png)
 
 
 ### Initialize network
 #### Initialize external network range
 - Select tab `Admin => Networks => Create Network`
-![mitaka-net-ext1.png](/images/mitaka-net-ext1.png)
+![mitaka-net-ext1.png](./images/mitaka-net-ext1.png)
 
 - Enter and select tabs like picture below.
-![mitaka-net-ext2.png](/images/mitaka-net-ext2.png)
+![mitaka-net-ext2.png](./images/mitaka-net-ext2.png)
 ```sh
 Name: provider
 Project: admin
@@ -149,41 +149,41 @@ External Network: check
 ```
 
 - Click to newly created `ext-net` to declare subnet for external range.
-![mitaka-net-ext3.png](/images/mitaka-net-ext3.png)
+![mitaka-net-ext3.png](./images/mitaka-net-ext3.png)
 
 - Select tab `Creat Subnet`
-![mitaka-net-ext4.png](/images/mitaka-net-ext4.png)
+![mitaka-net-ext4.png](./images/mitaka-net-ext4.png)
 
 - Declare IP range of subnet for external range
-![mitaka-net-ext5.png](/images/mitaka-net-ext5.png)
+![mitaka-net-ext5.png](./images/mitaka-net-ext5.png)
 
 - Declare pools and DNS
-![mitaka-net-ext6.png](/images/mitaka-net-ext6.png)
+![mitaka-net-ext6.png](./images/mitaka-net-ext6.png)
 
 #### Initialize internal network range
 - Select tabs in turn of rank : "admin => Project => Network => Networks => Create Network"
-![mitaka-net-int1.png](/images/mitaka-net-int1.png)
+![mitaka-net-int1.png](./images/mitaka-net-int1.png)
 
 - Declare name for internal network
-![mitaka-net-int2.png](/images/mitaka-net-int2.png)
+![mitaka-net-int2.png](./images/mitaka-net-int2.png)
 
 - Declare subnet for internal network
-![mitaka-net-int3.png](/images/mitaka-net-int3.png)
+![mitaka-net-int3.png](./images/mitaka-net-int3.png)
 
 - Declare IP range for Internal network
-![mitaka-net-int4.png](/images/mitaka-net-int4.png)
+![mitaka-net-int4.png](./images/mitaka-net-int4.png)
 
 #### Initialize Router for project admin
 - Select by tabs "admin => Project => Network => Routers => Create Router"
-![mitaka-r1.png](/images/mitaka-r1.png)
+![mitaka-r1.png](./images/mitaka-r1.png)
 
 - Initialize router name and select like picture below
-![mitaka-r2.png](/images/mitaka-r2.png)
+![mitaka-r2.png](./images/mitaka-r2.png)
 
 - Apply interface for router
-![mitaka-r3.png](/images/mitaka-r3.png)
+![mitaka-r3.png](./images/mitaka-r3.png)
 
-![mitaka-r4.png](/images/mitaka-r4.png)
+![mitaka-r4.png](./images/mitaka-r4.png)
 
 ![mitaka-r5.png](./images/mitaka-r5.png)
 - ending of initializing steps:  exteral network, internal network, router
@@ -196,21 +196,21 @@ External Network: check
 
 ![mitaka-instance2.png](./images/mitaka-instance2.png)
 
-![mitaka-instance3.png](/images/mitaka-instance3.png)
+![mitaka-instance3.png](./images/mitaka-instance3.png)
 
-![mitaka-instance4.png](/images/mitaka-instance4.png)
+![mitaka-instance4.png](./images/mitaka-instance4.png)
 
-![mitaka-instance5.png](/images/mitaka-instance5.png)
+![mitaka-instance5.png](./images/mitaka-instance5.png)
 
-![mitaka-instance6.png](/images/mitaka-instance6.png)
+![mitaka-instance6.png](./images/mitaka-instance6.png)
 
-![mitaka-instance7.png](/images/mitaka-instance7.png)
+![mitaka-instance7.png](./images/mitaka-instance7.png)
 
-![mitaka-instance8.png](/images/mitaka-instance8.png)
+![mitaka-instance8.png](./images/mitaka-instance8.png)
 
-![mitaka-instance9.png](/images/mitaka-instance9.png)
+![mitaka-instance9.png](./images/mitaka-instance9.png)
 
-![mitaka-instance10.png](/images/mitaka-instance10.png)
+![mitaka-instance10.png](./images/mitaka-instance10.png)
 
 
 
