@@ -389,10 +389,11 @@ Listen 35357
 </VirtualHost>
 ```
 
- - Tạo link để cấu hình virtual host cho dịch vụ `keysonte` trong `apache`
-		```sh
-		ln -s /etc/apache2/sites-available/wsgi-keystone.conf /etc/apache2/sites-enabled
-		```
+- Tạo link để cấu hình virtual host cho dịch vụ `keysonte` trong `apache`
+
+```sh
+ln -s /etc/apache2/sites-available/wsgi-keystone.conf /etc/apache2/sites-enabled
+```
 
 - Khởi động lại `apache`
 	```sh
@@ -676,15 +677,17 @@ mysql -uroot -pWelcome123
 		```
  
  - Trong section ` [paste_deploy]` khai báo dòng dưới
-		```sh
-		flavor = keystone
-		```
+ 
+    ```sh
+    flavor = keystone
+    ```
  - Khai báo trong section `[glance_store]` nơi lưu trữ file image
-		```sh
-		stores = file,http
-		default_store = file
-		filesystem_store_datadir = /var/lib/glance/images/
-		```
+ 
+    ```sh
+    stores = file,http
+    default_store = file
+    filesystem_store_datadir = /var/lib/glance/images/
+    ```
 
 - Sửa các mục dưới đây trong hai file `/etc/glance/glance-registry.conf`
  - Trong section `[database]` :
