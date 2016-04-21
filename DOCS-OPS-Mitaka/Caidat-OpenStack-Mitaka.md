@@ -612,10 +612,10 @@ mysql -uroot -pWelcome123
 	openstack role add --project service --user glance admin
 	```
 
-	- Kiểm tra lại xem user `glance` có role là gì
-		```sh
-		openstack role list --user glance --project service
-		```
+- Kiểm tra lại xem user `glance` có role là gì
+    ```sh
+    openstack role list --user glance --project service
+    ```
 	
 - Tạo dịch vụ có tên là `glance`
 	```sh
