@@ -52,8 +52,8 @@ test -f $nova_ctl.orig || cp $nova_ctl $nova_ctl.orig
 echocolor "Config file nova.conf"
 sleep 5
 
-ops_del $glanceapi_ctl DEFAULT logdir
-ops_del $glanceapi_ctl DEFAULT verbose
+ops_del $nova_ctl DEFAULT logdir
+ops_del $nova_ctl DEFAULT verbose
 
 ops_edit $nova_ctl DEFAULT log-dir /var/log/nova
 ops_edit $nova_ctl DEFAULT enabled_apis osapi_compute,metadata
@@ -75,7 +75,7 @@ ops_edit $nova_ctl oslo_messaging_rabbit rabbit_host $CTL_MGNT_IP
 ops_edit $nova_ctl oslo_messaging_rabbit rabbit_userid openstack
 ops_edit $nova_ctl oslo_messaging_rabbit rabbit_password $RABBIT_PASS
 
-ops_edit $nova_ctl keystone_authtoken auth_uri $http://$CTL_MGNT_IP:5000
+ops_edit $nova_ctl keystone_authtoken auth_uri http://$CTL_MGNT_IP:5000
 ops_edit $nova_ctl keystone_authtoken auth_url http://$CTL_MGNT_IP:35357
 ops_edit $nova_ctl keystone_authtoken memcached_servers $CTL_MGNT_IP:11211
 ops_edit $nova_ctl keystone_authtoken auth_type password
