@@ -16,7 +16,7 @@
 ![OpenStack Mitaka Topo](/DOCS-OPS-Mitaka/images/Mitaka-ip-hardware.png)
 
 ## Mô hình 2 node 
-![Mitaka-topo-2node.png](./images/Mitaka-topo-2node.png =480)
+![Mitaka-topo-2node.png](./images/Mitaka-topo-2node.png)
 
 <a name="2"> </a> 
 ## 2. Cài đặt trên node controller
