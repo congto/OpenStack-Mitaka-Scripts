@@ -8,12 +8,15 @@
 ## 1. Chuẩn bị môi trường
 <a name="1.1"> </a> 
 ### 1.1 Mô hình mạng
-
+- Mô hình đầy đủ
 ![OpenStack Mitaka Topo](/DOCS-OPS-Mitaka/images/Mitaka-topo.png)
 
 <a name="1.2"> </a> 
 ### 1.2 Các tham số phần cứng đối với các node
 ![OpenStack Mitaka Topo](/DOCS-OPS-Mitaka/images/Mitaka-ip-hardware.png)
+
+## Mô hình 2 node 
+![Mitaka-topo-2node.png](./images/Mitaka-topo-2node.png)
 
 <a name="2"> </a> 
 ## 2. Cài đặt trên node controller
