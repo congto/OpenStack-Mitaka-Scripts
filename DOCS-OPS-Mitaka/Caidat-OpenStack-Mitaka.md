@@ -1314,6 +1314,11 @@ mysql -uroot -pWelcome123
 	apt-get -y install openstack-dashboard
 	```
 
+- Sao lưu lại file cấu hình cho dashboad 
+```sh
+cp /etc/openstack-dashboard/local_settings.py /etc/openstack-dashboard/local_settings.py.orig
+```
+
 - Tìm các dòng sau trong file ` /etc/openstack-dashboard/local_settings.py` và chỉnh sửa như bên dưới
 
 ```sh
@@ -1338,9 +1343,7 @@ CACHES = {
 OPENSTACK_KEYSTONE_URL = "http://%s:5000/v3" % OPENSTACK_HOST
 ```
 
-```sh
-OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
-```
+
 
 ```sh
 OPENSTACK_API_VERSIONS = {
@@ -1348,7 +1351,7 @@ OPENSTACK_API_VERSIONS = {
     "image": 2,
     "volume": 2,
 }
-
+```
 
 ```sh
 OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "default"
