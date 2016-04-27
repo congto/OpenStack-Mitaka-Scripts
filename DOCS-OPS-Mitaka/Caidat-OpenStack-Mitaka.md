@@ -494,7 +494,7 @@ ln -s /etc/apache2/sites-available/wsgi-keystone.conf /etc/apache2/sites-enabled
 #### 3.1.5. Kiểm chứng lại các bước cài đặt `keysonte`
 
 
-- Vô hiệu hóa cơ chế xác thực bằng token tạm thời trong `keysonte` bằng cách chỉnh sửa dòng `admin_token_auth` trong các section `[pipeline:public_api]`,  `[pipeline:admin_api]`  và `[pipeline:api_v3]` của file `/etc/keystone/keystone-paste.ini`
+- Vô hiệu hóa cơ chế xác thực bằng token tạm thời trong `keysonte` bằng cách xóa `admin_token_auth` trong các section `[pipeline:public_api]`,  `[pipeline:admin_api]`  và `[pipeline:api_v3]` của file `/etc/keystone/keystone-paste.ini`
 
 - Bỏ thiết lập trong biến môi trường của `OS_TOKEN` và `OS_URL` bằng lệnh
 	```sh
@@ -616,6 +616,7 @@ mysql -uroot -pWelcome123
 	```
 
 - Kiểm tra lại xem user `glance` có role là gì
+
     ```sh
     openstack role list --user glance --project service
     ```
@@ -848,9 +849,11 @@ mysql -uroot -pWelcome123
 		openstack role add --project service --user nova admin
 		```
  - Kiểm chứng lại xem tài khoản `nova` đã có quyền `admin` hay chưa bằng lệnh dưới
-		```sh
-		openstack role list --user nova --project service
-		```
+ 
+     ```sh
+     openstack role list --user nova --project service
+     ```
+     
  - Tạo service có tên là `nova`
 		```sh
 		openstack service create --name nova --description "OpenStack Compute" compute
@@ -1315,6 +1318,7 @@ mysql -uroot -pWelcome123
 	```
 
 - Sao lưu lại file cấu hình cho dashboad 
+
 ```sh
 cp /etc/openstack-dashboard/local_settings.py /etc/openstack-dashboard/local_settings.py.orig
 ```
@@ -1839,5 +1843,5 @@ External Network: check
 - Nhập mật khẩu với thông tin dưới
 ```sh
 user: cirros
-password: cubsin:)
+password: cubswin:)
 ```
