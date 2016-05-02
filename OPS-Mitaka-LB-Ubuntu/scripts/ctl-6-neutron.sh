@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 #
-# RABBIT_PASS=a
-# ADMIN_PASS=a
+# RABBIT_PASS=
+# ADMIN_PASS=
 
 source config.cfg
 source functions.sh
@@ -11,7 +11,7 @@ source functions.sh
 # echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 # echo "net.ipv4.conf.all.rp_filter=0" >> /etc/sysctl.conf
 # echo "net.ipv4.conf.default.rp_filter=0" >> /etc/sysctl.conf
-# sysctl -p 
+# sysctl -p
 
 echocolor "Create DB for NEUTRON "
 sleep 5
@@ -31,16 +31,16 @@ openstack user create neutron --domain default --password $NEUTRON_PASS
 openstack role add --project service --user neutron admin
 
 openstack service create --name neutron \
-	--description "OpenStack Networking" network
+    --description "OpenStack Networking" network
 
 openstack endpoint create --region RegionOne \
-	network public http://$CTL_MGNT_IP:9696
+    network public http://$CTL_MGNT_IP:9696
 
 openstack endpoint create --region RegionOne \
-	network internal http://$CTL_MGNT_IP:9696
+    network internal http://$CTL_MGNT_IP:9696
 
 openstack endpoint create --region RegionOne \
-	network admin http://$CTL_MGNT_IP:9696
+    network admin http://$CTL_MGNT_IP:9696
 
 # SERVICE_TENANT_ID=`keystone tenant-get service | awk '$2~/^id/{print $4}'`
 
@@ -145,34 +145,32 @@ ops_edit $lbfile vxlan l2_population True
 # [securitygroup] section
 ops_edit $lbfile securitygroup enable_security_group True
 ops_edit $lbfile securitygroup firewall_driver \
-	neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
-
-
+    neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 
 
 echocolor "Configuring L3 AGENT"
-sleep 7 
+sleep 7
 netl3agent=/etc/neutron/l3_agent.ini
 
 test -f $netl3agent.orig || cp $netl3agent $netl3agent.orig
 
-## [DEFAULT] section 
+## [DEFAULT] section
 ops_edit $netl3agent DEFAULT interface_driver \
-	neutron.agent.linux.interface.BridgeInterfaceDriver
-ops_edit $netl3agent DEFAULT external_network_bridge 
+    neutron.agent.linux.interface.BridgeInterfaceDriver
+ops_edit $netl3agent DEFAULT external_network_bridge
 # ops_edit $netl3agent DEFAULT router_delete_namespaces True
 # ops_edit $netl3agent DEFAULT verbose True
 
 
 echocolor "Configuring DHCP AGENT"
-sleep 7 
+sleep 7
 #
 netdhcp=/etc/neutron/dhcp_agent.ini
 test -f $netdhcp.orig || cp $netdhcp $netdhcp.orig
 
-## [DEFAULT] section 
+## [DEFAULT] section
 ops_edit $netdhcp DEFAULT interface_driver \
-	neutron.agent.linux.interface.BridgeInterfaceDriver
+    neutron.agent.linux.interface.BridgeInterfaceDriver
 ops_edit $netdhcp DEFAULT dhcp_driver neutron.agent.linux.dhcp.Dnsmasq
 ops_edit $netdhcp DEFAULT enable_isolated_metadata True
 ops_edit $netdhcp DEFAULT dnsmasq_config_file /etc/neutron/dnsmasq-neutron.conf
@@ -184,27 +182,27 @@ echo "dhcp-option-force=26,1454" > /etc/neutron/dnsmasq-neutron.conf
 # killall dnsmasq
 
 echocolor "Configuring METADATA AGENT"
-sleep 7 
+sleep 7
 netmetadata=/etc/neutron/metadata_agent.ini
 
 test -f $netmetadata.orig || cp $netmetadata $netmetadata.orig
 
-## [DEFAULT] 
+## [DEFAULT]
 ops_edit $netmetadata DEFAULT nova_metadata_ip $CTL_MGNT_IP
 ops_edit $netmetadata DEFAULT metadata_proxy_shared_secret $METADATA_SECRET
 
 
 su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf \
-  --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
-  
+    --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
+
 echocolor "Restarting NOVA service"
-sleep 7 
+sleep 7
 service nova-api restart
 service nova-scheduler restart
 service nova-conductor restart
 
 echocolor "Restarting NEUTRON service"
-sleep 7 
+sleep 7
 service neutron-server restart
 service neutron-linuxbridge-agent restart
 service neutron-dhcp-agent restart
@@ -217,4 +215,4 @@ echocolor "Check service Neutron"
 neutron agent-list
 sleep 5
 
-echocolor "Finshed install NEUTRON on CONTROLLER"
+echocolor "Finished install NEUTRON on CONTROLLER"

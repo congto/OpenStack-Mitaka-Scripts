@@ -28,13 +28,13 @@ openstack service create --name glance --description \
 "OpenStack Image service" image
 
 openstack endpoint create --region RegionOne \
-	image public http://$CTL_MGNT_IP:9292
+    image public http://$CTL_MGNT_IP:9292
 
 openstack endpoint create --region RegionOne \
-	image internal http://$CTL_MGNT_IP:9292
+    image internal http://$CTL_MGNT_IP:9292
 
 openstack endpoint create --region RegionOne \
-	image admin http://$CTL_MGNT_IP:9292
+    image admin http://$CTL_MGNT_IP:9292
 
 
 echocolor "Install GLANCE"
@@ -42,7 +42,7 @@ sleep 5
 apt-get -y install glance
 
 echocolor "Configuring GLANCE API"
-sleep 5 
+sleep 5
 #/* Back-up file nova.conf
 glanceapi_ctl=/etc/glance/glance-api.conf
 test -f $glanceapi_ctl.orig || cp $glanceapi_ctl $glanceapi_ctl.orig
@@ -59,7 +59,7 @@ auth_uri http://$CTL_MGNT_IP:5000
 ops_edit $glanceapi_ctl keystone_authtoken \
 auth_url http://$CTL_MGNT_IP:35357
 ops_edit $glanceapi_ctl keystone_authtoken \
-	memcached_servers $CTL_MGNT_IP:11211
+    memcached_servers $CTL_MGNT_IP:11211
 ops_edit $glanceapi_ctl keystone_authtoken auth_type password
 ops_edit $glanceapi_ctl keystone_authtoken project_domain_name default
 ops_edit $glanceapi_ctl keystone_authtoken user_domain_name default
@@ -89,11 +89,11 @@ connection  mysql+pymysql://glance:$GLANCE_DBPASS@$CTL_MGNT_IP/glance
 ops_del $glancereg_ctl database sqlite_db
 
 ops_edit $glanceapi_ctl keystone_authtoken \
-auth_uri http://$CTL_MGNT_IP:5000
+    auth_uri http://$CTL_MGNT_IP:5000
 ops_edit $glanceapi_ctl keystone_authtoken \
-auth_url http://$CTL_MGNT_IP:35357
+    auth_url http://$CTL_MGNT_IP:35357
 ops_edit $glanceapi_ctl keystone_authtoken \
-	memcached_servers $CTL_MGNT_IP:11211
+    memcached_servers $CTL_MGNT_IP:11211
 ops_edit $glanceapi_ctl keystone_authtoken auth_type password
 ops_edit $glanceapi_ctl keystone_authtoken project_domain_name default
 ops_edit $glanceapi_ctl keystone_authtoken user_domain_name default
@@ -128,10 +128,10 @@ cd images /
 wget http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
 
 openstack image create "cirros" \
- --file cirros-0.3.4-x86_64-disk.img \
- --disk-format qcow2 --container-format bare \
- --public
- 
+    --file cirros-0.3.4-x86_64-disk.img \
+    --disk-format qcow2 --container-format bare \
+    --public
+
 cd /root/
 # rm -r /tmp/images
 

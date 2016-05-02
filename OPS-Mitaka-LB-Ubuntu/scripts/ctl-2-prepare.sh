@@ -3,19 +3,19 @@
 source config.cfg
 source functions.sh
 
-echocolor "Cai dat goi CRUDINI"
+echocolor "Installing CRUDINI"
 sleep 3
 
 apt-get -y install python-pip
 pip install \
-	https://pypi.python.org/packages/source/c/crudini/crudini-0.7.tar.gz
+    https://pypi.python.org/packages/source/c/crudini/crudini-0.7.tar.gz
 
 echocolor "Install python client"
 apt-get -y install python-openstackclient
 sleep 5
 
 echocolor "Install and config NTP"
-sleep 3 
+sleep 3
 
 
 apt-get -y install chrony
@@ -56,13 +56,11 @@ echo mysql-server mysql-server/root_password password \
 $MYSQL_PASS | debconf-set-selections
 echo mysql-server mysql-server/root_password_again password \
 $MYSQL_PASS | debconf-set-selections
-apt-get -y install mariadb-server python-mysqldb curl 
+apt-get -y install mariadb-server python-mysqldb curl
 
 echocolor "Configuring MYSQL"
-sleep 3
-
-echocolor "CONFIGURING FOR MYSQL "
 sleep 5
+
 touch /etc/mysql/conf.d/mysqld_openstack.cnf
 cat << EOF > /etc/mysql/conf.d/mysqld_openstack.cnf
 
@@ -79,5 +77,5 @@ character-set-server = utf8
 EOF
 
 sleep 5
-echocolor "Restart MYSQL"
+echocolor "Restarting MYSQL"
 service mysql restart

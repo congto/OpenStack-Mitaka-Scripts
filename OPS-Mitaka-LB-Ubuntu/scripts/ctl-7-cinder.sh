@@ -15,38 +15,42 @@ EOF
 
 echocolor "Create  user, endpoint for CINDER"
 sleep 5
-openstack user create --password $CINDER_PASS cinder
+openstack user create  --domain default --password $CINDER_PASS cinder
 openstack role add --project service --user cinder admin
-openstack service create --name cinder --description "OpenStack Block Storage" volume
-openstack service create --name cinderv2 --description "OpenStack Block Storage" volumev2
+openstack service create --name cinder \
+    --description "OpenStack Block Storage" volume
+openstack service create --name cinderv2 \
+    --description "OpenStack Block Storage" volumev2
 
+openstack endpoint create --region RegionOne \
+    volume public http://$CTL_MGNT_IP:8776/v1/%\(tenant_id\)s
 
-openstack endpoint create \
---publicurl http://$CTL_MGNT_IP:8776/v1/%\(tenant_id\)s \
---internalurl http://$CTL_MGNT_IP:8776/v1/%\(tenant_id\)s \
---adminurl http://$CTL_MGNT_IP:8776/v1/%\(tenant_id\)s \
---region RegionOne \
-volume
+openstack endpoint create --region RegionOne \
+    volume internal http://$CTL_MGNT_IP:8776/v1/%\(tenant_id\)s
 
+openstack endpoint create --region RegionOne \
+    volume admin http://$CTL_MGNT_IP:8776/v1/%\(tenant_id\)s
 
-openstack endpoint create \
---publicurl http://$CTL_MGNT_IP:8776/v2/%\(tenant_id\)s \
---internalurl http://$CTL_MGNT_IP:8776/v2/%\(tenant_id\)s \
---adminurl http://$CTL_MGNT_IP:8776/v2/%\(tenant_id\)s \
---region RegionOne \
-volumev2
+openstack endpoint create --region RegionOne \
+    volumev2 public http://$CTL_MGNT_IP:8776/v2/%\(tenant_id\)s
+
+openstack endpoint create --region RegionOne \
+    volumev2 internal http://$CTL_MGNT_IP:8776/v2/%\(tenant_id\)s
+
+openstack endpoint create --region RegionOne \
+    volumev2 admin http://$CTL_MGNT_IP:8776/v2/%\(tenant_id\)s
 
 #
 echocolor "Install CINDER"
 sleep 3
 apt-get install -y cinder-api cinder-scheduler python-cinderclient \
-	lvm2 cinder-volume python-mysqldb  qemu 
+    lvm2 cinder-volume python-mysqldb  qemu
 
 
 pvcreate /dev/vdb
 vgcreate cinder-volumes /dev/vdb
 sed  -r -i 's#(filter = )(\[ "a/\.\*/" \])#\1["a\/vdb\/", "r/\.\*\/"]#g' \
-	/etc/lvm/lvm.conf
+    /etc/lvm/lvm.conf
 
 cinder_ctl=/etc/cinder/cinder.conf
 test -f $cinder_ctl.orig || cp $cinder_ctl $cinder_ctl.orig
@@ -72,9 +76,9 @@ ops_edit $cinder_ctl oslo_messaging_rabbit rabbit_password $RABBIT_PASS
 ## [keystone_authtoken] section
 ops_edit $cinder_ctl keystone_authtoken auth_uri http://$CTL_MGNT_IP:5000
 ops_edit $cinder_ctl keystone_authtoken auth_url http://$CTL_MGNT_IP:35357
-ops_edit $cinder_ctl keystone_authtoken auth_plugin password
-ops_edit $cinder_ctl keystone_authtoken project_domain_id default
-ops_edit $cinder_ctl keystone_authtoken user_domain_id default
+ops_edit $cinder_ctl keystone_authtoken auth_type password
+ops_edit $cinder_ctl keystone_authtoken project_domain_name default
+ops_edit $cinder_ctl keystone_authtoken user_domain_name default
 ops_edit $cinder_ctl keystone_authtoken project_name service
 ops_edit $cinder_ctl keystone_authtoken username cinder
 ops_edit $cinder_ctl keystone_authtoken password $CINDER_PASS
@@ -84,7 +88,6 @@ ops_edit $cinder_ctl oslo_concurrency lock_path /var/lib/cinder/tmp
 
 ## [lvm] section
 ops_edit $cinder_ctl lvm \
-volume_driver cinder.volume.drivers.lvm.LVMVolumeDriver
 ops_edit $cinder_ctl lvm volume_group cinder-volumes
 ops_edit $cinder_ctl lvm iscsi_protocol iscsi
 ops_edit $cinder_ctl lvm iscsi_helper tgtadm
@@ -93,7 +96,7 @@ ops_edit $cinder_ctl lvm iscsi_helper tgtadm
 echocolor "Syncing Cinder DB"
 sleep 3
 su -s /bin/sh -c "cinder-manage db sync" cinder
- 
+
 echocolor "Restarting CINDER service"
 sleep 3
 service tgt restart

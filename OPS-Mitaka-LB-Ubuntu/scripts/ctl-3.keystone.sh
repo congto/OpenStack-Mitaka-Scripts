@@ -13,18 +13,18 @@ FLUSH PRIVILEGES;
 EOF
 
 echocolor "Install keystone"
- 
+
 echo "manual" > /etc/init/keystone.override
 
 apt-get -y install keystone apache2 libapache2-mod-wsgi \
         memcached python-memcache
-		
+
 sed -i "s/-l 127.0.0.1/-l $CTL_MGNT_IP/g" /etc/memcached.conf
-  
+
 # Back-up file keystone.conf
 filekeystone=/etc/keystone/keystone.conf
 test -f $filekeystone.orig || cp $filekeystone $filekeystone.orig
- 
+
 # Config file /etc/keystone/keystone.conf
 ops_edit $filekeystone DEFAULT admin_token $TOKEN_PASS
 ops_edit $filekeystone database \
@@ -38,7 +38,7 @@ su -s /bin/sh -c "keystone-manage db_sync" keystone
 keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
 
 echo "ServerName $CTL_MGNT_IP" >>  /etc/apache2/apache2.conf
- 
+
 cat << EOF > /etc/apache2/sites-available/wsgi-keystone.conf
 Listen 5000
 Listen 35357
@@ -87,12 +87,12 @@ Listen 35357
             Allow from all
         </IfVersion>
     </Directory>
-</VirtualHost> 
+</VirtualHost>
 EOF
- 
+
 ln -s /etc/apache2/sites-available/wsgi-keystone.conf \
-	/etc/apache2/sites-enabled
- 
+    /etc/apache2/sites-enabled
+
 service apache2 restart
 
 rm -f /var/lib/keystone/keystone.db
@@ -100,10 +100,10 @@ rm -f /var/lib/keystone/keystone.db
 export OS_TOKEN="$TOKEN_PASS"
 export OS_URL=http://$CTL_MGNT_IP:35357/v3
 export OS_IDENTITY_API_VERSION=3
-  
+
 ###  Identity service
 openstack service create \
-  --name keystone --description "OpenStack Identity" identity
+    --name keystone --description "OpenStack Identity" identity
 
 
 openstack endpoint create --region RegionOne \
@@ -125,7 +125,8 @@ openstack role create admin
 
 openstack role add --project admin --user admin admin
 
-openstack project create --domain default --description "Service Project" service
+openstack project create --domain default \
+    --description "Service Project" service
 
 openstack project create --domain default --description "Demo Project" demo
 
@@ -137,9 +138,7 @@ openstack role add --project demo --user demo user
 
 unset OS_TOKEN OS_URL
 
- 
-# Tao bien moi truong
- 
+# Create environment file
 cat << EOF > admin-openrc
 export OS_PROJECT_DOMAIN_NAME=default
 export OS_USER_DOMAIN_NAME=default
@@ -172,5 +171,5 @@ EOF
 chmod +x demo-openrc
 cp  demo-openrc /root/demo-openrc
 
-echocolor "Verify keystone"
+echocolor "Verifying keystone"
 openstack token issue
