@@ -67,4 +67,4 @@ echocolor "Finish setting up Horizon"
 echocolor "LOGIN INFORMATION IN HORIZON"
 echocolor "URL: http://$CTL_EXT_IP/horizon"
 echocolor "User: admin or demo"
-echocolor "Password:" $ADMIN_PASS
+echocolor "Password: $ADMIN_PASS"
