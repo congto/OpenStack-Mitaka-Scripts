@@ -1366,7 +1366,7 @@ OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
 ```
 
 ```sh
-TIME_ZONE = "Asia/Ho_Chi_Minh"
+TIME_ZONE = "asia/Ho_Chi_Minh"
 ```
 
 - Xóa theme mặc định của ubuntu
@@ -1840,10 +1840,7 @@ External Network: check
 ![mitaka-instance12.png](./images/mitaka-instance12.png)
 
 ![mitaka-instance13.png](./images/mitaka-instance13.png)
-
-
 - Nhập mật khẩu với thông tin dưới
-
 ```sh
 user: cirros
 password: cubswin:)
