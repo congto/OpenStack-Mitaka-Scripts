@@ -45,8 +45,6 @@ cat << EOF >> $iphost
 127.0.1.1       controller
 $CTL_MGNT_IP    controller
 $COM1_MGNT_IP   compute1
-
-
 EOF
 
 echocolor "Enable the OpenStack Mitaka repository"
