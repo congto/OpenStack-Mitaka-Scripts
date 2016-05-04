@@ -41,9 +41,10 @@ test -f $iphost.orig || cp $iphost $iphost.orig
 rm $iphost
 touch $iphost
 cat << EOF >> $iphost
-127.0.0.1       localhost $HOST_CTL
-$CTL_MGNT_IP    $HOST_CTL
-$COM1_MGNT_IP   $HOST_COM1
+127.0.0.1       localhost
+127.0.1.1       controller
+$CTL_MGNT_IP    controller
+$COM1_MGNT_IP   compute1
 
 
 EOF
