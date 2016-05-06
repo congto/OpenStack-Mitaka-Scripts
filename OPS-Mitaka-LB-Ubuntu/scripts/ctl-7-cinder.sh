@@ -44,7 +44,7 @@ openstack endpoint create --region RegionOne \
 echocolor "Install CINDER"
 sleep 3
 # apt-get install -y cinder-api cinder-scheduler python-cinderclient \
-    lvm2 cinder-volume python-mysqldb  qemu
+#    lvm2 cinder-volume python-mysqldb  qemu
 
 apt-get -y install cinder-api cinder-scheduler
 

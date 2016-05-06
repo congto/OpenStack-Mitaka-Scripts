@@ -29,7 +29,7 @@ $CIN_MGNT_IP    $HOST_CIN
 EOF
 
 sleep 3
-echocolor "Config network for Compute1 node"
+echocolor "Config network for CINDER node"
 ifaces=/etc/network/interfaces
 test -f $ifaces.orig || cp $ifaces $ifaces.orig
 rm $ifaces
