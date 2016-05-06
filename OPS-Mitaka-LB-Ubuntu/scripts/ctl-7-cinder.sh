@@ -60,10 +60,10 @@ test -f $cinder_ctl.orig || cp $cinder_ctl $cinder_ctl.orig
 ops_edit $cinder_ctl DEFAULT rpc_backend rabbit
 ops_edit $cinder_ctl DEFAULT auth_strategy keystone
 ops_edit $cinder_ctl DEFAULT my_ip $CTL_MGNT_IP
-ops_edit $cinder_ctl DEFAULT verbose True
 ops_edit $cinder_ctl DEFAULT enabled_backends lvm
-ops_edit $cinder_ctl DEFAULT glance_host $CTL_MGNT_IP
 ops_edit $cinder_ctl DEFAULT notification_driver messagingv2
+
+ops_del $cinder_ctl DEFAULT verbose
 
 ## [database] section
 ops_edit $cinder_ctl database \
