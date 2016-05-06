@@ -12,9 +12,9 @@ sleep 5
 echocolor "Upgrade the packages for server"
 apt-get -y update && apt-get -y upgrade && apt-get -y dist-upgrade
 
-echocolor "Configuring hostname for COMPUTE1 node"
+echocolor "Configuring hostname for HOST_CIN node"
 sleep 3
-echo "$HOST_COM1" > /etc/hostname
+echo "$HOST_CIN" > /etc/hostname
 hostname -F /etc/hostname
 
 iphost=/etc/hosts
@@ -35,7 +35,7 @@ test -f $ifaces.orig || cp $ifaces $ifaces.orig
 rm $ifaces
 touch $ifaces
 cat << EOF >> $ifaces
-#Dat IP cho $COM1_MGNT_IP node
+#Setup IP for CINDER node
 
 # LOOPBACK NET
 auto lo
@@ -62,7 +62,3 @@ sleep 5
 echocolor "Rebooting machine ..."
 init 6
 #
-
-
-
-
