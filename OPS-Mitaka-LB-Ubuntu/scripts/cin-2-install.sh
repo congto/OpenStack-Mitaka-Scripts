@@ -24,7 +24,7 @@ test -f $cinder_ctl.orig || cp $cinder_ctl $cinder_ctl.orig
 ## [DEFAULT] section
 ops_edit $cinder_ctl DEFAULT rpc_backend rabbit
 ops_edit $cinder_ctl DEFAULT auth_strategy keystone
-ops_edit $cinder_ctl DEFAULT my_ip $CTL_MGNT_IP
+ops_edit $cinder_ctl DEFAULT my_ip $CIN_MGNT_IP
 ops_edit $cinder_ctl DEFAULT verbose True
 ops_edit $cinder_ctl DEFAULT enabled_backends lvm
 ops_edit $cinder_ctl DEFAULT glance_api_servers  http://$CTL_MGNT_IP:9292
@@ -56,7 +56,8 @@ ops_edit $cinder_ctl keystone_authtoken password $CINDER_PASS
 ops_edit $cinder_ctl oslo_concurrency lock_path /var/lib/cinder/tmp
 
 ## [lvm] section
-ops_edit $cinder_ctl lvm volume_driver inder.volume.drivers.lvm.LVMVolumeDriver
+ops_edit $cinder_ctl lvm \
+    volume_driver inder.volume.drivers.lvm.LVMVolumeDriver
 ops_edit $cinder_ctl lvm volume_group cinder-volumes
 ops_edit $cinder_ctl lvm iscsi_protocol iscsi
 ops_edit $cinder_ctl lvm iscsi_helper tgtadm
