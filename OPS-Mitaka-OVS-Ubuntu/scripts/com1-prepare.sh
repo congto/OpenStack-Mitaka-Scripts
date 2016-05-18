@@ -132,7 +132,8 @@ rm /var/lib/nova/nova.sqlite
 echocolor "Install openvswitch-agent (neutron) on COMPUTE NODE"
 sleep 5
 
-apt-get -y install neutron-linuxbridge-agent
+apt-get -y install  neutron-plugin-openvswitch-agent 
+
 
 echocolor "Config file neutron.conf"
 neutron_com=/etc/neutron/neutron.conf
@@ -143,16 +144,14 @@ ops_edit $neutron_com DEFAULT core_plugin ml2
 ops_edit $neutron_com DEFAULT rpc_backend rabbit
 ops_edit $neutron_com DEFAULT auth_strategy keystone
 
-# ops_edit $neutron_com DEFAULT allow_overlapping_ips True
-# ops_edit $neutron_com DEFAULT service_plugins router
-
 ## [keystone_authtoken] section
 ops_edit $neutron_com keystone_authtoken auth_uri http://$CTL_MGNT_IP:5000
 ops_edit $neutron_com keystone_authtoken auth_url http://$CTL_MGNT_IP:35357
 ops_edit $neutron_com keystone_authtoken memcached_servers $CTL_MGNT_IP:11211
 ops_edit $neutron_com keystone_authtoken auth_type password
 ops_edit $neutron_com keystone_authtoken project_domain_name default
-ops_edit $neutron_com keystone_authtoken user_domain_name service
+ops_edit $neutron_com keystone_authtoken user_domain_name default
+ops_edit $neutron_com keystone_authtoken project_name service
 ops_edit $neutron_com keystone_authtoken username neutron
 ops_edit $neutron_com keystone_authtoken password $NEUTRON_PASS
 
@@ -166,27 +165,26 @@ ops_edit $neutron_com oslo_messaging_rabbit rabbit_userid openstack
 ops_edit $neutron_com oslo_messaging_rabbit rabbit_password $RABBIT_PASS
 
 
-echocolor "Configuring linuxbridge_agent"
+echocolor "Configuring openvswitch_agent"
 sleep 5
 ########
-lbfile_com=/etc/neutron/plugins/ml2/linuxbridge_agent.ini
-test -f $lbfile_com.orig || cp $lbfile_com $lbfile_com.orig
+ovsfile=/etc/neutron/plugins/ml2/openvswitch_agent.ini
+test -f $ovsfile.orig || cp $ovsfile $ovsfile.orig
 
-# [linux_bridge] section
-ops_edit $lbfile_com linux_bridge physical_interface_mappings provider:eth1
+# [agent] section
+ops_edit $ovsfile agent tunnel_types gre,vxlan
+ops_edit $ovsfile agent l2_population True
 
 
 ## [securitygroup] section
-ops_edit $lbfile_com securitygroup enable_security_group True
-ops_edit $lbfile_com securitygroup firewall_driver \
+ops_edit $ovsfile securitygroup firewall_driver \
     neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 
-# [vxlan] section
-ops_edit $lbfile_com vxlan enable_vxlan True
-ops_edit $lbfile_com vxlan local_ip $COM1_MGNT_IP
-ops_edit $lbfile_com vxlan l2_population True
+## [ovs] section
+ops_edit $ovsfile ovs local_ip $COM1_MGNT_IP
 
 echocolor "Reset service nova-compute,linuxbridge-agent"
 sleep 5
 service nova-compute restart
-service neutron-linuxbridge-agent restart
+service service neutron-openvswitch-agent restart
+

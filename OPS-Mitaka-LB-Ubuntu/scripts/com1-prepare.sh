@@ -129,7 +129,7 @@ service nova-compute restart
 # Remove default nova db
 rm /var/lib/nova/nova.sqlite
 
-echocolor "Install openvswitch-agent (neutron) on COMPUTE NODE"
+echocolor "Install neutron-linuxbridge-agent (neutron) on COMPUTE NODE"
 sleep 5
 
 apt-get -y install neutron-linuxbridge-agent
@@ -152,7 +152,8 @@ ops_edit $neutron_com keystone_authtoken auth_url http://$CTL_MGNT_IP:35357
 ops_edit $neutron_com keystone_authtoken memcached_servers $CTL_MGNT_IP:11211
 ops_edit $neutron_com keystone_authtoken auth_type password
 ops_edit $neutron_com keystone_authtoken project_domain_name default
-ops_edit $neutron_com keystone_authtoken user_domain_name service
+ops_edit $neutron_com keystone_authtoken user_domain_name default
+ops_edit $neutron_com keystone_authtoken project_name service
 ops_edit $neutron_com keystone_authtoken username neutron
 ops_edit $neutron_com keystone_authtoken password $NEUTRON_PASS
 
