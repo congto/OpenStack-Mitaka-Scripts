@@ -1647,7 +1647,7 @@ apt-get -y install nova-compute
 
 - Cấu hình `NEUTRON`
 
- - Sao lưu file `/etc/neutron/neutron.conf ` gốc
+ - Sao lưu file `/etc/neutron/neutron.conf` gốc
 	 ```sh
 	 cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.orig
 	 ```
