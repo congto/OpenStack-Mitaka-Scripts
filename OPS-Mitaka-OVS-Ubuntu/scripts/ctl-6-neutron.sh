@@ -214,4 +214,42 @@ echocolor "Check service Neutron"
 neutron agent-list
 sleep 5
 
+
+echocolor "Config IP address for br-ex"
+
+ifaces=/etc/network/interfaces
+test -f $ifaces.orig1 || cp $ifaces $ifaces.orig1
+rm $ifaces
+cat << EOF > $ifaces
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+auto br-ex
+iface br-ex inet static
+address $CTL_EXT_IP
+netmask $NETMASK_ADD_EXT
+gateway $GATEWAY_IP_EXT
+dns-nameservers 8.8.8.8
+
+auto eth1
+iface eth1 inet manual
+   up ifconfig \$IFACE 0.0.0.0 up
+   up ip link set \$IFACE promisc on
+   down ip link set \$IFACE promisc off
+   down ifconfig \$IFACE down
+
+auto eth0
+iface eth0 inet static
+address $CTL_MGNT_IP
+netmask $NETMASK_ADD_MGNT
+EOF
+
+echocolor "Config br-int and br-ex for OpenvSwitch"
+sleep 5
+# ovs-vsctl add-br br-int
+ovs-vsctl add-br br-ex
+ovs-vsctl add-port br-ex eth1
+
 echocolor "Finished install NEUTRON on CONTROLLER"

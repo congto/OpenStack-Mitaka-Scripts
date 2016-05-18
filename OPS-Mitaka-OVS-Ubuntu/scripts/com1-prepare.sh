@@ -178,7 +178,7 @@ ops_edit $ovsfile agent l2_population True
 
 ## [securitygroup] section
 ops_edit $ovsfile securitygroup firewall_driver \
-    neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+     neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
 
 ## [ovs] section
 ops_edit $ovsfile ovs local_ip $COM1_MGNT_IP
