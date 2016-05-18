@@ -1,4 +1,5 @@
 #!/bin/bash -ex
+
 source config.cfg
 source functions.sh
 
@@ -9,7 +10,7 @@ touch $ifaces
 cat << EOF >> $ifaces
 #Assign IP for Controller node
 
-# LOOPBACK NET 
+# LOOPBACK NET
 auto lo
 iface lo inet loopback
 
@@ -18,7 +19,6 @@ auto eth0
 iface eth0 inet static
 address $CTL_MGNT_IP
 netmask $NETMASK_ADD_MGNT
-
 
 # EXT NETWORK
 auto eth1
@@ -29,12 +29,10 @@ gateway $GATEWAY_IP_EXT
 dns-nameservers 8.8.8.8
 EOF
 
-
 echocolor "Configuring hostname in CONTROLLER node"
 sleep 3
 echo "$HOST_CTL" > /etc/hostname
 hostname -F /etc/hostname
-
 
 echocolor "Configuring for file /etc/hosts"
 sleep 3
@@ -43,14 +41,11 @@ test -f $iphost.orig || cp $iphost $iphost.orig
 rm $iphost
 touch $iphost
 cat << EOF >> $iphost
-127.0.0.1       localhost
-127.0.1.1       controller
-$CTL_MGNT_IP    controller
-$COM1_MGNT_IP   compute1
-
-
+127.0.0.1       localhost $HOST_CTL
+$CTL_MGNT_IP    $HOST_CTL
+$COM1_MGNT_IP   $HOST_COM1
+$CIN_MGNT_IP    $HOST_CIN
 EOF
-
 
 echocolor "Enable the OpenStack Mitaka repository"
 apt-get install software-properties-common -y
@@ -66,5 +61,3 @@ echocolor "Reboot Server"
 #sleep 5
 init 6
 #
-
-

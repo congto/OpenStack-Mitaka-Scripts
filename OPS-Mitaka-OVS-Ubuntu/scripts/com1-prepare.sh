@@ -6,7 +6,7 @@ source functions.sh
 
 apt-get -y install python-pip
 pip install \
-https://pypi.python.org/packages/source/c/crudini/crudini-0.7.tar.gz
+    https://pypi.python.org/packages/source/c/crudini/crudini-0.7.tar.gz
 
 #
 
@@ -22,6 +22,7 @@ apt-get -y install python-openstackclient
 
 echocolor "Install and config NTP"
 sleep 3
+
 
 apt-get -y install chrony
 ntpfile=/etc/chrony/chrony.conf
@@ -46,10 +47,10 @@ echocolor "Installl package for NOVA"
 
 apt-get -y install nova-compute
 # echo "libguestfs-tools libguestfs/update-appliance boolean true" \
-# 	| debconf-set-selections
+#    | debconf-set-selections
 # apt-get -y install libguestfs-tools sysfsutils guestfsd python-guestfs
 
-#fix loi chen pass tren hypervisor la KVM
+# Fix KVM bug when injecting password
 # update-guestfs-appliance
 # chmod 0644 /boot/vmlinuz*
 # usermod -a -G kvm root
@@ -58,7 +59,7 @@ apt-get -y install nova-compute
 echocolor "Configuring in nova.conf"
 sleep 5
 ########
-#/* Sao luu truoc khi sua file nova.conf
+#/* Backup nova.conf
 nova_com=/etc/nova/nova.conf
 test -f $nova_com.orig || cp $nova_com $nova_com.orig
 
@@ -68,8 +69,14 @@ ops_edit $nova_com DEFAULT auth_strategy keystone
 ops_edit $nova_com DEFAULT my_ip $COM1_MGNT_IP
 ops_edit $nova_com DEFAULT use_neutron  True
 ops_edit $nova_com DEFAULT \
- firewall_driver nova.virt.firewall.NoopFirewallDriver
+    firewall_driver nova.virt.firewall.NoopFirewallDriver
 
+# ops_edit $nova_com DEFAULT network_api_class nova.network.neutronv2.api.API
+# ops_edit $nova_com DEFAULT security_group_api neutron
+# ops_edit $nova_com DEFAULT \
+#	linuxnet_interface_driver nova.network.linux_net.LinuxOVSInterfaceDriver
+
+# ops_edit $nova_com DEFAULT enable_instance_password True
 
 ## [oslo_messaging_rabbit] section
 ops_edit $nova_com oslo_messaging_rabbit rabbit_host $CTL_MGNT_IP
@@ -94,9 +101,9 @@ ops_edit $nova_com vnc vncserver_listen 0.0.0.0
 ops_edit $nova_com vnc vncserver_proxyclient_address \$my_ip
 ops_edit $nova_com vnc vncserver_proxyclient_address \$my_ip
 ops_edit $nova_com vnc \
-novncproxy_base_url http://$CTL_EXT_IP:6080/vnc_auto.html
-	
-	
+    novncproxy_base_url http://$CTL_EXT_IP:6080/vnc_auto.html
+
+
 ## [glance] section
 ops_edit $nova_com glance api_servers http://$CTL_MGNT_IP:9292
 
@@ -115,25 +122,19 @@ ops_edit $nova_com neutron project_name service
 ops_edit $nova_com neutron username neutron
 ops_edit $nova_com neutron password $NEUTRON_PASS
 
-## [libvirt] section
-ops_edit $nova_com libvirt inject_key True
-ops_edit $nova_com libvirt inject_partition -1
-ops_edit $nova_com libvirt inject_password True
-
-
-echo "Restart nova-compute"
+echocolor "Restart nova-compute"
 sleep 5
 service nova-compute restart
 
 # Remove default nova db
 rm /var/lib/nova/nova.sqlite
 
-echo "Install openvswitch-agent (neutron) on COMPUTE NODE"
+echocolor "Install openvswitch-agent (neutron) on COMPUTE NODE"
 sleep 5
 
-apt-get -y install neutron-plugin-ml2 neutron-plugin-openvswitch-agent
+apt-get -y install neutron-linuxbridge-agent
 
-echo "Config file neutron.conf"
+echocolor "Config file neutron.conf"
 neutron_com=/etc/neutron/neutron.conf
 test -f $neutron_com.orig || cp $neutron_com $neutron_com.orig
 
@@ -156,7 +157,7 @@ ops_edit $neutron_com keystone_authtoken username neutron
 ops_edit $neutron_com keystone_authtoken password $NEUTRON_PASS
 
 
-## [database] section 
+## [database] section
 ops_del $neutron_com database connection
 
 ## [oslo_messaging_rabbit] section
@@ -165,41 +166,27 @@ ops_edit $neutron_com oslo_messaging_rabbit rabbit_userid openstack
 ops_edit $neutron_com oslo_messaging_rabbit rabbit_password $RABBIT_PASS
 
 
-echo "############ Configuring ml2_conf.ini ############"
+echocolor "Configuring linuxbridge_agent"
 sleep 5
 ########
-ml2_com=/etc/neutron/plugins/ml2/ml2_conf.ini
-test -f $ml2_com.orig || cp $ml2_com $ml2_com.orig
+lbfile_com=/etc/neutron/plugins/ml2/linuxbridge_agent.ini
+test -f $lbfile_com.orig || cp $lbfile_com $lbfile_com.orig
 
-## [ml2] section
-ops_edit $ml2_com ml2 type_drivers flat,vlan,gre,vxlan
-ops_edit $ml2_com ml2 tenant_network_types vlan,gre,vxlan
-ops_edit $ml2_com ml2 mechanism_drivers openvswitch,l2population
-ops_edit $ml2_com ml2 extension_drivers port_security
+# [linux_bridge] section
+ops_edit $lbfile_com linux_bridge physical_interface_mappings provider:eth1
 
-## [ml2_type_gre] section
-ops_edit $ml2_com ml2_type_gre tunnel_id_ranges 100:200
 
-## [ml2_type_vxlan] section
-ops_edit $ml2_com ml2_type_vxlan vni_ranges 201:300
+## [securitygroup] section
+ops_edit $lbfile_com securitygroup enable_security_group True
+ops_edit $lbfile_com securitygroup firewall_driver \
+    neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 
-## [securitygroup] section 
-ops_edit $ml2_com securitygroup enable_security_group True
-ops_edit $ml2_com securitygroup enable_ipset True
-ops_edit $ml2_com securitygroup firewall_driver \
-neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+# [vxlan] section
+ops_edit $lbfile_com vxlan enable_vxlan True
+ops_edit $lbfile_com vxlan local_ip $COM1_MGNT_IP
+ops_edit $lbfile_com vxlan l2_population True
 
-## [ovs] section
-ops_edit $ml2_com ovs local_ip $COM1_MGNT_IP
-ops_edit $ml2_com ovs enable_tunneling True
-
-## [agent] section
-ops_edit $ml2_com agent tunnel_types gre,vxlan
-ops_edit $ml2_com agent l2_population True
-ops_edit $ml2_com agent prevent_arp_spoofing True
-
-echocolor "Reset service nova-compute,openvswitch-agent"
+echocolor "Reset service nova-compute,linuxbridge-agent"
 sleep 5
 service nova-compute restart
-service neutron-openvswitch-agent restart
-
+service neutron-linuxbridge-agent restart

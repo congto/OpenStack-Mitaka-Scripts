@@ -116,22 +116,22 @@ extension_drivers = port_security
 
 flat_networks = external
 
-- [ml2_type_vlan]
-network_vlan_ranges = external,vlan:100:200
+- [ml2_type_vlan] section
+# network_vlan_ranges = external
 
--  [ml2_type_gre] section
+- [ml2_type_gre] section
 
 tunnel_id_ranges = 300:400
 
 - [ml2_type_vxlan]
-vni_ranges = 500:600
+# vni_ranges = 500:600
 
 - [securitygroup] section
 
 enable_security_group = True
 enable_ipset = True
 firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
-firewall_driver =neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+
 
 - check config 
 cat /etc/neutron/plugins/ml2/ml2_conf.ini | egrep -v '^$|^#'
