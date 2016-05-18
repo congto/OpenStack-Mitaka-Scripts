@@ -131,6 +131,7 @@ vni_ranges = 500:600
 enable_security_group = True
 enable_ipset = True
 firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+firewall_driver =neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
 
 - check config 
 cat /etc/neutron/plugins/ml2/ml2_conf.ini | egrep -v '^$|^#'
