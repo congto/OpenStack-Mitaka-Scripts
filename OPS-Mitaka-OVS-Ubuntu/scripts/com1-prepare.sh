@@ -186,5 +186,5 @@ ops_edit $ovsfile ovs local_ip $COM1_MGNT_IP
 echocolor "Reset service nova-compute,linuxbridge-agent"
 sleep 5
 service nova-compute restart
-service service neutron-openvswitch-agent restart
+service neutron-openvswitch-agent restart
 
