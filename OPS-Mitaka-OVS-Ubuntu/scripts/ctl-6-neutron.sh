@@ -49,7 +49,7 @@ sleep 5
 apt-get -y install neutron-server neutron-plugin-ml2 \
     neutron-plugin-openvswitch-agent neutron-l3-agent \
     neutron-dhcp-agent neutron-metadata-agent 
-    neutron-common python-neutron python-neutronclient ipset
+    python-neutron python-neutronclient ipset
 
 ######## Backup configuration NEUTRON.CONF ##################"
 echocolor "Config NEUTRON"

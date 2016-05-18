@@ -8,6 +8,7 @@ sleep 5
 apt-get install software-properties-common -y
 add-apt-repository cloud-archive:mitaka -y
 
+
 sleep 5
 echocolor "Upgrade the packages for server"
 apt-get -y update && apt-get -y upgrade && apt-get -y dist-upgrade
