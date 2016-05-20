@@ -253,3 +253,7 @@ ovs-vsctl add-br br-ex
 ovs-vsctl add-port br-ex eth1
 
 echocolor "Finished install NEUTRON on CONTROLLER"
+
+sleep 5
+echocolor "Reboot SERVER"
+init 6
