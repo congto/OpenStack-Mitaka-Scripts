@@ -28,7 +28,7 @@ sleep 3
 neutron subnet-create demo-net --name demo-subnet --gateway 192.168.10.1 \
     192.168.10.0/24
     
-echocolor"Create a project router"
+echocolor "Create a project router"
 sleep 3
 neutron router-create demo-router
 
