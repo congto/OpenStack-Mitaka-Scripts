@@ -183,7 +183,7 @@ ops_edit $ovsfile securitygroup firewall_driver \
 ## [ovs] section
 ops_edit $ovsfile ovs local_ip $COM1_MGNT_IP
 
-echocolor "Reset service nova-compute,linuxbridge-agent"
+echocolor "Reset service nova-compute,openvswitch_agent"
 sleep 5
 service nova-compute restart
 service neutron-openvswitch-agent restart
