@@ -57,7 +57,7 @@ ops_edit $cinder_ctl oslo_concurrency lock_path /var/lib/cinder/tmp
 
 ## [lvm] section
 ops_edit $cinder_ctl lvm \
-    volume_driver inder.volume.drivers.lvm.LVMVolumeDriver
+    volume_driver cinder.volume.drivers.lvm.LVMVolumeDriver
 ops_edit $cinder_ctl lvm volume_group cinder-volumes
 ops_edit $cinder_ctl lvm iscsi_protocol iscsi
 ops_edit $cinder_ctl lvm iscsi_helper tgtadm
