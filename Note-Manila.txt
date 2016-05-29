@@ -341,7 +341,36 @@ manila list
 
 manila show share2
 
+- Configure user access to the new share before attempting to mount it via the network:
 
+manila access-allow share2 ip INSTANCE_IP_ADDRESS
+
+hoặc
+manila access-allow share2 ip SUBNET_INTERNAL_INSTANCE
+
+### Đăng nhập vào máy mà Manila tạo ra (vào tab admin ==> INSTANCE kiểm tra IP của VM được tạo ra, đứng tại máy cài manila-share thực hiện ssh vào IP của máy ảo do manila tạo ra.)
+
+- Kiểm tra dung lượng ổ được share
+df -hT (minh họa: http://prntscr.com/b9rd04)
+ 
+
+
+### Kiểm tra trên instance
+
+- Đăng nhập vào INSTANCE là ubuntu và cài thêm gói 
+aptitude -y install nfs-common
+initctl restart idmapd 
+ 
+- Tạo thư mục trên instance
+
+mkdir ~/test_folder 
+
+- Thực hiện lệnh mount với đường dẫn trong lệnh  `manila show share2` ở trên 
+
+mount -t nfs 10.254.0.3:/shares/share-ee5010d0-2125-4cc3-9158-18384fbc8ed3 ~/test_folder
+
+- Kiểm tra bằng lệnh 
+df -hT  (Minh họa http://prntscr.com/b9rdc0 )
 
 
 
