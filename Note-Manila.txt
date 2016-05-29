@@ -23,7 +23,7 @@
 - To create the database, complete these steps
 - Đăng nhập vào MariaDB
 
-mysql -u root -p
+mysql -u root -pWelcome123
 
 - Tạp DB tên là manila
 
@@ -35,6 +35,8 @@ GRANT ALL PRIVILEGES ON manila.* TO 'manila'@'localhost' \
   IDENTIFIED BY 'Welcome123';
 GRANT ALL PRIVILEGES ON manila.* TO 'manila'@'%' \
   IDENTIFIED BY 'Welcome123';
+  
+FLUSH PRIVILEGES;
 
 exit
 
@@ -105,7 +107,7 @@ rpc_backend = rabbit
 default_share_type = default_share_type
 rootwrap_config = /etc/manila/rootwrap.conf
 auth_strategy = keystone
-my_ip = 10.10.10.96 # IP MGNT cua 10.10.10.96 node
+my_ip = 10.10.10.96
 
 - Khai báo trong section [database]
 
@@ -178,7 +180,7 @@ rpc_backend = rabbit
 default_share_type = default_share_type
 rootwrap_config = /etc/manila/rootwrap.conf
 auth_strategy = keystone
-my_ip = 10.10.10.98 # IP MGNT của CINDER NODE
+my_ip = 10.10.10.98 
 enabled_share_backends = generic
 enabled_share_protocols = NFS,CIFS
 
@@ -212,8 +214,7 @@ password = Welcome123
 [oslo_concurrency]
 lock_path = /var/lib/manila/tmp
 
-- Đối với lựa chon 2, cần cài đặt thành phần neutron lên cinder node
-apt-get -y install neutron-plugin-linuxbridge-agent
+
 
 
 - Khai báo trong các section như sau
@@ -255,8 +256,6 @@ project_name = service
 username = cinder
 password = Welcome123
 
-- Khai báo section [generic]
-
 [generic]
 share_backend_name = GENERIC
 share_driver = manila.share.drivers.generic.GenericShareDriver
@@ -267,6 +266,14 @@ service_instance_user = manila
 service_instance_password = manila
 interface_driver = manila.network.linux.interface.BridgeInterfaceDriver
 
+# interface_driver = manila.network.linux.interface.OVSInterfaceDriver
+
+
+- Đối với lựa chon 2, cần cài đặt thành phần neutron lên cinder node
+
+# apt-get -y install  neutron-plugin-openvswitch-agent 
+
+apt-get -y install neutron-plugin-linuxbridge-agent
 
 - Khởi động dịch vụ manila-share
 service manila-share restart
@@ -276,6 +283,8 @@ service manila-share restart
 ### Kiểm tra lại dịch vụ OpenStack Manila
 - Thực hiện trên controller node
 - Kiểm tra dịch vụ
+
+manila service-list
 
 
 - Tải image dành cho manila
@@ -290,14 +299,47 @@ openstack image create "manila-service-image" \
 --public
 
 - Tạo flavor dành cho image của manila
+
 openstack flavor create manila-service-flavor --id 100 --ram 256 --disk 0 --vcpus 1
 
+- Option 2 - Create shares with share servers management support 
+
+- Create a share type
+- Create a default share type with DHSS enabled
+manila type-create generic_share_type True
+
+- Create a share network
+neutron net-list
+
+- kết quả của lệnh trên 
+root@controller:~# neutron net-list
++--------------------------------------+-------------+------------------------------------------------------+
+| id                                   | name        | subnets                                              |
++--------------------------------------+-------------+------------------------------------------------------+
+| f3d4e215-9efc-4d7a-b466-ee7a866cf074 | ext-net     | 41567f76-6a50-447c-99b8-9c7f5e3e102f 172.16.69.0/24  |
+| 8ca24bad-78ad-4643-b205-c86f550b960e | private-net | 27d9ceed-1f9f-4201-83d8-787fcc3f8e6b 192.168.10.0/24 |
++--------------------------------------+-------------+------------------------------------------------------+
 
 
+- Sử dụng network-id và subnet-id của private network trong lệnh ở trên để dưa vào lệnh dưới
 
+manila share-network-create --name selfservice-net-share1 \
+  --neutron-net-id e1ab2096-aefd-4b5b-9acd-95f7cd6bfa22 \
+  --neutron-subnet-id 03972ebb-304c-4ad7-8f15-8002ceac5b21
 
+- Create a share
 
+manila create NFS 1 --name share2 \
+  --share-network selfservice-net-share1 \
+  --share-type generic_share_type
 
+- Kiểm tra manila vừa share ở trên
+
+manila list
+
+- Determine export IP address of the share
+
+manila show share2
 
 
 
