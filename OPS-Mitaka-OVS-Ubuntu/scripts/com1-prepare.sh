@@ -70,8 +70,8 @@ ops_edit $nova_com DEFAULT my_ip $COM1_MGNT_IP
 ops_edit $nova_com DEFAULT use_neutron  True
 ops_edit $nova_com DEFAULT \
     firewall_driver nova.virt.firewall.NoopFirewallDriver
-ops_edit $nova_com DEFAULT \
-	linuxnet_interface_driver nova.network.linux_net.LinuxOVSInterfaceDriver
+#ops_edit $nova_com DEFAULT \
+#	linuxnet_interface_driver nova.network.linux_net.LinuxOVSInterfaceDriver
     
 # ops_edit $nova_com DEFAULT network_api_class nova.network.neutronv2.api.API
 # ops_edit $nova_com DEFAULT security_group_api neutron
