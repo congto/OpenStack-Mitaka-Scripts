@@ -275,6 +275,8 @@ interface_driver = manila.network.linux.interface.BridgeInterfaceDriver
 
 apt-get -y install neutron-plugin-linuxbridge-agent
 
+- Lưu ý: phải cấu hình L2 Agent trên node share (node cài manila-share), kiểm tra bằng lệnh neutron agent-list trên node controller
+
 - Khởi động dịch vụ manila-share
 service manila-share restart
 
@@ -321,11 +323,11 @@ root@controller:~# neutron net-list
 +--------------------------------------+-------------+------------------------------------------------------+
 
 
-- Sử dụng network-id và subnet-id của private network trong lệnh ở trên để dưa vào lệnh dưới
+- Sử dụng network-id và subnet-id của private network trong lệnh ở trên để dưa vào lệnh dưới 
 
 manila share-network-create --name selfservice-net-share1 \
-  --neutron-net-id e1ab2096-aefd-4b5b-9acd-95f7cd6bfa22 \
-  --neutron-subnet-id 03972ebb-304c-4ad7-8f15-8002ceac5b21
+  --neutron-net-id 6fcddf8f-03aa-48ae-92d9-025f364ab42b \
+  --neutron-subnet-id f47c8822-2f54-43d9-85a6-f15a658a732b
 
 - Create a share
 
@@ -363,11 +365,13 @@ initctl restart idmapd
  
 - Tạo thư mục trên instance
 
-mkdir ~/test_folder 
+mkdir ~/vmdemo_folder 
 
 - Thực hiện lệnh mount với đường dẫn trong lệnh  `manila show share2` ở trên 
 
-mount -t nfs 10.254.0.3:/shares/share-ee5010d0-2125-4cc3-9158-18384fbc8ed3 ~/test_folder
+mount -t nfs 10.254.0.3:/shares/share-b0369fb9-f550-4b89-9ac3-f150ab0ab84b  ~/vmdemo_folder
+
+10.254.0.3:/shares/share-b0369fb9-f550-4b89-9ac3-f150ab0ab84b 
 
 - Kiểm tra bằng lệnh 
 df -hT  (Minh họa http://prntscr.com/b9rdc0 )
