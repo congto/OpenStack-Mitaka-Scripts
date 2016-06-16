@@ -1,3 +1,67 @@
+## Ghi chep cai dat OpenStack tren CentOS7
+
+# Thuc hien tren Controller
+
+-  Setup ip cho eth0
+```sh
+nmcli c modify eth0 ipv4.addresses 10.10.10.43/24
+nmcli c modify eth0 ipv4.method manual
+# nmcli c down eth0; nmcli c up eth0
+```
+
+-  Setup ip cho eth0
+```sh
+nmcli c modify eth1 ipv4.addresses 172.16.69.43/24
+nmcli c modify eth1 ipv4.gateway 172.16.69.1
+nmcli c modify eth1 ipv4.dns 8.8.8.8
+nmcli c modify eth1 ipv4.method manual
+# nmcli c down eth1; nmcli c up eth1
+```
+
+# Cau hinh hostname 
+```sh
+echocolor "Configuring for file /etc/hosts"
+sleep 3
+iphost=/etc/hosts
+test -f $iphost.orig || cp $iphost $iphost.orig
+rm $iphost
+touch $iphost
+cat << EOF >> $iphost
+127.0.0.1       localhost $HOST_CTL
+$CTL_MGNT_IP    $HOST_CTL
+$COM1_MGNT_IP   $HOST_COM1
+$CIN_MGNT_IP    $HOST_CIN
+EOF
+````
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################
 # Cai dat OpenStack Mitaka tren CentOS7.x
 
 ## Setup IP, hostname, sua file /etc/hosts
