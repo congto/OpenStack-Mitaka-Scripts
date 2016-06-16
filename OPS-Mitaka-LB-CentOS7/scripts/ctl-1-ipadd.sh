@@ -54,6 +54,10 @@ sleep 3
 yum -y install python-openstackclient
 yum -y install openstack-selinux
 
+echocolor "Install utility"
+sleep 3
+yum -y install wget 
+
 echocolor "Reboot Server"
 sleep 3
 init 6
