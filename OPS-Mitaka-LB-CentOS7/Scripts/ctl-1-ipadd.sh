@@ -40,21 +40,21 @@ $CIN_MGNT_IP    $HOST_CIN
 EOF
 
 echocolor "Enable the OpenStack Mitaka repository"
+sleep 3
 yum -y install centos-release-openstack-mitaka
 yum -y install https://rdoproject.org/repos/rdo-release.rpm
 
-sleep 5
+
 echocolor "Upgrade the packages for server"
+sleep 3
 yum -y upgrade
 
+echocolor "Install python client"
+sleep 3
 yum -y install python-openstackclient
-
 yum -y install openstack-selinux
 
-
-sleep 5
 echocolor "Reboot Server"
-
-#sleep 5
+sleep 3
 init 6
 #

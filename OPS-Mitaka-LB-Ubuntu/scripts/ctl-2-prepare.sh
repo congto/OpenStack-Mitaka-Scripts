@@ -67,7 +67,6 @@ cat << EOF > /etc/mysql/conf.d/mysqld_openstack.cnf
 [mysqld]
 bind-address = 0.0.0.0
 
-[mysqld]
 default-storage-engine = innodb
 innodb_file_per_table
 collation-server = utf8_general_ci
