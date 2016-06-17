@@ -211,7 +211,6 @@ systemctl start neutron-server.service \
     neutron-metadata-agent.service neutron-l3-agent.service
 
 echocolor "Check service Neutron"
+sleep 10
 neutron agent-list
-sleep 5
-
 echocolor "Finished install NEUTRON on CONTROLLER"
