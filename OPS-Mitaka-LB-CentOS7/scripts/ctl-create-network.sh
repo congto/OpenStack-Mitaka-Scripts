@@ -46,4 +46,4 @@ openstack security group rule create default --proto tcp --dst-port 22
 
 echocolor "List network namespaces and ports on the router"
 ip netns
-neutron router-port-list router
+neutron router-port-list admin-router

@@ -60,6 +60,11 @@ echocolor "Install utility"
 sleep 3
 yum -y install wget 
 
+echocolor "Sepup tool"
+sed -i 's/notify_only=1/notify_only=0/g' \
+    /etc/yum/pluginconf.d/search-disabled-repos.conf
+
+
 echocolor "Reboot Server"
 sleep 3
 init 6
