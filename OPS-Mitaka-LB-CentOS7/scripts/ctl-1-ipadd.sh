@@ -41,8 +41,10 @@ EOF
 
 echocolor "Enable the OpenStack Mitaka repository"
 sleep 3
+# CENTOS
 yum -y install centos-release-openstack-mitaka
-yum -y install https://rdoproject.org/repos/rdo-release.rpm
+# RHEL
+# yum -y install https://rdoproject.org/repos/rdo-release.rpm
 
 
 echocolor "Upgrade the packages for server"

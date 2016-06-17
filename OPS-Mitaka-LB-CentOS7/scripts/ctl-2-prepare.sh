@@ -7,9 +7,6 @@ echocolor "Installing CRUDINI"
 sleep 3
 yum -y install crudini
 
-echocolor "Install python client"
-sleep 3
-apt-get -y install python-openstackclient
 
 ###########################################################
 echocolor "Install and config NTP"
