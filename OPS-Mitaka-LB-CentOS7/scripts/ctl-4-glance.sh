@@ -81,7 +81,7 @@ glancereg_ctl=/etc/glance/glance-registry.conf
 test -f $glancereg_ctl.orig || cp $glancereg_ctl $glancereg_ctl.orig
 
 
-ops_delt $glancereg_ctl DEFAULT  verbose
+ops_del $glancereg_ctl DEFAULT  verbose
 
 ops_edit $glancereg_ctl database \
 connection  mysql+pymysql://glance:$GLANCE_DBPASS@$CTL_MGNT_IP/glance

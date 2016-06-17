@@ -1,3 +1,10 @@
+### Chú ý: 
+
+- Dang ky tren RHEL 7
+```sh
+subscription-manager register --username dia_chi_email --password mat_khau --auto-attach
+```
+
 # Các bước thực hiện
 
 ## CONTROLLER
@@ -11,3 +18,4 @@ rm -rf /root/OpenStack-Mitaka-Scripts
 cd scripts/
 chmod +x *.sh
 ```
+
