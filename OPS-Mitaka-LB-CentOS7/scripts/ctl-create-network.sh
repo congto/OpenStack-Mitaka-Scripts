@@ -7,7 +7,7 @@ echocolor "Create the external network"
 sleep 3
 
 neutron net-create ext-net --router:external True \
-    --provider:physical_network external --provider:network_type flat
+    --provider:physical_network provider --provider:network_type flat
     
 echocolor "Create a subnet on the external network:"
 sleep 3
@@ -19,14 +19,14 @@ tenant_id=`openstack project show admin | egrep -w id | awk '{print $4}'`
 
 echocolor "Create the project network"
 sleep 3
-neutron net-create private-net --tenant-id $tenant_id \
-    --provider:network_type gre
+neutron net-create selfservice
     
 
 echocolor "Create a subnet on the project network"
 sleep 3
-neutron subnet-create private-net --name private-subnet \
-    --dns-nameserver 8.8.8.8 --gateway 192.168.10.1 192.168.10.0/24
+neutron subnet-create --name selfservice \
+  --dns-nameserver 8.8.4.4 --gateway 192.168.10.1 \
+  selfservice 192.168.10.0/24
     
 echocolor "Create a project router"
 sleep 3
@@ -34,7 +34,7 @@ neutron router-create admin-router
 
 echocolor "Add the project subnet as an interface on the router"
 sleep 3
-neutron router-interface-add admin-router private-subnet
+ neutron router-interface-add admin-router selfservice
 
 echocolor "Add a gateway to the external network on the router"
 sleep 3
@@ -43,6 +43,10 @@ neutron router-gateway-set admin-router ext-net
 echocolor "Allow SSH, ICMP protocol"
 openstack security group rule create default --proto icmp
 openstack security group rule create default --proto tcp --dst-port 22
+
+echocolor "List network namespaces and ports on the router"
+ip netns
+neutron router-port-list router
 
 
 
