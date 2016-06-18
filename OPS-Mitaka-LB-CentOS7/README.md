@@ -76,26 +76,26 @@ bash ......
 
 ## COMPUTE
 - Clone git or scp from Controller node
-```sh
-yum -y update && yum -y install git
+    ```sh
+    yum -y update && yum -y install git
 
-git clone https://github.com/congto/OpenStack-Mitaka-Scripts.git
-mv /root/OpenStack-Mitaka-Scripts/OPS-Mitaka-LB-CentOS7/scripts /root
-rm -rf /root/OpenStack-Mitaka-Scripts
-cd scripts/
-chmod +x *.sh
-```
+    git clone https://github.com/congto/OpenStack-Mitaka-Scripts.git
+    mv /root/OpenStack-Mitaka-Scripts/OPS-Mitaka-LB-CentOS7/scripts /root
+    rm -rf /root/OpenStack-Mitaka-Scripts
+    cd scripts/
+    chmod +x *.sh
+    ```
 - Setup environment on file `config.cfg` if you need. Variables the same `controller node`
 
 - Setup IP
-```sh
-bash com1-ipdd.sh
-```
+    ```sh
+    bash com1-ipdd.sh
+    ```
 
 - Install nova, neutron on COMPUTE node
-```sh
-bash com1-prepare.sh
-```
+    ```sh
+    bash com1-prepare.sh
+    ```
 
 - Moving Controller node for install Horizon
 
@@ -104,22 +104,28 @@ bash com1-prepare.sh
 ###  Chú ý: 
 
 - Đăng ký để cài đặt với RHEL
-```sh
-subscription-manager register --username dia_chi_email --password mat_khau --auto-attach
-```
+    ```sh
+    subscription-manager register --username dia_chi_email --password mat_khau --auto-attach
+    ```
 
 - Kiểm tra phiên bản CENTOS
-```sh
-[root@ctl-cent7 scripts]# cat /etc/redhat-release
-CentOS Linux release 7.2.1511 (Core)
-[root@ctl-cent7 scripts]#
-```
+
+    ```sh
+    [root@ctl-cent7 scripts]# cat /etc/redhat-release
+    CentOS Linux release 7.2.1511 (Core)
+    [root@ctl-cent7 scripts]#
+    ```
 
 - Các lệnh trong neutron
 
  - Kiểm tra danh sách network
  ```sh
  openstack network list
+ ```
+ 
+ - Liệt kê các router
+ ```sh
+ neutron router-list
  ```
  
  - Kiểm tra các port trên router có tên là `admin-router`
