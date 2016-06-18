@@ -5,32 +5,17 @@
 - Node Controller
  - OS: `CENTOS 7.x or RHEL 7.x`
  - NIC: 
-   - eth0 : 
-     - IP address: `10.10.10.40`
-     - Subnet mask: `255.255.255.0`
-   - eth1 : 
-     - IP addres: `172.16.69.40`
-     - Subnet mask: `255.255.255.0`
-   - Gateway: `172.16.69.1`
-   - DNS-NameServer: `8.8.8.8`
-   - HDD: `80GB`
-   - RAM: `4GB`
-   - CPU: `1`
+   - eth0 :  IP : `10.10.10.40` , Subnet mask: `255.255.255.0`
+   - eth1 : IP addres: `172.16.69.40`, Subnet mask: `255.255.255.0`, Gateway: `172.16.69.1`,  DNS `8.8.8.8`
+   - HDD: `80GB`, RAM: `4GB`, CPU: `1`
   
 - Node Compute
  - OS: `CENTOS 7.x or RHEL 7.x`
  - NIC: 
-   - eth0 : 
-     - IP address: `10.10.10.41`
-     - Subnet mask: `255.255.255.0`
-   - eth1 : 
-     - IP addres: `172.16.69.41`
-     - Subnet mask: `255.255.255.0`
-   - Gateway: `172.16.69.1`
-   - DNS-NameServer: `8.8.8.8`
-   - HDD: `80GB`
-   - RAM: `4GB`
-   - CPU: `2`
+   - eth0 :  IP : `10.10.10.41` , Subnet mask: `255.255.255.0`
+   - eth1 : IP addres: `172.16.69.41`, Subnet mask: `255.255.255.0`, Gateway: `172.16.69.1`,  DNS `8.8.8.8`
+   - HDD: `80GB`, RAM: `4GB`, CPU: `2`
+  
 
    
 ## CONTROLLER
