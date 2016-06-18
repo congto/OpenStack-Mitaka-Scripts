@@ -18,7 +18,7 @@
 
    
 ## CONTROLLER
-- Chuẩn bị cài đặt
+- Chuẩn bị cài đặt trên node Controller
     ```sh
     yum -y update && yum -y install git
 
@@ -75,6 +75,7 @@
 - Moving COMPUTE NODE
 
 ## COMPUTE
+- Thực hiện cài đặt trên node compute
 - Clone git or scp from Controller node
     ```sh
     yum -y update && yum -y install git
