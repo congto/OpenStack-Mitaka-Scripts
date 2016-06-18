@@ -9,7 +9,7 @@
 [4. Tạo máy ảo bằng lệnh](#taomayaobanglenh)
 
 [5. Các ghi chú khác](#ghichukhac)
-----
+
 
 <a name="moitruongthuchien"></a>
 ## Mô trường thực hiện 
