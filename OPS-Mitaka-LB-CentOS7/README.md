@@ -19,58 +19,58 @@
    
 ## CONTROLLER
 - Chuẩn bị cài đặt
-```sh
-yum -y update && yum -y install git
+    ```sh
+    yum -y update && yum -y install git
 
-git clone https://github.com/congto/OpenStack-Mitaka-Scripts.git
-mv /root/OpenStack-Mitaka-Scripts/OPS-Mitaka-LB-CentOS7/scripts /root
-rm -rf /root/OpenStack-Mitaka-Scripts
-cd scripts/
-chmod +x *.sh
-```
+    git clone https://github.com/congto/OpenStack-Mitaka-Scripts.git
+    mv /root/OpenStack-Mitaka-Scripts/OPS-Mitaka-LB-CentOS7/scripts /root
+    rm -rf /root/OpenStack-Mitaka-Scripts
+    cd scripts/
+    chmod +x *.sh
+    ```
 - Setup environment on file `config.cfg` if you need.
 
 - Setup IP
-```sh
-bash ctl-1-ipadd.sh
-```
+    ```sh
+    bash ctl-1-ipadd.sh
+    ```
 
 - Login server with account `root` 
 - Prepare 
-```sh
-cd /scripts
-bash ctl-2-prepare.sh
-```
+    ```sh
+    cd /scripts
+    bash ctl-2-prepare.sh
+    ```
 
 - Install keystone
-```sh
-bash ctl-3.keystone.sh
-```
+    ```sh
+    bash ctl-3.keystone.sh
+    ```
 
 - Load  environment variables
-```sh
-source admin-openrc
-```
+    ```sh
+    source admin-openrc
+    ```
 
 - Install Glance
-```sh
-bash ctl-4-glance.sh
-```
+    ```sh
+    bash ctl-4-glance.sh
+    ```
 
 - Install Nova
-```sh
-bash  ctl-5-nova.sh
-```
+    ```sh
+    bash  ctl-5-nova.sh
+    ```
 
 - Install Neutron
-```sh
-bash ctl-6-neutron.sh
-```
+    ```sh
+    bash ctl-6-neutron.sh
+    ```
 
 - Install Horizon
-```sh
-bash ......
-```
+    ```sh
+    bash ......
+    ```
 
 - Moving COMPUTE NODE
 

@@ -12,7 +12,7 @@ yum -y install crudini
 echocolor "Install and config NTP"
 sleep 3
 yum -y install chrony
-ntpfile=/etc/chrony/chrony.conf
+ntpfile=/etc/chrony.conf
 cp $ntpfile $ntpfile.orig
 
 sed -i "s/server 0.debian.pool.ntp.org offline minpoll 8/ \
