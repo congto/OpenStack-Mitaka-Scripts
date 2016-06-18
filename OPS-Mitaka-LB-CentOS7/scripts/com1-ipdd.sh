@@ -28,7 +28,7 @@ nmcli c modify eth1 ipv4.method manual
 
 echocolor "Configuring hostname in CONTROLLER node"
 sleep 3
-hostnamectl set-hostname $HOST_CTL
+hostnamectl set-hostname $HOST_COM1
 
 echocolor "Configuring for file /etc/hosts"
 sleep 3
