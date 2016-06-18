@@ -34,6 +34,9 @@ cat << EOF >> $filehtml
 </html>
 EOF
 
+
+echocolor "Config dashboard"
+sleep 3
 cp /etc/openstack-dashboard/local_settings \
     /etc/openstack-dashboard/local_settings.orig
     
@@ -47,6 +50,10 @@ sed -i "s/_member_/user/g" $filehorizon
 sed -i "s/127.0.0.1/$CTL_MGNT_IP/g" $filehorizon
 sed -i "s/http:\/\/\%s:5000\/v2.0/http:\/\/\%s:5000\/v3/g" \
     $filehorizon
+    
+sed -e 's/django.core.cache.backends.locmem.LocMemCache/django.core.cache.backends.memcached.MemcachedCache\
+         'LOCATION': '10.10.10.150:11211',/g' $filehorizon  
+
 
 cat << EOF >> $filehorizon
 OPENSTACK_API_VERSIONS = {
@@ -55,7 +62,10 @@ OPENSTACK_API_VERSIONS = {
     "volume": 2,
     "compute": 2,
 }
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 EOF
+
 
 sed -i "s/#OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'/\
 OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'/g" \
@@ -65,7 +75,9 @@ OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'/g" \
  systemctl restart httpd.service memcached.service
 echocolor "Finish setting up Horizon"
 
+chown root:apache local_settings
+
 echocolor "LOGIN INFORMATION IN HORIZON"
-echocolor "URL: http://$CTL_EXT_IP/horizon"
+echocolor "URL: http://$CTL_EXT_IP/dashboard"
 echocolor "User: admin or demo"
 echocolor "Password: $ADMIN_PASS"
