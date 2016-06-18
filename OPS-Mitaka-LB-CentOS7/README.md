@@ -1,9 +1,14 @@
 # Các bước thực hiện
 # MỤC LỤC
 [1. Mô trường thực hiện](#moitruongthuchien)
+
 [2. Cài đặt trên Controller](#controller)
+
 [3. Cài đặt trên Compute](#compute)
+
 [4. Tạo máy ảo bằng lệnh](#taomayaobanglenh)
+
+[5. Các ghi chú khác](#ghichukhac)
 ----
 
 <a name="moitruongthuchien"></a>
@@ -194,6 +199,7 @@
         Minimum = 10ms, Maximum = 15ms, Average = 11ms
     ```
 
+<a name="ghichukhac"></a>
 ###  Chú ý: 
 
 - Đăng ký để cài đặt với RHEL
