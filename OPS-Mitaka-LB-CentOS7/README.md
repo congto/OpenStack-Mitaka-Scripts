@@ -117,37 +117,38 @@
     +----+-----------+-------+------+-----------+-------+-----------+
     ```
     
-    - Kiểm tra danh sách các image `openstack image list`
-        [root@controller scripts]# openstack image list
-        +--------------------------------------+--------+--------+
-        | ID                                   | Name   | Status |
-        +--------------------------------------+--------+--------+
-        | 1552b75b-4889-4a45-8a58-6890e6eaee76 | cirros | active |
-        +--------------------------------------+--------+--------+
-        ```
+ - Kiểm tra danh sách các image `openstack image list`
+    ```sh
+    [root@controller scripts]# openstack image list
+    +--------------------------------------+--------+--------+
+    | ID                                   | Name   | Status |
+    +--------------------------------------+--------+--------+
+    | 1552b75b-4889-4a45-8a58-6890e6eaee76 | cirros | active |
+    +--------------------------------------+--------+--------+
+    ```
+
+ - Kiểm tra danh sách các network `openstack network list`
+    ```sh
+    [root@controller scripts]# openstack network list
+    +--------------------------------------+-------------+--------------------------------------+
+    | ID                                   | Name        | Subnets                              |
+    +--------------------------------------+-------------+--------------------------------------+
+    | d04caf30-a89c-4684-b9ea-dff71524d8cd | ext-net     | 441c56e0-116f-4539-bdbb-8f6657ec5170 |
+    | 473d83c7-beda-4eed-bf83-eede19e7bdd8 | selfservice | 7e663ccc-d73d-4f06-bedf-7bb1e508ad0a |
+    +--------------------------------------+-------------+--------------------------------------+
+    ````
     
-    - Kiểm tra danh sách các network `openstack network list`
-        ```sh
-        [root@controller scripts]# openstack network list
-        +--------------------------------------+-------------+--------------------------------------+
-        | ID                                   | Name        | Subnets                              |
-        +--------------------------------------+-------------+--------------------------------------+
-        | d04caf30-a89c-4684-b9ea-dff71524d8cd | ext-net     | 441c56e0-116f-4539-bdbb-8f6657ec5170 |
-        | 473d83c7-beda-4eed-bf83-eede19e7bdd8 | selfservice | 7e663ccc-d73d-4f06-bedf-7bb1e508ad0a |
-        +--------------------------------------+-------------+--------------------------------------+
-        ````
-    
-    - Gán biến bằng ID của dải mạng `selfservice`
+ - Gán biến bằng ID của dải mạng `selfservice`
     ```sh
     selfservice=`openstack network list | awk '/selfservice/ {print $2}'`
     ```
     
-    - Tạo máy ảo với image là `cirros`, flavor `m1.tiny`, gắn vào dải mạng `selfservice`, thuộc security group `default` và có tên là `vm6969`
+ - Tạo máy ảo với image là `cirros`, flavor `m1.tiny`, gắn vào dải mạng `selfservice`, thuộc security group `default` và có tên là `vm6969`
     ```sh
     openstack server create --flavor m1.tiny --image cirros \
         --nic net-id=$selfservice --security-group default vm6969
     ```
-    
+
 
 ###  Chú ý: 
 
