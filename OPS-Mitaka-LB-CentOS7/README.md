@@ -6,8 +6,8 @@
  - OS: CENTOS 7.x or RHEL 7.x
  - NIC: 
   - eth0 : 
-   - IP address: 10.10.10.40
-   - Subnet mask: 255.255.255.0
+    - IP address: 10.10.10.40
+    - Subnet mask: 255.255.255.0
   - eth1 : 
    - IP addres: 172.16.69.40
    - Subnet mask: 255.255.255.0
