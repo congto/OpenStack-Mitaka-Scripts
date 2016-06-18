@@ -34,19 +34,21 @@ cat << EOF >> $filehtml
 </html>
 EOF
 
-cp /etc/openstack-dashboard/local_settings.py \
-    /etc/openstack-dashboard/local_settings.py.orig
+cp /etc/openstack-dashboard/local_settings \
+    /etc/openstack-dashboard/local_settings.orig
+    
+filehorizon=/etc/openstack-dashboard/local_settings
 
 # Allowing insert password in dashboard ( only apply in image )
 sed -i "s/'can_set_password': False/'can_set_password': True/g" \
-/etc/openstack-dashboard/local_settings.py
+    $filehorizon
 
-sed -i "s/_member_/user/g" /etc/openstack-dashboard/local_settings.py
-sed -i "s/127.0.0.1/$CTL_MGNT_IP/g" /etc/openstack-dashboard/local_settings.py
+sed -i "s/_member_/user/g" $filehorizon
+sed -i "s/127.0.0.1/$CTL_MGNT_IP/g" $filehorizon
 sed -i "s/http:\/\/\%s:5000\/v2.0/http:\/\/\%s:5000\/v3/g" \
-/etc/openstack-dashboard/local_settings.py
+    $filehorizon
 
-cat << EOF >> /etc/openstack-dashboard/local_settings.py
+cat << EOF >> $filehorizon
 OPENSTACK_API_VERSIONS = {
 #    "data-processing": 1.1,
     "identity": 3,
@@ -57,7 +59,7 @@ EOF
 
 sed -i "s/#OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'/\
 OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'/g" \
-/etc/openstack-dashboard/local_settings.py
+    $filehorizon
 
 ## /* Restarting apache2 and memcached
  systemctl restart httpd.service memcached.service
