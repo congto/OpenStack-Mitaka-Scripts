@@ -101,7 +101,7 @@ bash com1-prepare.sh
 
 
 
-## Chú ý: 
+###  Chú ý: 
 
 - Đăng ký để cài đặt với RHEL
 ```sh
@@ -114,3 +114,15 @@ subscription-manager register --username dia_chi_email --password mat_khau --aut
 CentOS Linux release 7.2.1511 (Core)
 [root@ctl-cent7 scripts]#
 ```
+
+- Các lệnh trong neutron
+
+ - Kiểm tra danh sách network
+ ```sh
+ openstack network list
+ ```
+ 
+ - Kiểm tra các port trên router có tên là `admin-router`
+ ```sh
+ neutron router-port-list admin-router
+ ```

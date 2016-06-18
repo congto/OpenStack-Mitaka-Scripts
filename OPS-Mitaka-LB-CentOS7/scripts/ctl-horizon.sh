@@ -51,7 +51,7 @@ sed -i "s/127.0.0.1/$CTL_MGNT_IP/g" $filehorizon
 sed -i "s/http:\/\/\%s:5000\/v2.0/http:\/\/\%s:5000\/v3/g" \
     $filehorizon
     
-sed -e 's/django.core.cache.backends.locmem.LocMemCache/django.core.cache.backends.memcached.MemcachedCache\
+sed -e 's/django.core.cache.backends.locmem.LocMemCache/django.core.cache.backends.memcached.MemcachedCache',\
          'LOCATION': '10.10.10.150:11211',/g' $filehorizon  
 
 
