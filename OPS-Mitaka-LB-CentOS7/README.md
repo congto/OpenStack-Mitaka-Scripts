@@ -100,6 +100,53 @@
 - Moving Controller node for install Horizon
 
 
+## Tạo máy ảo bằng lệnh
+- Các bước tạo máy ảo bằng lệnh:
+
+ - Kiểm tra danh flavor (các gói cấu hình) `openstack flavor list`
+    ```sh
+    [root@controller scripts]# openstack flavor list
+    +----+-----------+-------+------+-----------+-------+-----------+
+    | ID | Name      |   RAM | Disk | Ephemeral | VCPUs | Is Public |
+    +----+-----------+-------+------+-----------+-------+-----------+
+    | 1  | m1.tiny   |   512 |    1 |         0 |     1 | True      |
+    | 2  | m1.small  |  2048 |   20 |         0 |     1 | True      |
+    | 3  | m1.medium |  4096 |   40 |         0 |     2 | True      |
+    | 4  | m1.large  |  8192 |   80 |         0 |     4 | True      |
+    | 5  | m1.xlarge | 16384 |  160 |         0 |     8 | True      |
+    +----+-----------+-------+------+-----------+-------+-----------+
+    ```
+    
+    - Kiểm tra danh sách các image `openstack image list`
+    [root@controller scripts]# openstack image list
+    +--------------------------------------+--------+--------+
+    | ID                                   | Name   | Status |
+    +--------------------------------------+--------+--------+
+    | 1552b75b-4889-4a45-8a58-6890e6eaee76 | cirros | active |
+    +--------------------------------------+--------+--------+
+    ```
+    
+    - Kiểm tra danh sách các network `openstack network list`
+    [root@controller scripts]# openstack network list
+    +--------------------------------------+-------------+--------------------------------------+
+    | ID                                   | Name        | Subnets                              |
+    +--------------------------------------+-------------+--------------------------------------+
+    | d04caf30-a89c-4684-b9ea-dff71524d8cd | ext-net     | 441c56e0-116f-4539-bdbb-8f6657ec5170 |
+    | 473d83c7-beda-4eed-bf83-eede19e7bdd8 | selfservice | 7e663ccc-d73d-4f06-bedf-7bb1e508ad0a |
+    +--------------------------------------+-------------+--------------------------------------+
+    ````
+    
+    - Gán biến bằng ID của dải mạng `selfservice`
+    ```sh
+    selfservice=`openstack network list | awk '/selfservice/ {print $2}'`
+    ```
+    
+    - Tạo máy ảo với image là `cirros`, flavor `m1.tiny`, gắn vào dải mạng `selfservice`, thuộc security group `default` và có tên là `vm6969`
+    ```sh
+    openstack server create --flavor m1.tiny --image cirros \
+        --nic net-id=$selfservice --security-group default vm6969
+    ```
+    
 
 ###  Chú ý: 
 

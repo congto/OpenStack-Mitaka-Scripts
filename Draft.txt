@@ -1,1 +1,0 @@
- glance image-upload  --file images/cirros-0.3.4-x86_64-disk.img 6f2f3b84-edfb-44ec-b251-0801cc86492d
