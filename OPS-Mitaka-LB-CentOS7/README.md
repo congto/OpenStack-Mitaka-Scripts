@@ -1,6 +1,13 @@
 # Các bước thực hiện
+# MỤC LỤC
+[1. Mô trường thực hiện](#moitruongthuchien)
+[2. Cài đặt trên Controller](#controller)
+[3. Cài đặt trên Compute](#compute)
+[4. Tạo máy ảo bằng lệnh](#taomayaobanglenh)
+----
 
-## Mô trường thực hiện
+<a name="moitruongthuchien"></a>
+## Mô trường thực hiện 
 - OpenStack Mitaka
 - Node Controller
  - OS: `CENTOS 7.x` or `RHEL 7.x`
@@ -16,7 +23,7 @@
     - eth1 : `172.16.69.41/24`, Gateway: `172.16.69.1`,  DNS `8.8.8.8`
    - HDD: `80GB`, RAM: `4GB`, CPU: `1`
 
-   
+<a name="controller"></a>
 ## CONTROLLER
 - Chuẩn bị cài đặt trên node Controller
     ```sh
@@ -74,6 +81,7 @@
 
 - Moving COMPUTE NODE
 
+<a name="compute"></a>
 ## COMPUTE
 - Thực hiện cài đặt trên node compute
 - Clone git or scp from Controller node
@@ -101,6 +109,7 @@
 - Moving Controller node for install Horizon
 
 
+<a name=taomayaobanglenh></a>
 ## Tạo máy ảo bằng lệnh
 - Các bước tạo máy ảo bằng lệnh:
 
