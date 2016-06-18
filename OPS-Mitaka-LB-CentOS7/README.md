@@ -12,21 +12,12 @@
 
 
 <a name="moitruongthuchien"></a>
-## Mô trường thực hiện 
-- OpenStack Mitaka
-- Node Controller
- - OS: `CENTOS 7.x` or `RHEL 7.x`
- - NIC: 
-    - eth0 : 10.10.10.40/24
-    - eth1 : `172.16.69.40/24`, Gateway: `172.16.69.1`,  DNS `8.8.8.8`
-   - HDD: `80GB`, RAM: `4GB`, CPU: `1`
-  
-- Node Compute
- - OS: `CENTOS 7.x` or `RHEL 7.x`
- - NIC: 
-    - eth0 : 10.10.10.41/24
-    - eth1 : `172.16.69.41/24`, Gateway: `172.16.69.1`,  DNS `8.8.8.8`
-   - HDD: `80GB`, RAM: `4GB`, CPU: `1`
+## Cấu hình yêu cầu, IP Planning và Mô hình
+- Cấu hình yêu cầu đối với các máy và IP Planning
+![](http://image.prntscr.com/image/7d37b7eb7453415ea414682268cdfeb4.png)
+
+- Mô hình cài đặt
+![](http://image.prntscr.com/image/1eeb23aed22b48fe84965c95c2338399.png)
 
 <a name="controller"></a>
 ## CONTROLLER
