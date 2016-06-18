@@ -3,28 +3,15 @@
 
 source config.cfg
 source functions.sh
+echocolor "Installing CRUDINI"
+sleep 3
+yum -y install crudini
 
-apt-get -y install python-pip
-pip install \
-    https://pypi.python.org/packages/source/c/crudini/crudini-0.7.tar.gz
 
-#
-
-cat << EOF >> /etc/sysctl.conf
-net.ipv4.conf.all.rp_filter=0
-net.ipv4.conf.default.rp_filter=0
-net.bridge.bridge-nf-call-iptables=1
-net.bridge.bridge-nf-call-ip6tables=1
-EOF
-
-echocolor "Install python openstack client"
-apt-get -y install python-openstackclient
-
+###########################################################
 echocolor "Install and config NTP"
 sleep 3
-
-
-apt-get -y install chrony
+yum -y install chrony
 ntpfile=/etc/chrony/chrony.conf
 cp $ntpfile $ntpfile.orig
 
@@ -32,34 +19,31 @@ sed -i "s/server 0.debian.pool.ntp.org offline minpoll 8/ \
 server $CTL_MGNT_IP iburst/g" $ntpfile
 
 
-sed -i 's/server 1.debian.pool.ntp.org offline minpoll 8/ \
-# server 1.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
+sed -i 's/server 1.centos.pool.ntp.org iburst/ \
+# server 1.centos.pool.ntp.org iburst/g' $ntpfile
 
-sed -i 's/server 2.debian.pool.ntp.org offline minpoll 8/ \
-# server 2.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
+sed -i 's/server 2.centos.pool.ntp.org iburst/ \
+# server 2.centos.pool.ntp.org iburst/g' $ntpfile
 
-sed -i 's/server 3.debian.pool.ntp.org offline minpoll 8/ \
-# server 3.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
+sed -i 's/server 3.centos.pool.ntp.org iburst/ \
+# server 3.centos.pool.ntp.org iburst/g' $ntpfile
 
+echocolor "Start the NTP service"
+sleep 3
+systemctl enable chronyd.service
+systemctl start chronyd.service
+
+echocolor "Check service NTP"
+sleep 3
+chronyc sources
 
 sleep 5
 echocolor "Installl package for NOVA"
 
-apt-get -y install nova-compute
-# echo "libguestfs-tools libguestfs/update-appliance boolean true" \
-#    | debconf-set-selections
-# apt-get -y install libguestfs-tools sysfsutils guestfsd python-guestfs
-
-# Fix KVM bug when injecting password
-# update-guestfs-appliance
-# chmod 0644 /boot/vmlinuz*
-# usermod -a -G kvm root
-
-
-echocolor "Configuring in nova.conf"
+yum -y install openstack-nova-compute
+echocolor "Install & Configuring in nova.conf"
 sleep 5
-########
-#/* Backup nova.conf
+#Backup nova.conf
 nova_com=/etc/nova/nova.conf
 test -f $nova_com.orig || cp $nova_com $nova_com.orig
 
@@ -70,13 +54,6 @@ ops_edit $nova_com DEFAULT my_ip $COM1_MGNT_IP
 ops_edit $nova_com DEFAULT use_neutron  True
 ops_edit $nova_com DEFAULT \
     firewall_driver nova.virt.firewall.NoopFirewallDriver
-
-# ops_edit $nova_com DEFAULT network_api_class nova.network.neutronv2.api.API
-# ops_edit $nova_com DEFAULT security_group_api neutron
-# ops_edit $nova_com DEFAULT \
-#	linuxnet_interface_driver nova.network.linux_net.LinuxOVSInterfaceDriver
-
-# ops_edit $nova_com DEFAULT enable_instance_password True
 
 ## [oslo_messaging_rabbit] section
 ops_edit $nova_com oslo_messaging_rabbit rabbit_host $CTL_MGNT_IP
@@ -121,17 +98,17 @@ ops_edit $nova_com neutron project_name service
 ops_edit $nova_com neutron username neutron
 ops_edit $nova_com neutron password $NEUTRON_PASS
 
-echocolor "Restart nova-compute"
+echocolor "Restart and start nova-compute when reboot server"
 sleep 5
-service nova-compute restart
+systemctl enable libvirtd.service openstack-nova-compute.service
+systemctl start libvirtd.service openstack-nova-compute.service
 
 # Remove default nova db
 rm /var/lib/nova/nova.sqlite
 
 echocolor "Install neutron-linuxbridge-agent (neutron) on COMPUTE NODE"
 sleep 5
-
-apt-get -y install neutron-linuxbridge-agent
+yum -y install openstack-neutron-linuxbridge ebtables ipset
 
 echocolor "Config file neutron.conf"
 neutron_com=/etc/neutron/neutron.conf
@@ -141,9 +118,6 @@ test -f $neutron_com.orig || cp $neutron_com $neutron_com.orig
 ops_edit $neutron_com DEFAULT core_plugin ml2
 ops_edit $neutron_com DEFAULT rpc_backend rabbit
 ops_edit $neutron_com DEFAULT auth_strategy keystone
-
-# ops_edit $neutron_com DEFAULT allow_overlapping_ips True
-# ops_edit $neutron_com DEFAULT service_plugins router
 
 ## [keystone_authtoken] section
 ops_edit $neutron_com keystone_authtoken auth_uri http://$CTL_MGNT_IP:5000
@@ -165,6 +139,8 @@ ops_edit $neutron_com oslo_messaging_rabbit rabbit_host $CTL_MGNT_IP
 ops_edit $neutron_com oslo_messaging_rabbit rabbit_userid openstack
 ops_edit $neutron_com oslo_messaging_rabbit rabbit_password $RABBIT_PASS
 
+## [oslo_concurrency] section
+ops_edit $neutron_com oslo_concurrency lock_path /var/lib/neutron/tmp
 
 echocolor "Configuring linuxbridge_agent"
 sleep 5
@@ -188,5 +164,7 @@ ops_edit $lbfile_com vxlan l2_population True
 
 echocolor "Reset service nova-compute,linuxbridge-agent"
 sleep 5
-service nova-compute restart
-service neutron-linuxbridge-agent restart
+systemctl restart openstack-nova-compute.service
+
+systemctl enable neutron-linuxbridge-agent.service
+systemctl start neutron-linuxbridge-agent.service
