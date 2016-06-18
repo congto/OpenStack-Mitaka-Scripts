@@ -148,7 +148,41 @@
     openstack server create --flavor m1.tiny --image cirros \
         --nic net-id=$selfservice --security-group default vm6969
     ```
+ 
+ - Cấp phát IP của dải `ext-net` cho máy ảo
+    ```sh
+    [root@controller scripts]# openstack ip floating create ext-net
+    +-------------+--------------------------------------+
+    | Field       | Value                                |
+    +-------------+--------------------------------------+
+    | fixed_ip    | None                                 |
+    | id          | ecb79833-4010-48fe-9894-10db69e27254 |
+    | instance_id | None                                 |
+    | ip          | 172.16.69.31                         |
+    | pool        | ext-net                              |
+    +-------------+--------------------------------------+
+    ```
+    
+ - Gán IP vừa được cấp phát cho máy ảo `vm6969`
+    ```sh
+    openstack ip floating add 172.16.69.31 vm6969
+    ```
+    
+ - Đứng từ máy cá nhân, thực hiện lệnh ping để kiểm tra kết nối.
+    ```sh
+    C:\Users\Administrator>ping 172.16.69.31 -t
 
+    Pinging 172.16.69.31 with 32 bytes of data:
+    Reply from 172.16.69.31: bytes=32 time=11ms TTL=62
+    Reply from 172.16.69.31: bytes=32 time=15ms TTL=62
+    Reply from 172.16.69.31: bytes=32 time=10ms TTL=62
+    Reply from 172.16.69.31: bytes=32 time=10ms TTL=62
+    
+    Ping statistics for 172.16.69.31:
+        Packets: Sent = 7, Received = 7, Lost = 0 (0% loss),
+    Approximate round trip times in milli-seconds:
+        Minimum = 10ms, Maximum = 15ms, Average = 11ms
+    ```
 
 ###  Chú ý: 
 
@@ -168,16 +202,16 @@
 - Các lệnh trong neutron
 
  - Kiểm tra danh sách network
- ```sh
- openstack network list
- ```
+    ```sh
+    openstack network list
+    ```
  
  - Liệt kê các router
- ```sh
- neutron router-list
- ```
+    ```sh
+    neutron router-list
+    ```
  
  - Kiểm tra các port trên router có tên là `admin-router`
- ```sh
- neutron router-port-list admin-router
- ```
+    ```sh
+    neutron router-port-list admin-router
+    ```
