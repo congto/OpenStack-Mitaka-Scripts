@@ -13,6 +13,7 @@
 
 <a name="moitruongthuchien"></a>
 ## Môi trường thực hiện
+
 - Cấu hình yêu cầu đối với các máy và IP Planning
 ![](http://image.prntscr.com/image/7d37b7eb7453415ea414682268cdfeb4.png)
 
@@ -26,7 +27,7 @@
     yum -y update && yum -y install git
 
     git clone https://github.com/congto/OpenStack-Mitaka-Scripts.git
-    mv /root/OpenStack-Mitaka-Scripts/OPS-Mitaka-LB-CentOS7/scripts /root
+    mv /root/OpenStack-Mitaka-Scripts/OPS-Mitaka-OVS-CentOS7/scripts /root
     rm -rf /root/OpenStack-Mitaka-Scripts
     cd scripts/
     chmod +x *.sh
