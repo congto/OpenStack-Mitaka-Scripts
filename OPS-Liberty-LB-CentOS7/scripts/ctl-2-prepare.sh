@@ -15,19 +15,6 @@ yum -y install chrony
 ntpfile=/etc/chrony.conf
 cp $ntpfile $ntpfile.orig
 
-sed -i 's/server 0.centos.pool.ntp.org iburst/ \
-server 1.vn.pool.ntp.org iburst \
-server 0.asia.pool.ntp.org iburst \
-server 3.asia.pool.ntp.org iburst/g' $ntpfile
-
-sed -i 's/server 1.centos.pool.ntp.org iburst/ \
-# server 1.centos.pool.ntp.org iburst/g' $ntpfile
-
-sed -i 's/server 2.centos.pool.ntp.org iburst/ \
-# server 2.centos.pool.ntp.org iburst/g' $ntpfile
-
-sed -i 's/server 3.centos.pool.ntp.org iburst/ \
-# server 3.centos.pool.ntp.org iburst/g' $ntpfile
 
 sed -i 's/#allow 192.168\/16/allow 172.16.69.0\/24/g' $ntpfile
 
@@ -74,7 +61,8 @@ EOF
 
 echocolor "Starting MYSQL"
 sleep 5
-systemctl start mariadb.service
+# systemctl start mariadb.service
+service mysql restart
 
 cat > /root/config.sql <<EOF
 delete from mysql.user where user='';
@@ -87,7 +75,9 @@ rm -rf /root/config.sql
 
 echocolor "Enable service mariadb when reboot server"
 sleep 3
-systemctl enable mariadb.service
+# systemctl enable mariadb.service
+chkconfig mysql on
+
 
 ###########################################################
 echocolor "Installing memcached"

@@ -39,13 +39,31 @@ $COM1_MGNT_IP   $HOST_COM1
 $CIN_MGNT_IP    $HOST_CIN
 EOF
 
-echocolor "Enable the OpenStack Mitaka repository"
+echocolor "Remove packages Mariadb"
+sleep 3
+yum -y remove $(rpm -qa | grep mariadb)
+
+echocolor "Repos for mariadb"
+sleep 3
+cat << EOF > /etc/yum.repos.d/mariadb.repo
+# MariaDB 10.0 CentOS repository list - created 2015-07-09 14:56 UTC
+# http://mariadb.org/mariadb/repositories/
+[mariadb]
+
+
+name = MariaDB
+baseurl = http://yum.mariadb.org/10.0/centos7-amd64
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+EOF
+
+
+echocolor "Enable the OpenStack liberty repository"
 sleep 3
 # CENTOS
-yum -y install centos-release-openstack-mitaka
+# yum install centos-release-openstack-liberty
 # RHEL
-# yum -y install https://rdoproject.org/repos/rdo-release.rpm
-
+# yum install https://rdoproject.org/repos/openstack-liberty/rdo-release-liberty.rpm
 
 echocolor "Upgrade the packages for server"
 sleep 3
@@ -60,9 +78,9 @@ echocolor "Install utility"
 sleep 3
 yum -y install wget 
 
-echocolor "Sepup tool"
-sed -i 's/notify_only=1/notify_only=0/g' \
-    /etc/yum/pluginconf.d/search-disabled-repos.conf
+# echocolor "Sepup tool"
+# sed -i 's/notify_only=1/notify_only=0/g' \
+#    /etc/yum/pluginconf.d/search-disabled-repos.conf
 
 
 echocolor "Reboot Server"

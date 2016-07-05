@@ -13,9 +13,9 @@ FLUSH PRIVILEGES;
 EOF
 
 echocolor "Install keystone"
+sleep 3
 
 yum -y install openstack-keystone httpd mod_wsgi
-
 
 # Back-up file keystone.conf
 filekeystone=/etc/keystone/keystone.conf
@@ -23,15 +23,22 @@ test -f $filekeystone.orig || cp $filekeystone $filekeystone.orig
 
 # Config file /etc/keystone/keystone.conf
 ops_edit $filekeystone DEFAULT admin_token $TOKEN_PASS
+ops_edit $filekeystone DEFAULT verbose True
+
 ops_edit $filekeystone database \
 connection mysql+pymysql://keystone:$KEYSTONE_DBPASS@$CTL_MGNT_IP/keystone
 
-ops_edit $filekeystone token provider fernet
+ops_edit $filekeystone memcache servers $CTL_MGNT_IP:11211
 
-#
+ops_edit $filekeystone token provider uuid
+ops_edit $filekeystone token driver memcache
+
+ops_edit $filekeystone revoke driver sql
+
+
+echocolor "Sync DATABASE keystone"
+sleep 3
 su -s /bin/sh -c "keystone-manage db_sync" keystone
-
-keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
 
 echo "ServerName $CTL_MGNT_IP" >>   /etc/httpd/conf/httpd.conf
 
