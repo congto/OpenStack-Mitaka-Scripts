@@ -102,7 +102,7 @@ identity internal http://$CTL_MGNT_IP:5000/v3
 openstack endpoint create --region RegionOne \
 identity admin http://$CTL_MGNT_IP:35357/v3
 
-openstack domain create --description "Default Domain" default
+# openstack domain create --description "Default Domain" default
 
 openstack project create --domain default --description "Admin Project" admin
 

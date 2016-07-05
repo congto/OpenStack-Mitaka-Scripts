@@ -14,7 +14,6 @@ FLUSH PRIVILEGES;
 EOF
 
 
-
 echocolor " Create user, endpoint for GLANCE"
 sleep 3
 
@@ -39,7 +38,7 @@ openstack endpoint create --region RegionOne \
 
 echocolor "Install GLANCE"
 sleep 5
-yum -y install openstack-glance
+yum -y install openstack-glance python-glance python-glanceclient
 
 echocolor "Configuring GLANCE API"
 sleep 5
@@ -48,6 +47,11 @@ glanceapi_ctl=/etc/glance/glance-api.conf
 test -f $glanceapi_ctl.orig || cp $glanceapi_ctl $glanceapi_ctl.orig
 
 #Configuring glance config file /etc/glance/glance-api.conf
+
+
+ops_edit $glancereg_ctl DEFAULT  verbose True
+ops_edit $glancereg_ctl DEFAULT  notification_driver noop
+
 
 ops_edit $glanceapi_ctl database \
 connection  mysql+pymysql://glance:$GLANCE_DBPASS@$CTL_MGNT_IP/glance
@@ -60,8 +64,8 @@ auth_url http://$CTL_MGNT_IP:35357
 ops_edit $glanceapi_ctl keystone_authtoken \
     memcached_servers $CTL_MGNT_IP:11211
 ops_edit $glanceapi_ctl keystone_authtoken auth_type password
-ops_edit $glanceapi_ctl keystone_authtoken project_domain_name default
-ops_edit $glanceapi_ctl keystone_authtoken user_domain_name default
+ops_edit $glanceapi_ctl keystone_authtoken project_domain_id default
+ops_edit $glanceapi_ctl keystone_authtoken user_domain_id default
 ops_edit $glanceapi_ctl keystone_authtoken project_name service
 ops_edit $glanceapi_ctl keystone_authtoken username glance
 ops_edit $glanceapi_ctl keystone_authtoken password $GLANCE_PASS
@@ -69,7 +73,7 @@ ops_edit $glanceapi_ctl keystone_authtoken password $GLANCE_PASS
 ops_edit $glanceapi_ctl paste_deploy flavor keystone
 
 ops_edit $glanceapi_ctl glance_store default_store file
-ops_edit $glanceapi_ctl glance_store stores file,http
+# ops_edit $glanceapi_ctl glance_store stores file,http
 ops_edit $glanceapi_ctl glance_store \
 filesystem_store_datadir /var/lib/glance/images/
 
@@ -81,7 +85,8 @@ glancereg_ctl=/etc/glance/glance-registry.conf
 test -f $glancereg_ctl.orig || cp $glancereg_ctl $glancereg_ctl.orig
 
 
-ops_del $glancereg_ctl DEFAULT  verbose
+ops_edit $glancereg_ctl DEFAULT  verbose True
+ops_edit $glancereg_ctl DEFAULT  notification_driver noop
 
 ops_edit $glancereg_ctl database \
 connection  mysql+pymysql://glance:$GLANCE_DBPASS@$CTL_MGNT_IP/glance
@@ -94,8 +99,8 @@ ops_edit $glanceapi_ctl keystone_authtoken \
 ops_edit $glanceapi_ctl keystone_authtoken \
     memcached_servers $CTL_MGNT_IP:11211
 ops_edit $glanceapi_ctl keystone_authtoken auth_type password
-ops_edit $glanceapi_ctl keystone_authtoken project_domain_name default
-ops_edit $glanceapi_ctl keystone_authtoken user_domain_name default
+ops_edit $glanceapi_ctl keystone_authtoken project_domain_id  default
+ops_edit $glanceapi_ctl keystone_authtoken user_domain_id default
 ops_edit $glanceapi_ctl keystone_authtoken project_name service
 ops_edit $glanceapi_ctl keystone_authtoken username glance
 ops_edit $glanceapi_ctl keystone_authtoken password $GLANCE_PASS
