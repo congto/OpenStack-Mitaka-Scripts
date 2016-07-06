@@ -28,7 +28,7 @@ chronyc sources
 sleep 5
 echocolor "Installl package for NOVA"
 
-yum -y install openstack-nova-compute sysfsutils
+yum -y install openstack-nova-compute sysfsutils openstack-neutron openstack-neutron-linuxbridge ebtables ipset
 echocolor "Install & Configuring in nova.conf"
 sleep 5
 #Backup nova.conf

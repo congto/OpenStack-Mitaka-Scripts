@@ -65,10 +65,10 @@ EOF
 echocolor "Enable the OpenStack liberty repository"
 sleep 3
 # CENTOS
-# yum install centos-release-openstack-liberty
+# yum -y install centos-release-openstack-liberty
 
 # RHEL
-# yum install https://rdoproject.org/repos/openstack-liberty/rdo-release-liberty.rpm
+# yum -y install https://rdoproject.org/repos/openstack-liberty/rdo-release-liberty.rpm
 
 echocolor "Upgrade the packages for server"
 sleep 3
