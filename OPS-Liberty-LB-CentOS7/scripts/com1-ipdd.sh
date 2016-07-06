@@ -91,7 +91,3 @@ echocolor "Reboot Server"
 sleep 3
 init 6
 #
-
-
-
-

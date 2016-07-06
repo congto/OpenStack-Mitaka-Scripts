@@ -73,8 +73,7 @@ ops_edit $glanceapi_ctl paste_deploy flavor keystone
 
 ops_edit $glanceapi_ctl glance_store default_store file
 # ops_edit $glanceapi_ctl glance_store stores file,http
-ops_edit $glanceapi_ctl glance_store 
-filesystem_store_datadir /var/lib/glance/images/
+ops_edit $glanceapi_ctl glance_store filesystem_store_datadir /var/lib/glance/images/
 
 #
 sleep 10
