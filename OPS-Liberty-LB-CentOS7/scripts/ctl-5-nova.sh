@@ -53,7 +53,7 @@ ops_edit $nova_ctl DEFAULT rpc_backend rabbit
 ops_edit $nova_ctl DEFAULT auth_strategy keystone
 ops_edit $nova_ctl DEFAULT my_ip $CTL_MGNT_IP
 ops_edit $nova_ctl DEFAULT network_api_class nova.network.neutronv2.api.API
-ops_edit $nova_ctl DEFAULT security_group_api neutronI
+ops_edit $nova_ctl DEFAULT security_group_api neutron
 ops_edit $nova_ctl DEFAULT linuxnet_interface_driver nova.network.linux_net.NeutronLinuxBridgeInterfaceDriver
 ops_edit $nova_ctl DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
 ops_edit $nova_ctl DEFAULT enabled_apis osapi_compute,metadata
@@ -83,7 +83,7 @@ ops_edit $nova_ctl vnc vncserver_listen \$my_ip
 ops_edit $nova_ctl vnc vncserver_proxyclient_address \$my_ip
 
 # [glance] section
-ops_edit $nova_ctl glance api_servers http://$CTL_MGNT_IP:9292
+ops_edit $nova_ctl glance host $CTL_MGNT_IP
 
 # [oslo_concurrency] section
 ops_edit $nova_ctl oslo_concurrency lock_path /var/lib/nova/tmp
@@ -106,14 +106,7 @@ ops_edit $nova_ctl neutron metadata_proxy_shared_secret $METADATA_SECRET
 # [cinder] Section
 ops_edit $nova_ctl cinder os_region_name RegionOne
 
-
 ##########
-
-
-echocolor "Remove Nova default db "
-sleep 5
-rm /var/lib/nova/nova.sqlite
-
 echocolor "Syncing Nova DB"
 sleep 5
 su -s /bin/sh -c "nova-manage db sync" nova
