@@ -113,31 +113,32 @@ ops_edit $ml2_clt ml2 mechanism_drivers openvswitch
 ops_edit $ml2_clt ml2 extension_drivers port_security
 
 ## [ml2_type_flat] section
-ops_edit $ml2_clt ml2_type_flat flat_networks public
+ops_edit $ml2_clt ml2_type_flat flat_networks physnet1
 
 ## [securitygroup] section
 ops_edit $ml2_clt securitygroup enable_ipset True
 ops_edit $ml2_clt securitygroup enable_security_group  True
 ops_edit $ml2_clt securitygroup firewall_driver neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
 
+# [ovs] section
+ops_edit $ovsfile bridge_mappings physnet1:br-eth1
+
 ####################### Backup configuration of ML2 ################################
-echocolor "Configuring linuxbridge_agent"
+echocolor "Configuring openvswitch_agent"
 sleep 5
-lbfile=/etc/neutron/plugins/ml2/linuxbridge_agent.ini
-test -f $lbfile.orig || cp $lbfile $lbfile.orig
+ovsfile=/etc/neutron/plugins/ml2/openvswitch_agent.ini
+test -f $ovsfile.orig || cp $ovsfile $ovsfile.orig
 
-# [linux_bridge] section
-ops_edit $lbfile linux_bridge physical_interface_mappings public:eth1
+# [ovs] section
+ops_edit $ovsfile bridge_mappings physnet1:br-eth1
 
-# [vxlan] section
-ops_edit $lbfile vxlan enable_vxlan False
+####################### Configuring  L3 AGENT ################################
+netl3=/etc/neutron/l3_agent.ini
+test -f $netl3.orig || cp $netl3 $netl3.orig
 
-# [agent] section
-ops_edit $lbfile agent prevent_arp_spoofing True
+ops_edit $netl3 DEFAULT interface_driver neutron.agent.linux.interface.OVSInterfaceDriver
+ops_edit $netl3 DEFAULT external_network_bridge
 
-# [securitygroup] section
-ops_edit $lbfile securitygroup enable_security_group True
-ops_edit $lbfile securitygroup firewall_driver neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 
 ####################### Configuring DHCP AGENT ################################
 echocolor "Configuring DHCP AGENT"
@@ -158,6 +159,7 @@ netmetadata=/etc/neutron/metadata_agent.ini
 test -f $netmetadata.orig || cp $netmetadata $netmetadata.orig
 
 ## [DEFAULT]
+
 ops_edit $netmetadata DEFAULT auth_uri http://$CTL_MGNT_IP:5000
 ops_edit $netmetadata DEFAULT auth_url http://$CTL_MGNT_IP:35357
 ops_edit $netmetadata DEFAULT auth_region  RegionOne
@@ -181,21 +183,26 @@ sleep 3
 su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf \
   --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
   
+echocolor "Add bridge"
+sleep 3
+ovs-vsctl add-br br-int 
+ovs-vsctl add-br br-eth1 
+ovs-vsctl add-port br-eth1 eth1 
 
 echocolor "Restarting NEUTRON service"
 sleep 3
-systemctl enable neutron-server.service \
-  neutron-linuxbridge-agent.service neutron-dhcp-agent.service \
-  neutron-metadata-agent.service
-  
-systemctl start neutron-server.service \
-  neutron-linuxbridge-agent.service neutron-dhcp-agent.service \
-  neutron-metadata-agent.service
+systemctl start neutron-server
+systemctl enable neutron-server 
+systemctl start openvswitch 
+systemctl enable openvswitch
+systemctl restart neutron-openvswitch-agent 
 
-systemctl restart neutron-server.service \
-  neutron-linuxbridge-agent.service neutron-dhcp-agent.service \
-  neutron-metadata-agent.service
-  
+
+for service in dhcp-agent l3-agent metadata-agent openvswitch-agent; do
+systemctl start neutron-$service
+systemctl enable neutron-$service
+done 
+
 echocolor "Check service Neutron"
 sleep 90
 neutron agent-list
