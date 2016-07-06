@@ -53,6 +53,7 @@ ops_edit $glanceapi_ctl database \
 connection  mysql+pymysql://glance:$GLANCE_DBPASS@$CTL_MGNT_IP/glance
 ops_del $glanceapi_ctl database sqlite_db
 
+# [keystone_authtoken] section
 ops_edit $glanceapi_ctl keystone_authtoken \
 auth_uri http://$CTL_MGNT_IP:5000
 ops_edit $glanceapi_ctl keystone_authtoken \
@@ -87,20 +88,20 @@ ops_edit $glancereg_ctl database \
 connection  mysql+pymysql://glance:$GLANCE_DBPASS@$CTL_MGNT_IP/glance
 ops_del $glancereg_ctl database sqlite_db
 
-ops_edit $glanceapi_ctl keystone_authtoken \
+ops_edit $glancereg_ctl keystone_authtoken \
     auth_uri http://$CTL_MGNT_IP:5000
-ops_edit $glanceapi_ctl keystone_authtoken \
+ops_edit $glancereg_ctl keystone_authtoken \
     auth_url http://$CTL_MGNT_IP:35357
 ops_edit $glanceapi_ctl keystone_authtoken \
     memcached_servers $CTL_MGNT_IP:11211
-ops_edit $glanceapi_ctl keystone_authtoken auth_type password
-ops_edit $glanceapi_ctl keystone_authtoken project_domain_name default
-ops_edit $glanceapi_ctl keystone_authtoken user_domain_name default
-ops_edit $glanceapi_ctl keystone_authtoken project_name service
-ops_edit $glanceapi_ctl keystone_authtoken username glance
-ops_edit $glanceapi_ctl keystone_authtoken password $GLANCE_PASS
+ops_edit $glancereg_ctl keystone_authtoken auth_type password
+ops_edit $glancereg_ctl keystone_authtoken project_domain_name default
+ops_edit $glancereg_ctl keystone_authtoken user_domain_name default
+ops_edit $glancereg_ctl keystone_authtoken project_name service
+ops_edit $glancereg_ctl keystone_authtoken username glance
+ops_edit $glancereg_ctl keystone_authtoken password $GLANCE_PASS
 
-ops_edit $glanceapi_ctl paste_deploy flavor keystone
+ops_edit $glancereg_ctl paste_deploy flavor keystone
 
 echocolor "Syncing DB for Glance"
 sleep 7
