@@ -190,8 +190,12 @@ systemctl enable neutron-server.service \
 systemctl start neutron-server.service \
   neutron-linuxbridge-agent.service neutron-dhcp-agent.service \
   neutron-metadata-agent.service
+
+systemctl restart neutron-server.service \
+  neutron-linuxbridge-agent.service neutron-dhcp-agent.service \
+  neutron-metadata-agent.service
   
 echocolor "Check service Neutron"
-sleep 10
+sleep 90
 neutron agent-list
 echocolor "Finished install NEUTRON on CONTROLLER"
