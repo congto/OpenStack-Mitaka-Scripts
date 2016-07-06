@@ -94,7 +94,6 @@ ops_edit $nova_ctl neutron auth_url http://$CTL_MGNT_IP:35357
 ops_edit $nova_ctl neutron auth_plugin password
 ops_edit $nova_ctl neutron project_domain_id default
 ops_edit $nova_ctl neutron user_domain_id default
-
 ops_edit $nova_ctl neutron region_name RegionOne
 ops_edit $nova_ctl neutron project_name service
 ops_edit $nova_ctl neutron username neutron
