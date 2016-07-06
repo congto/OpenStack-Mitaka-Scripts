@@ -29,12 +29,11 @@ su -
 apt-get update
 apt-get -y install git 
 
-git clone https://github.com/vietstacker/OpenStack-Liberty-Script.git
-mv /root/OpenStack-Liberty-Script/LIBERTY-U14.04-OVS/ /root/
-rm -rf OpenStack-Liberty-Script/
-cd LIBERTY-U14.04-OVS/
+git clone https://github.com/congto/OpenStack-Mitaka-Scripts.git
+mv /root/OpenStack-Mitaka-Scripts/OPS-Mitaka-OVS-Ubuntu/scripts/ /root/
+rm -rf OpenStack-Mitaka-Scripts/
+cd scripts/
 chmod +x *.sh
-
 ```
 
 ## Install on CONTROLLER NODE
@@ -92,11 +91,12 @@ su -
 apt-get update
 apt-get -y install git 
 
-git clone https://github.com/vietstacker/OpenStack-Liberty-Script.git
-mv /root/OpenStack-Liberty-Script/LIBERTY-U14.04-OVS/ /root/
-rm -rf OpenStack-Liberty-Script/
-cd LIBERTY-U14.04-OVS/
+git clone https://github.com/congto/OpenStack-Mitaka-Scripts.git
+mv /root/OpenStack-Mitaka-Scripts/OPS-Mitaka-OVS-Ubuntu/scripts/ /root/
+rm -rf OpenStack-Mitaka-Scripts/
+cd scripts/
 chmod +x *.sh
+```
 
 ### Establish IP and hostname
 - Edit file config to make it suitable with your IP.
@@ -109,7 +109,7 @@ bash com1-ipdd.sh
 
 ```sh
 su -
-cd LIBERTY-U14.04-OVS/
+cd scripts/
 bash com1-prepare.sh
 ```
 

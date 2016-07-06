@@ -8,12 +8,15 @@
 ## 1. Chuẩn bị môi trường
 <a name="1.1"> </a> 
 ### 1.1 Mô hình mạng
-
+- Mô hình đầy đủ
 ![OpenStack Mitaka Topo](/DOCS-OPS-Mitaka/images/Mitaka-topo.png)
 
 <a name="1.2"> </a> 
 ### 1.2 Các tham số phần cứng đối với các node
 ![OpenStack Mitaka Topo](/DOCS-OPS-Mitaka/images/Mitaka-ip-hardware.png)
+
+## Mô hình 2 node 
+![Mitaka-topo-2node.png](./images/Mitaka-topo-2node.png)
 
 <a name="2"> </a> 
 ## 2. Cài đặt trên node controller
@@ -389,10 +392,11 @@ Listen 35357
 </VirtualHost>
 ```
 
- - Tạo link để cấu hình virtual host cho dịch vụ `keysonte` trong `apache`
-		```sh
-		ln -s /etc/apache2/sites-available/wsgi-keystone.conf /etc/apache2/sites-enabled
-		```
+- Tạo link để cấu hình virtual host cho dịch vụ `keysonte` trong `apache`
+
+```sh
+ln -s /etc/apache2/sites-available/wsgi-keystone.conf /etc/apache2/sites-enabled
+```
 
 - Khởi động lại `apache`
 	```sh
@@ -490,7 +494,7 @@ Listen 35357
 #### 3.1.5. Kiểm chứng lại các bước cài đặt `keysonte`
 
 
-- Vô hiệu hóa cơ chế xác thực bằng token tạm thời trong `keysonte` bằng cách chỉnh sửa dòng `admin_token_auth` trong các section `[pipeline:public_api]`,  `[pipeline:admin_api]`  và `[pipeline:api_v3]` của file `/etc/keystone/keystone-paste.ini`
+- Vô hiệu hóa cơ chế xác thực bằng token tạm thời trong `keysonte` bằng cách xóa `admin_token_auth` trong các section `[pipeline:public_api]`,  `[pipeline:admin_api]`  và `[pipeline:api_v3]` của file `/etc/keystone/keystone-paste.ini`
 
 - Bỏ thiết lập trong biến môi trường của `OS_TOKEN` và `OS_URL` bằng lệnh
 	```sh
@@ -611,10 +615,11 @@ mysql -uroot -pWelcome123
 	openstack role add --project service --user glance admin
 	```
 
-	- Kiểm tra lại xem user `glance` có role là gì
-		```sh
-		openstack role list --user glance --project service
-		```
+- Kiểm tra lại xem user `glance` có role là gì
+
+    ```sh
+    openstack role list --user glance --project service
+    ```
 	
 - Tạo dịch vụ có tên là `glance`
 	```sh
@@ -676,15 +681,17 @@ mysql -uroot -pWelcome123
 		```
  
  - Trong section ` [paste_deploy]` khai báo dòng dưới
-		```sh
-		flavor = keystone
-		```
+ 
+    ```sh
+    flavor = keystone
+    ```
  - Khai báo trong section `[glance_store]` nơi lưu trữ file image
-		```sh
-		stores = file,http
-		default_store = file
-		filesystem_store_datadir = /var/lib/glance/images/
-		```
+ 
+    ```sh
+    stores = file,http
+    default_store = file
+    filesystem_store_datadir = /var/lib/glance/images/
+    ```
 
 - Sửa các mục dưới đây trong hai file `/etc/glance/glance-registry.conf`
  - Trong section `[database]` :
@@ -842,9 +849,11 @@ mysql -uroot -pWelcome123
 		openstack role add --project service --user nova admin
 		```
  - Kiểm chứng lại xem tài khoản `nova` đã có quyền `admin` hay chưa bằng lệnh dưới
-		```sh
-		openstack role list --user nova --project service
-		```
+ 
+     ```sh
+     openstack role list --user nova --project service
+     ```
+     
  - Tạo service có tên là `nova`
 		```sh
 		openstack service create --name nova --description "OpenStack Compute" compute
@@ -1308,6 +1317,12 @@ mysql -uroot -pWelcome123
 	apt-get -y install openstack-dashboard
 	```
 
+- Sao lưu lại file cấu hình cho dashboad 
+
+```sh
+cp /etc/openstack-dashboard/local_settings.py /etc/openstack-dashboard/local_settings.py.orig
+```
+
 - Tìm các dòng sau trong file ` /etc/openstack-dashboard/local_settings.py` và chỉnh sửa như bên dưới
 
 ```sh
@@ -1332,9 +1347,7 @@ CACHES = {
 OPENSTACK_KEYSTONE_URL = "http://%s:5000/v3" % OPENSTACK_HOST
 ```
 
-```sh
-OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
-```
+
 
 ```sh
 OPENSTACK_API_VERSIONS = {
@@ -1342,7 +1355,7 @@ OPENSTACK_API_VERSIONS = {
     "image": 2,
     "volume": 2,
 }
-
+```
 
 ```sh
 OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "default"
@@ -1353,21 +1366,7 @@ OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
 ```
 
 ```sh
-OPENSTACK_NEUTRON_NETWORK = {
-    ...
-    'enable_router': False,
-    'enable_quotas': False,
-    'enable_distributed_router': False,
-    'enable_ha_router': False,
-    'enable_lb': False,
-    'enable_firewall': False,
-    'enable_vpn': False,
-    'enable_fip_topology_check': False,
-}
-```
-
-```sh
-TIME_ZONE = "TIME_ZONE"
+TIME_ZONE = "asia/Ho_Chi_Minh"
 ```
 
 - Xóa theme mặc định của ubuntu
@@ -1647,7 +1646,8 @@ apt-get -y install nova-compute
 	```
 
 - Cấu hình `NEUTRON`
- - Sao lưu file `/etc/neutron/neutron.conf ` gốc
+
+ - Sao lưu file `/etc/neutron/neutron.conf` gốc
 	 ```sh
 	 cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.orig
 	 ```
@@ -1732,3 +1732,117 @@ apt-get -y install nova-compute
 # CÀI ĐẶT ỨNG DỤNG THU THẬP LOG
 ***
 
+# HƯỚNG DẪN SỬ DỤNG DASHBOAD
+***
+
+After install COMPUTE NODE, move to step that guide to use dashboard
+
+
+## Using dashboard to initialize network, VM, rules.
+
+- Login to dasboard
+![mitaka-horizon1.png](./images/mitaka-horizon1.png)
+
+- Select tab `admin => Access & Security => Manage Rules`
+![mitaka-horizon2.png](./images/mitaka-horizon2.png)
+
+- Select tab `Add Rule`
+![mitaka-horizon3.png](./images/mitaka-horizon3.png)
+
+- Open all rule from outside to virtual machine
+![mitaka-horizon4.png](./images/mitaka-horizon4.png)
+
+
+### Initialize network
+#### Initialize external network range
+- Select tab `Admin => Networks => Create Network`
+![mitaka-net-ext1.png](./images/mitaka-net-ext1.png)
+
+- Enter and select tabs like picture below.
+![mitaka-net-ext2.png](./images/mitaka-net-ext2.png)
+```sh
+Name: provider
+Project: admin
+Provider Network Typy: Flat
+Physical Network: provider
+Admin State: UP
+Shared: check
+External Network: check
+```
+
+- Click to newly created `ext-net` to declare subnet for external range.
+![mitaka-net-ext3.png](./images/mitaka-net-ext3.png)
+
+- Select tab `Creat Subnet`
+![mitaka-net-ext4.png](./images/mitaka-net-ext4.png)
+
+- Declare IP range of subnet for external range
+![mitaka-net-ext5.png](./images/mitaka-net-ext5.png)
+
+- Declare pools and DNS
+![mitaka-net-ext6.png](./images/mitaka-net-ext6.png)
+
+#### Initialize internal network range
+- Select tabs in turn of rank : "admin => Project => Network => Networks => Create Network"
+![mitaka-net-int1.png](./images/mitaka-net-int1.png)
+
+- Declare name for internal network
+![mitaka-net-int2.png](./images/mitaka-net-int2.png)
+
+- Declare subnet for internal network
+![mitaka-net-int3.png](./images/mitaka-net-int3.png)
+
+- Declare IP range for Internal network
+![mitaka-net-int4.png](./images/mitaka-net-int4.png)
+
+#### Initialize Router for project admin
+- Select by tabs "admin => Project => Network => Routers => Create Router"
+![mitaka-r1.png](./images/mitaka-r1.png)
+
+- Initialize router name and select like picture below
+![mitaka-r2.png](./images/mitaka-r2.png)
+
+- Apply interface for router
+![mitaka-r3.png](./images/mitaka-r3.png)
+
+![mitaka-r4.png](./images/mitaka-r4.png)
+
+![mitaka-r5.png](./images/mitaka-r5.png)
+- ending of initializing steps:  exteral network, internal network, router
+
+
+## Initialize virtual machine (Instance)
+- Project admin => Instances => Launch Instance"
+![mitaka-instance1.png](./images/mitaka-instance1.png)
+
+![mitaka-instance2.png](./images/mitaka-instance2.png)
+
+![mitaka-instance3.png](./images/mitaka-instance3.png)
+
+![mitaka-instance4.png](./images/mitaka-instance4.png)
+
+![mitaka-instance5.png](./images/mitaka-instance5.png)
+
+![mitaka-instance6.png](./images/mitaka-instance6.png)
+
+![mitaka-instance7.png](./images/mitaka-instance7.png)
+
+![mitaka-instance8.png](./images/mitaka-instance8.png)
+
+![mitaka-instance9.png](./images/mitaka-instance9.png)
+
+![mitaka-instance10.png](./images/mitaka-instance10.png)
+
+
+## Check virtual machine (Instance)
+
+![mitaka-instance11.png](./images/mitaka-instance11.png)
+
+![mitaka-instance12.png](./images/mitaka-instance12.png)
+
+![mitaka-instance13.png](./images/mitaka-instance13.png)
+- Nhập mật khẩu với thông tin dưới
+```sh
+user: cirros
+password: cubswin:)
+```

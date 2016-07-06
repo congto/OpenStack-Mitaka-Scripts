@@ -1,29 +1,34 @@
-# Các bước thực hiện
+# Installation Steps
 
-### Chuẩn bị môi trường LAB
-- Sử dụng trong môi trường VMware Workstation
+### Prepare LAB enviroment
+- Using in VMware Workstation or Virtualbox ... enviroment
 
-#### Cấu hình NODE CONTROLLER
+#### Configure CONTROLLER NODE
 ```sh
+OS: Ubuntu Server 14.04 64 bit
 RAM: 4GB
-CPU: 2x2, có hỗ trợ VT
-NIC1: eth0: 10.10.10.0/24 (dải interntel, sử dụng vmnet hoặc hostonly trong VMware Workstation)
-NIC2: eth1: 172.16.69.0/24, gateway 172.16.69.1 (dải external - sử dụng chế độ NAT hoặc Bridge VMware Workstation)
-HDD: 60GB
+CPU: 2x2,  VT supported
+NIC1: eth0: 10.10.10.0/24 (interntel range, using vmnet or hostonly in VMware Workstation)
+NIC2: eth1: 172.16.69.0/24, gateway 172.16.69.1 (external range - using NAT or Bridge VMware Workstation)
+HDD: +60GB
 ```
 
 
-#### Cấu hình NODE CONTROLLER
+#### Configure COMPUTE NODE
 ```sh
+OS: Ubuntu Server 14.04 64 bit
 RAM: 4GB
-CPU: 2x2, có hỗ trợ VT
-NIC1: eth0: 10.10.10.0/24 (dải interntel, sử dụng vmnet hoặc hostonly trong VMware Workstation)
-NIC2: eth1: 172.16.69.0/24, gateway 172.16.69.1 (dải external - sử dụng chế độ NAT hoặc Bridge VMware Workstation  )
-HDD: 1000GB
+CPU: 2x2, VT supported
+NIC1: eth0: 10.10.10.0/24 (interntel range, using vmnet or hostonly in VMware Workstation)
+NIC2: eth1: 172.16.69.0/24, gateway 172.16.69.1 (external range - using NAT or Bridge VMware Workstation  )
+HDD: +100GB
 ```
 
-### Thực thi script
-- Cài đặt gói git và tải script 
+## Mô hình 2 node 
+![Mitaka-topo-2node.png](./images/Mitaka-topo-2node.png)
+
+### Execute script
+- Install git package and dowload script 
 ```sh
 su -
 apt-get update
@@ -34,175 +39,197 @@ mv /root/OpenStack-Mitaka-Scripts/OPS-Mitaka-OVS-Ubuntu/scripts/ /root/
 rm -rf OpenStack-Mitaka-Scripts/
 cd scripts/
 chmod +x *.sh
-
 ```
 
-## Cài đặt trên CONTROLLER NODE
-### Cài đặt script thiết lập IP và repos cho Liberty
-- Sửa file config trong thư mục cho phù hợp với IP mà bạn dự định sử dụng.
+## Install on CONTROLLER NODE
+### install IP establishment script and repos for mitaka
+- Edit file `config.cfg` in dicrectory with IP that you want to use.
  
 ```sh
 bash ctl-1-ipadd.sh
 ```
 
-### Cài đặt gói NTP, MariaDB
+### Install NTP, MariaDB packages
 ```sh
 bash ctl-2-prepare.sh
 ```
 
-### Cài đặt KEYSTONE
-- Cài đặt Keystone
+### Install KEYSTONE
+- Install Keystone
 ```sh
 bash ctl-3.keystone.sh
 ```
 
-- Khai báo biến môi trường
+- Declare enviroment parameter
 ```sh
-source admin-openrc.sh
+source admin-openrc
 ```
 
-### Cài đặt GLANCE
+### Install GLANCE
 ```sh
 bash ctl-4-glance.sh
 ```
 
-### Cài đặt NOVA
+### Install NOVA
 ```sh
 bash ctl-5-nova.sh
 ```
 
-### Cài đặt NEUTRON
+### Install NEUTRON
 ```sh
 bash ctl-6-neutron.sh
 ```
-- Sau khi cài đặt NEUTRON xong, node controller sẽ khởi động lại.
-- Đăng nhập bằng `root` và thực thi script cài đặt Horizon
+- After NEUTRON installation done, controller node will restart.
+- Login with `root` end execute Horizon installation script.
 
-### Cài đặt HORIZON
-- Đăng nhập với quyền `root` và thực hiện script sau
+### Install HORIZON
+- Login with  `root` privilege and execute script below
 ```sh
 bash ctl-horizon.sh
 ```
 
-### Cài đặt Ceilomter
-```sh
-bash ctl-10-ceilometer.sh
-```
-
-
-## Cài đặt trên COMPUTE NODE
-### Tải GIT và script
-- Cài đặt gói git và tải script 
+## Install on COMPUTE NODE
+### Dowload GIT and script
+- install git package and dowload script 
 ```sh
 su -
 apt-get update
 apt-get -y install git 
 
-git clone https://github.com/congto/OpenStack-Liberty-Script.git
-mv /root/OpenStack-Liberty-Script/LIBERTY-U14.04-OVS/ /root/
-rm -rf OpenStack-Liberty-Script/
-cd LIBERTY-U14.04-OVS/
+git clone https://github.com/congto/OpenStack-Mitaka-Scripts.git
+mv /root/OpenStack-Mitaka-Scripts/OPS-Mitaka-OVS-Ubuntu/scripts/ /root/
+rm -rf OpenStack-Mitaka-Scripts/
+cd scripts/
 chmod +x *.sh
+```
 
-### Thiết lập IP và hostname
-- Sửa file config để có IP phù hợp với máy hiện tại.
-- Thực thi script để thiết lập IP, hostname
+### Establish IP and hostname
+- Edit file `config.cfg`  to make it suitable with your IP.
+- Execute script to establish IP, hostname
 ```sh
 bash com1-ipdd.sh
 ```
-- Máy chủ sẽ khởi động lại sau khi thực thi script `com1-ipdd.sh`
-- Đăng nhập vào máy chủ với quyền root và thực thi script cài đặt các thành phần lên nova
+- The server will restart after script `com1-ipdd.sh` is executed.
+- Login to server with root privilege and execute conponents installation script on Nova
 
 ```sh
 su -
-cd LIBERTY-U14.04-OVS/
+cd scripts/
 bash com1-prepare.sh
 ```
 
-Sau khi cài đặt xong COMPUTE NODE, chuyển qua bước sử dụng dashboad
+After install COMPUTE NODE, move to step that guide to use dashboard
 
 
-## Hướng dẫn sử dụng dashboard để tạo network, VM, tạo các rule.
-### Tạo rule cho project admin
-- Đăng nhập vào dasboard
-![liberty-horizon1.png](/images/liberty-horizon1.png)
+## Using dashboard to initialize network, VM, rules.
 
-- Chọn tab `admin => Access & Security => Manage Rules`
-![liberty-horizon2.png](/images/liberty-horizon2.png)
+- Login to dasboard
+![mitaka-horizon1.png](./images/mitaka-horizon1.png)
 
-- Chọn tab `Add Rule`
-![liberty-horizon3.png](/images/liberty-horizon3.png)
+- Select tab `admin => Access & Security => Manage Rules`
+![mitaka-horizon2.png](./images/mitaka-horizon2.png)
 
-- Mở rule cho phép từ bên ngoài SSH đến máy ảo
-![liberty-horizon4.png](/images/liberty-horizon4.png)
-- Làm tương tự với rule ICMP để cho phép ping tới máy ảo và các rule còn lại.
+- Select tab `Add Rule`
+![mitaka-horizon3.png](./images/mitaka-horizon3.png)
 
-### Tạo network
-#### Tạo dải external network
-- Chọn tab `Admin => Networks => Create Network`
-![liberty-net-ext1.png](/images/liberty-net-ext1.png)
-
-- Nhập và chọn các tab như hình dưới.
-![liberty-net-ext2.png](/images/liberty-net-ext2.png)
-
-- Click vào mục `ext-net` vừa tạo để khai báo subnet cho dải external.
-![liberty-net-ext3.png](/images/liberty-net-ext3.png)
-
-- Chọn tab `Creat Subnet`
-![liberty-net-ext4.png](/images/liberty-net-ext4.png)
-
-- Khai báo dải IP của subnet cho dải external 
-![liberty-net-ext5.png](/images/liberty-net-ext5.png)
-
-- Khai báo pools và DNS
-![liberty-net-ext6.png](/images/liberty-net-ext6.png)
-
-#### Tạo dải internal network
-- Lựa chọn các tab lần lượt theo thứ tự `Project admin => Network => Networks => Create Network"
-![liberty-net-int1.png](/images/liberty-net-int1.png)
-
-- Khai báo tên cho internal network
-![liberty-net-int2.png](/images/liberty-net-int2.png)
-
-- Khai báo subnet cho internal network
-![liberty-net-int3.png](/images/liberty-net-int3.png)
-
-- Khai báo dải IP cho Internal network
-![liberty-net-int4.png](/images/liberty-net-int4.png)
-
-#### Tạo Router cho project admin
-- Lựa chọn theo các tab "Project admin => Routers => Create Router
-![liberty-r1.png](/images/liberty-r1.png)
-
-- Tạo tên router và lựa chọn như hình
-![liberty-r2.png](/images/liberty-r2.png)
-
-- Gán interface cho router
-![liberty-r3.png](/images/liberty-r3.png)
-
-![liberty-r4.png](/images/liberty-r4.png)
-
-![liberty-r5.png](/images/liberty-r5.png)
-- Kết thúc các bước tạo exteral network, internal network, router
+- Open all rule from outside to virtual machine
+![mitaka-horizon4.png](./images/mitaka-horizon4.png)
 
 
-## Tạo máy ảo (Instance)
-- Lựa chọn các tab dưới `Project admin => Instances => Launch Instance`
-![liberty-instance1.png](/images/liberty-instance1.png)
+### Initialize network
+#### Initialize external network range
+- Select tab `Admin => Networks => Create Network`
+![mitaka-net-ext1.png](./images/mitaka-net-ext1.png)
 
-![liberty-instance2.png](/images/liberty-instance2.png)
+- Enter and select tabs like picture below.
+![mitaka-net-ext2.png](./images/mitaka-net-ext2.png)
+```sh
+Name: provider
+Project: admin
+Provider Network Typy: Flat
+Physical Network: provider
+Admin State: UP
+Shared: check
+External Network: check
+```
 
-![liberty-instance3.png](/images/liberty-instance3.png)
+- Click to newly created `provider` to declare subnet for external range.
+![mitaka-net-ext3.png](./images/mitaka-net-ext3.png)
 
+- Select tab `Creat Subnet`
+![mitaka-net-ext4.png](./images/mitaka-net-ext4.png)
 
+- Declare IP range of subnet for external range
+![mitaka-net-ext5.png](./images/mitaka-net-ext5.png)
 
+- Declare pools and DNS
+![mitaka-net-ext6.png](./images/mitaka-net-ext6.png)
+
+#### Initialize internal network range
+- Select tabs in turn of rank : "admin => Project => Network => Networks => Create Network"
+![mitaka-net-int1.png](./images/mitaka-net-int1.png)
+
+- Declare name for internal network
+![mitaka-net-int2.png](./images/mitaka-net-int2.png)
+
+- Declare subnet for internal network
+![mitaka-net-int3.png](./images/mitaka-net-int3.png)
+
+- Declare IP range for Internal network
+![mitaka-net-int4.png](./images/mitaka-net-int4.png)
+
+#### Initialize Router for project admin
+- Select by tabs "admin => Project => Network => Routers => Create Router"
+![mitaka-r1.png](./images/mitaka-r1.png)
+
+- Initialize router name and select like picture below
+![mitaka-r2.png](./images/mitaka-r2.png)
+
+- Apply interface for router
+![mitaka-r3.png](./images/mitaka-r3.png)
+
+![mitaka-r4.png](./images/mitaka-r4.png)
+
+![mitaka-r5.png](./images/mitaka-r5.png)
+- ending of initializing steps:  exteral network, internal network, router
 
 
 
+## Initialize virtual machine (Instance)
+- Project admin => Instances => Launch Instance"
+![mitaka-instance1.png](./images/mitaka-instance1.png)
+
+![mitaka-instance2.png](./images/mitaka-instance2.png)
+
+![mitaka-instance3.png](./images/mitaka-instance3.png)
+
+![mitaka-instance4.png](./images/mitaka-instance4.png)
+
+![mitaka-instance5.png](./images/mitaka-instance5.png)
+
+![mitaka-instance6.png](./images/mitaka-instance6.png)
+
+![mitaka-instance7.png](./images/mitaka-instance7.png)
+
+![mitaka-instance8.png](./images/mitaka-instance8.png)
+
+![mitaka-instance9.png](./images/mitaka-instance9.png)
+
+![mitaka-instance10.png](./images/mitaka-instance10.png)
 
 
+## Check virtual machine (Instance)
 
+![mitaka-instance11.png](./images/mitaka-instance11.png)
 
+![mitaka-instance13.png](./images/mitaka-instance13.png)
+
+![mitaka-instance13.png](./images/mitaka-instance13.png)
+- Nhập mật khẩu với thông tin dưới
+```sh
+user: cirros
+password: cubsin:)
+```
 
 
 

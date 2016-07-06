@@ -1,0 +1,390 @@
+# Cài đặt manila
+
+## Chú ý:
+- Serivce Manila API và Manila scheduler được cài trên 10.10.10.96 node.
+- Serivce manila share có thể được cài trên: Cinder node, Compute node hoặc 10.10.10.96 node phụ thuộc vào driver được sử dụng.
+- Các driver cần hỗ trợ các giao thức chia sẻ file như: NFS, CIFS, HDFS
+- Có 2 lựa chọn khi cài manila
+ - Có sử dụng drivier
+ - Không sử dụng driver: Yêu cầu có Neutron, Nova.
+- Manila có các thành phần:
+ - manila-api:
+ - manila-scheduler
+ - manila-data
+ - manila-share
+ - Messaging queue
+ 
+## Các bước cài đặt
+- Dựa vào script cài đặt openstack mitaka đã được viết trước đó. 
+
+### Cài đặt trên 10.10.10.96 node
+#### Bước chuẩn bị
+
+- To create the database, complete these steps
+- Đăng nhập vào MariaDB
+
+mysql -u root -pWelcome123
+
+- Tạp DB tên là manila
+
+CREATE DATABASE manila;
+
+- Phân quyền truy cập
+
+GRANT ALL PRIVILEGES ON manila.* TO 'manila'@'localhost' \
+  IDENTIFIED BY 'Welcome123';
+GRANT ALL PRIVILEGES ON manila.* TO 'manila'@'%' \
+  IDENTIFIED BY 'Welcome123';
+  
+FLUSH PRIVILEGES;
+
+exit
+
+- Thực thi biến môi trường
+
+source admin-openrc
+
+- Tạo user manila trong OpenStack
+
+openstack user create manila --domain default --password Welcome123
+
+- Gán role admin cho user manila
+
+openstack role add --project service --user manila admin
+
+- Kiểm tra lại dịch vụ manila đã được gán quyền admin hay chưa
+
+openstack role list --user manila --project service
+
+- Khởi tạo dịch vụ manila v1 và manila v2
+
+openstack service create --name manila \
+  --description "OpenStack Shared File Systems" share
+  
+openstack service create --name manilav2 \
+ --description "OpenStack Shared File Systems" sharev2
+
+- Tạo endpoint cho OpenStack Manila
+
+
+openstack endpoint create --region RegionOne \
+    share public http://10.10.10.96:8786/v1/%\(tenant_id\)s
+    
+openstack endpoint create --region RegionOne \
+    share internal http://10.10.10.96:8786/v1/%\(tenant_id\)s
+  
+openstack endpoint create --region RegionOne \
+    share admin http://10.10.10.96:8786/v1/%\(tenant_id\)s
+
+
+openstack endpoint create --region RegionOne \
+    sharev2 public http://10.10.10.96:8786/v2/%\(tenant_id\)s
+
+openstack endpoint create --region RegionOne \
+    sharev2 internal http://10.10.10.96:8786/v2/%\(tenant_id\)s
+
+openstack endpoint create --region RegionOne \
+    sharev2 admin http://10.10.10.96:8786/v2/%\(tenant_id\)s
+
+#### Cài đặt và cấu hình OpenStack Manila
+
+- Cài đặt các gói cho OpenStack Manila
+
+apt-get -y install manila-api manila-scheduler \
+    python-manilaclient
+
+- Sao lưu file /etc/manila/manila.conf 
+
+cp /etc/manila/manila.conf  /etc/manila/manila.conf.orig
+
+cat /etc/manila/manila.conf.orig | egrep -v '^#|^$' > /etc/manila/manila.conf
+
+- Sửa file /etc/manila/manila.conf
+- Khai báo trong section [DEFAULT]
+
+[DEFAULT]
+rpc_backend = rabbit
+default_share_type = default_share_type
+rootwrap_config = /etc/manila/rootwrap.conf
+auth_strategy = keystone
+my_ip = 10.10.10.96
+
+- Khai báo trong section [database]
+
+[database]
+connection = mysql+pymysql://manila:Welcome123@10.10.10.96/manila
+
+- Khai báo trong section [oslo_messaging_rabbit]
+[oslo_messaging_rabbit]
+rabbit_host = 10.10.10.96
+rabbit_userid = openstack
+rabbit_password = Welcome123
+
+- Khai báo trong section [keystone_authtoken]
+
+[keystone_authtoken]
+memcached_servers = 10.10.10.96:11211
+auth_uri = http://10.10.10.96:5000
+auth_url = http://10.10.10.96:35357
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = manila
+password = Welcome123
+
+
+- Khai báo trong section  [oslo_concurrency]
+[oslo_concurrency]
+lock_path = /var/lib/manila/tmp
+    
+- Đồng bộ DB cho OpenStack Manila
+
+su -s /bin/sh -c "manila-manage db sync" manila
+
+- Khởi động các dịch OpenStack Manila
+
+service manila-scheduler restart
+service manila-api restart
+ 
+- Kiểm tra dịch vụ của manila
+
+manila service-list
+
+- Lưu ý: Sau khi cài xong trên node khác thì sử dụng lại lệnh trên để kiểm tra các dịch vụ của manila
+
+
+### Cài đặt trên Cinder node
+- Có 2 lựa chọn khi cài đặt Manila:
+-- Không sử dụng driver (multi-driver)
+-- Có sử dụng multi-driver (cần có Neutron) 
+
+- Hướng dẫn này sử dụng lựa chọn 2
+
+#### Cài đặt và cấu hình manila-share
+
+-  Cài đặt các gói
+apt-get -y install manila-share python-pymysql
+
+- Sao lưu file  /etc/manila/manila.conf
+
+cp /etc/manila/manila.conf /etc/manila/manila.conf.orig
+
+cat /etc/manila/manila.conf.orig | egrep -v '^#|^$' > /etc/manila/manila.conf
+
+- Sửa file /etc/manila/manila.conf
+- Khai báo section [DEFAULT]
+[DEFAULT]
+
+rpc_backend = rabbit
+default_share_type = default_share_type
+rootwrap_config = /etc/manila/rootwrap.conf
+auth_strategy = keystone
+my_ip = 10.10.10.98 
+enabled_share_backends = generic
+enabled_share_protocols = NFS,CIFS
+
+
+- Khai báo trong section [database]
+
+[database]
+connection = mysql+pymysql://manila:Welcome123@10.10.10.96/manila
+
+- Khai báo trong section [oslo_messaging_rabbit]
+
+[oslo_messaging_rabbit]
+rabbit_host = 10.10.10.96
+rabbit_userid = openstack
+rabbit_password = Welcome123
+
+- Khai báo trong section [keystone_authtoken]
+
+[keystone_authtoken]
+memcached_servers = 10.10.10.96:11211
+auth_uri = http://10.10.10.96:5000
+auth_url = http://10.10.10.96:35357
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = manila
+password = Welcome123
+
+- Khai báo trong section [oslo_concurrency]
+[oslo_concurrency]
+lock_path = /var/lib/manila/tmp
+
+
+
+
+- Khai báo trong các section như sau
+
+[neutron]
+url = http://10.10.10.96:9696
+auth_uri = http://10.10.10.96:5000
+auth_url = http://10.10.10.96:35357
+memcached_servers = 10.10.10.96:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+region_name = RegionOne
+project_name = service
+username = neutron
+password = Welcome123
+
+[nova]
+auth_uri = http://10.10.10.96:5000
+auth_url = http://10.10.10.96:35357
+memcached_servers = 10.10.10.96:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+region_name = RegionOne
+project_name = service
+username = nova
+password = Welcome123
+
+[cinder]
+auth_uri = http://10.10.10.96:5000
+auth_url = http://10.10.10.96:35357
+memcached_servers = 10.10.10.96:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+region_name = RegionOne
+project_name = service
+username = cinder
+password = Welcome123
+
+[generic]
+share_backend_name = GENERIC
+share_driver = manila.share.drivers.generic.GenericShareDriver
+driver_handles_share_servers = True
+service_instance_flavor_id = 100
+service_image_name = manila-service-image
+service_instance_user = manila
+service_instance_password = manila
+interface_driver = manila.network.linux.interface.BridgeInterfaceDriver
+
+# interface_driver = manila.network.linux.interface.OVSInterfaceDriver
+
+
+- Đối với lựa chon 2, cần cài đặt thành phần neutron lên cinder node
+
+# apt-get -y install  neutron-plugin-openvswitch-agent 
+
+apt-get -y install neutron-plugin-linuxbridge-agent
+
+- Lưu ý: phải cấu hình L2 Agent trên node share (node cài manila-share), kiểm tra bằng lệnh neutron agent-list trên node controller
+
+- Khởi động dịch vụ manila-share
+service manila-share restart
+
+
+
+### Kiểm tra lại dịch vụ OpenStack Manila
+- Thực hiện trên controller node
+- Kiểm tra dịch vụ
+
+manila service-list
+
+
+- Tải image dành cho manila
+wget http://tarballs.openstack.org/manila-image-elements/images/manila-service-image-master.qcow2
+
+- Upload image lên glance 
+
+openstack image create "manila-service-image" \
+--file manila-service-image-master.qcow2 \
+--disk-format qcow2 \
+--container-format bare \
+--public
+
+- Tạo flavor dành cho image của manila
+
+openstack flavor create manila-service-flavor --id 100 --ram 256 --disk 0 --vcpus 1
+
+- Option 2 - Create shares with share servers management support 
+
+- Create a share type
+- Create a default share type with DHSS enabled
+manila type-create generic_share_type True
+
+- Create a share network
+neutron net-list
+
+- kết quả của lệnh trên 
+root@controller:~# neutron net-list
++--------------------------------------+-------------+------------------------------------------------------+
+| id                                   | name        | subnets                                              |
++--------------------------------------+-------------+------------------------------------------------------+
+| f3d4e215-9efc-4d7a-b466-ee7a866cf074 | ext-net     | 41567f76-6a50-447c-99b8-9c7f5e3e102f 172.16.69.0/24  |
+| 8ca24bad-78ad-4643-b205-c86f550b960e | private-net | 27d9ceed-1f9f-4201-83d8-787fcc3f8e6b 192.168.10.0/24 |
++--------------------------------------+-------------+------------------------------------------------------+
+
+
+- Sử dụng network-id và subnet-id của private network trong lệnh ở trên để dưa vào lệnh dưới 
+
+manila share-network-create --name selfservice-net-share1 \
+  --neutron-net-id 6fcddf8f-03aa-48ae-92d9-025f364ab42b \
+  --neutron-subnet-id f47c8822-2f54-43d9-85a6-f15a658a732b
+
+- Create a share
+
+manila create NFS 1 --name share2 \
+  --share-network selfservice-net-share1 \
+  --share-type generic_share_type
+
+- Kiểm tra manila vừa share ở trên
+
+manila list
+
+- Determine export IP address of the share
+
+manila show share2
+
+- Configure user access to the new share before attempting to mount it via the network:
+
+manila access-allow share2 ip INSTANCE_IP_ADDRESS
+
+hoặc
+manila access-allow share2 ip SUBNET_INTERNAL_INSTANCE
+
+### Đăng nhập vào máy mà Manila tạo ra (vào tab admin ==> INSTANCE kiểm tra IP của VM được tạo ra, đứng tại máy cài manila-share thực hiện ssh vào IP của máy ảo do manila tạo ra.)
+
+- Kiểm tra dung lượng ổ được share
+df -hT (minh họa: http://prntscr.com/b9rd04)
+ 
+
+
+### Kiểm tra trên instance
+
+- Đăng nhập vào INSTANCE là ubuntu và cài thêm gói 
+aptitude -y install nfs-common
+initctl restart idmapd 
+ 
+- Tạo thư mục trên instance
+
+mkdir ~/vmdemo_folder 
+
+- Thực hiện lệnh mount với đường dẫn trong lệnh  `manila show share2` ở trên 
+
+mount -t nfs 10.254.0.3:/shares/share-b0369fb9-f550-4b89-9ac3-f150ab0ab84b  ~/vmdemo_folder
+
+10.254.0.3:/shares/share-b0369fb9-f550-4b89-9ac3-f150ab0ab84b 
+
+- Kiểm tra bằng lệnh 
+df -hT  (Minh họa http://prntscr.com/b9rdc0 )
+
+
+
+
+
+
+
+
+ 
+
+
+
+

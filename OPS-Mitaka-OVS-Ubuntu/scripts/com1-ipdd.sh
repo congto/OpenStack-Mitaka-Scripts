@@ -22,10 +22,10 @@ test -f $iphost.orig || cp $iphost $iphost.orig
 rm $iphost
 touch $iphost
 cat << EOF >> $iphost
-127.0.0.1       localhost
-127.0.0.1        $HOST_COM1
+127.0.0.1       localhost $HOST_COM1
 $CTL_MGNT_IP    $HOST_CTL
 $COM1_MGNT_IP   $HOST_COM1
+$CIN_MGNT_IP    $HOST_CIN
 EOF
 
 sleep 3
@@ -37,7 +37,7 @@ touch $ifaces
 cat << EOF >> $ifaces
 #Dat IP cho $COM1_MGNT_IP node
 
-# LOOPBACK NET 
+# LOOPBACK NET
 auto lo
 iface lo inet loopback
 
@@ -59,7 +59,7 @@ dns-nameservers 8.8.8.8
 EOF
 
 sleep 5
-echocolor "##### Rebooting machine ... #####"
+echocolor "Rebooting machine ..."
 init 6
 #
 
