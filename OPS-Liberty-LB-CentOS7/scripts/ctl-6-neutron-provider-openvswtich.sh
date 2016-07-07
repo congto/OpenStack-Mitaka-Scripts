@@ -44,7 +44,7 @@ openstack endpoint create --region RegionOne \
 
 # SERVICE_TENANT_ID=`keystone tenant-get service | awk '$2~/^id/{print $4}'`
 
-echocolor "Install NEUTRON node - Using Linux Bridge"
+echocolor "Install NEUTRON node - Using openvswitch"
 sleep 5
 yum -y install  openstack-neutron openstack-neutron-ml2 openstack-neutron-openvswitch
   
@@ -131,7 +131,7 @@ ovsfile=/etc/neutron/plugins/ml2/openvswitch_agent.ini
 test -f $ovsfile.orig || cp $ovsfile $ovsfile.orig
 
 # [ovs] section
-ops_edit $ovsfile bridge_mappings physnet1:br-eth1
+ops_edit $ovsfile ovs bridge_mappings physnet1:br-eth1
 
 ####################### Configuring  L3 AGENT ################################
 netl3=/etc/neutron/l3_agent.ini
@@ -187,8 +187,16 @@ su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf \
 ### CONFIG NOVA FOR OVS
 nova_ctl=/etc/nova/nova.conf
 test -f $nova_ctl.orig1 || cp $nova_ctl $nova_ctl.orig1
-ops_edit $nova_ctl DEFAULT linuxnet_interface_driver nova.network.linux_net.NeutronLinuxBridgeInterfaceDriver
+ops_edit $nova_ctl DEFAULT linuxnet_interface_driver nova.network.linux_net.LinuxOVSInterfaceDriver
 
+## Setup IP for br-eth1
+# yum install -y bridge-utils 
+
+# nmcli c add type bridge autoconnect yes con-name br-eth1 ifname br-eth1
+# nmcli c modify br-eth1 ipv4.addresses 172.16.69.40/24 ipv4.method manual
+# nmcli c modify br-eth1 ipv4.gateway 172.16.69.1
+# nmcli c modify br-eth1 ipv4.dns 8.8.8.8
+# nmcli c delete eth1 && nmcli c add type bridge-slave autoconnect yes con-name eth1 ifname eth1 master br-eth1
 
 
 echocolor "Restarting NEUTRON service"
