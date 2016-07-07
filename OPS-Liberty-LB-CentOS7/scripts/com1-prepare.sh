@@ -100,9 +100,6 @@ sleep 5
 systemctl enable libvirtd.service openstack-nova-compute.service
 systemctl start libvirtd.service openstack-nova-compute.service
 
-# Remove default nova db
-rm /var/lib/nova/nova.sqlite
-
 echocolor "Install neutron-linuxbridge-agent (neutron) on COMPUTE NODE"
 sleep 5
 yum -y install  openstack-neutron openstack-neutron-ml2 openstack-neutron-openvswitch
@@ -130,6 +127,10 @@ ops_edit $neutron_com keystone_authtoken project_name service
 ops_edit $neutron_com keystone_authtoken username neutron
 ops_edit $neutron_com keystone_authtoken password $NEUTRON_PASS
 
+ops_del $neutron_ctl keystone_authtoken identity_uri
+ops_del $neutron_ctl keystone_authtoken admin_tenant_name
+ops_del $neutron_ctl keystone_authtoken admin_user
+ops_del $neutron_ctl keystone_authtoken admin_password
 
 ## [database] section
 ops_del $neutron_com database connection
@@ -149,9 +150,13 @@ sleep 5
 ml2_clt=/etc/neutron/plugins/ml2/ml2_conf.ini
 test -f $ml2_clt.orig || cp $ml2_clt $ml2_clt.orig
 
+## [ml2] section
 ops_edit $ml2_clt ml2 type_drivers flat,vlan,gre,vxlan
 ops_edit $ml2_clt ml2 tenant_network_types
 ops_edit $ml2_clt ml2 mechanism_drivers openvswitch
+
+## [ml2_type_flat] section
+ops_edit $ml2_clt ml2_type_flat flat_networks physnet1
 
 ## [securitygroup] section
 ops_edit $ml2_clt securitygroup enable_ipset True
@@ -166,6 +171,8 @@ test -f $ovsfile_com.orig || cp $ovsfile_com $ovsfile_com.orig
 
 ## [ovs] section
 ops_edit $ovsfile_com ovs bridge_mappings  physnet1:br-eth1
+
+ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini 
 
 ovs-vsctl add-br br-int 
 ovs-vsctl add-br br-eth1
