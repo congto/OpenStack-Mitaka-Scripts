@@ -90,7 +90,7 @@ ops_del $glancereg_ctl database sqlite_db
 
 # [keystone_authtoken] Section
 ops_edit $glancereg_ctl keystone_authtoken auth_uri http://$CTL_MGNT_IP:5000
-ops_edit $$lancereg_ctl keystone_authtoken auth_url http://$CTL_MGNT_IP:35357
+ops_edit $glancereg_ctl keystone_authtoken auth_url http://$CTL_MGNT_IP:35357
 ops_edit $glancereg_ctl keystone_authtoken auth_plugin password
 ops_edit $glancereg_ctl keystone_authtoken project_domain_id  default
 ops_edit $glancereg_ctl keystone_authtoken user_domain_id default
