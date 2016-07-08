@@ -62,9 +62,9 @@
     ```
 
 - Chạy file cài đặt glance
-```sh
-bash ctl-4-glance.sh
-```
+    ```sh
+    bash ctl-4-glance.sh
+    ```
 
 - Chạy file cài đặt Nova
     ```sh
@@ -73,11 +73,11 @@ bash ctl-4-glance.sh
 
 - Chạy file cài đặt Neutron (Chỉ chọn một trong hai tùy chọn)
  - Tùy chọn 1: Nếu sử dụng Linux bridge, chạy file.
- ```sh
- ctl-6-neutron-provider-linuxbridge.sh
- ```
+     ```sh
+     bash ctl-6-neutron-provider-linuxbridge.sh
+     ```
  
  - Tùy chọn 2: Nếu sử dụng OpenvSwitch, chạy file
- ```sh
- ctl-6-neutron-provider-linuxbridge.sh
- ```` 
+     ```sh
+     bash ctl-6-neutron-provider-linuxbridge.sh
+     ```` 
