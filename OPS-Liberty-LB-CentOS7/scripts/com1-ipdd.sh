@@ -16,12 +16,12 @@ sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 
 echocolor "Setup IP  eth0"
 sleep 3
-nmcli c modify eth0 ipv4.addresses $COM1_MGNT_IP/24
+nmcli c modify eth0 ipv4.addresses $COM1_MGNT_IP/$PREFIX_NETMASK_EXT
 nmcli c modify eth0 ipv4.method manual
 
 echocolor "Setup IP  eth1"
 sleep 3
-nmcli c modify eth1 ipv4.addresses $COM1_EXT_IP/24
+nmcli c modify eth1 ipv4.addresses $COM1_EXT_IP/$PREFIX_NETMASK_EXT
 nmcli c modify eth1 ipv4.gateway $GATEWAY_IP_EXT
 nmcli c modify eth1 ipv4.dns $DNS_SERVER
 nmcli c modify eth1 ipv4.method manual
