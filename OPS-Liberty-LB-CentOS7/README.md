@@ -31,15 +31,18 @@
     cd scripts/
     chmod +x *.sh
     ```
-- File config.cfg chứa các biến mà các script gọi tới. Sửa các biến về IP để đúng như thực tế, các biến còn lại có thể để nguyên nếu như chưa kiểm soát được script.
+- File config.cfg chứa các biến mà các script gọi tới. 
+
+- Sửa các biến về IP để đúng như thực tế, các biến còn lại có thể để nguyên nếu như chưa kiểm soát được script.
+
 - Sửa file `ctl-1-ipadd.sh`
  - Đối với RHEL bỏ comment dòng: 
- ```sh
- yum install https://rdoproject.org/repos/openstack-liberty/rdo-release-liberty.rpm
- ```
- 
+     ```sh
+     yum install https://rdoproject.org/repos/openstack-liberty/rdo-release-liberty.rpm
+     ```
+     
 - Thực thi file  `ctl-1-ipadd.sh` sau khi sửa
-```sh
-bash ctl-1-ipadd.sh
-```
+    ```sh
+    bash ctl-1-ipadd.sh
+    ```
 
