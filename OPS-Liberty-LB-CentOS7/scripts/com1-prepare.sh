@@ -33,7 +33,7 @@ chronyc sources
 
 sleep 5
 echocolor "Installl package for NOVA"
-yum -y install openstack-nova-compute sysfsutils  openstack-neutron openstack-neutron-ml2 openstack-neutron-openvswitch
+yum -y install openstack-nova-compute sysfsutils openstack-neutron openstack-neutron-ml2 openstack-neutron-openvswitch
 
 
 echocolor "Install & Configuring in nova.conf"
@@ -43,9 +43,11 @@ nova_com=/etc/nova/nova.conf
 test -f $nova_com.orig || cp $nova_com $nova_com.orig
 
 ## [DEFAULT] Section
-ops_edit $nova_com DEFAULT rpc_backend rabbit
-ops_edit $nova_com DEFAULT auth_strategy keystone
 ops_edit $nova_com DEFAULT my_ip $COM1_MGNT_IP
+ops_edit $nova_com DEFAULT auth_strategy keystone
+ops_edit $nova_com DEFAULT rpc_backend rabbit
+
+
 ops_edit $nova_com DEFAULT network_api_class nova.network.neutronv2.api.API
 ops_edit $nova_com DEFAULT security_group_api neutron
 ops_edit $nova_com DEFAULT linuxnet_interface_driver nova.network.linux_net.LinuxOVSInterfaceDriver
@@ -61,7 +63,6 @@ ops_edit $nova_com oslo_messaging_rabbit rabbit_password $RABBIT_PASS
 ## [keystone_authtoken] section
 ops_edit $nova_com keystone_authtoken auth_uri http://$CTL_MGNT_IP:5000
 ops_edit $nova_com keystone_authtoken auth_url http://$CTL_MGNT_IP:35357
-
 ops_edit $nova_com keystone_authtoken auth_plugin password
 ops_edit $nova_com keystone_authtoken project_domain_id default
 ops_edit $nova_com keystone_authtoken user_domain_id default
@@ -172,11 +173,32 @@ test -f $ovsfile_com.orig || cp $ovsfile_com $ovsfile_com.orig
 ## [ovs] section
 ops_edit $ovsfile_com ovs bridge_mappings  physnet1:br-eth1
 
+## Create link 
 ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini 
 
-ovs-vsctl add-br br-int 
-ovs-vsctl add-br br-eth1
-ovs-vsctl add-port br-eth1 eth1 
+# Edit interface 
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-eth1
+TYPE=Ethernet
+DEVICE="eth1"
+NAME=eth1
+ONBOOT=yes
+OVS_BRIDGE=br-eth1
+TYPE="OVSPort"
+DEVICETYPE="ovs"
+EOF
+
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-br-eth1
+DEVICE="br-eth1"
+BOOTPROTO="none"
+IPADDR=$COM1_EXT_IP
+PREFIX=$NETMASK_ADD_EXT
+GATEWAY=$GATEWAY_IP_EXT
+DNS1=$DNS_SERVER
+ONBOOT="yes"
+TYPE="OVSBridge"
+DEVICETYPE="ovs"
+EOF
+
 
 echocolor "Reset service nova-compute,openvswitch"
 sleep 5
@@ -186,3 +208,13 @@ systemctl enable openvswitch
 systemctl restart openstack-nova-compute openstack-nova-metadata-api 
 systemctl start neutron-openvswitch-agent
 systemctl enable neutron-openvswitch-agent 
+
+echocolor "Add port for OVS"
+sleep 5
+ovs-vsctl add-br br-int 
+ovs-vsctl add-br br-eth1
+ovs-vsctl add-port br-eth1 eth1 
+
+echocolor "Reboot Server"
+sleep 5
+init 6
