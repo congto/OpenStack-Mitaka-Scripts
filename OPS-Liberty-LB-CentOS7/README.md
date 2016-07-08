@@ -41,8 +41,43 @@
      yum install https://rdoproject.org/repos/openstack-liberty/rdo-release-liberty.rpm
      ```
      
-- Thực thi file  `ctl-1-ipadd.sh` sau khi sửa
+- Thực thi file thiết lập IP cho máy Controller
     ```sh
     bash ctl-1-ipadd.sh
     ```
 
+- Thực thi file cài đặt Repos OpenStack , NTP, Memcache .
+    ```sh
+    bash ctl-2-prepare.sh
+    ```
+
+- Thực thi file cài đặt keystone
+    ```sh
+    bash ctl-3.keystone.sh
+    ```
+
+- Chạy file chứa các biến môi trường
+    ```sh
+    source admin-openrc
+    ```
+
+- Chạy file cài đặt glance
+```sh
+bash ctl-4-glance.sh
+```
+
+- Chạy file cài đặt Nova
+    ```sh
+    bash ctl-5-nova.sh
+    ```
+
+- Chạy file cài đặt Neutron (Chỉ chọn một trong hai tùy chọn)
+ - Tùy chọn 1: Nếu sử dụng Linux bridge, chạy file.
+ ```sh
+ ctl-6-neutron-provider-linuxbridge.sh
+ ```
+ 
+ - Tùy chọn 2: Nếu sử dụng OpenvSwitch, chạy file
+ ```sh
+ ctl-6-neutron-provider-linuxbridge.sh
+ ```` 

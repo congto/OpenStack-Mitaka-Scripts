@@ -12,12 +12,12 @@ sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 
 echocolor "Setup IP  eth0"
 sleep 3
-nmcli c modify eth0 ipv4.addresses $CTL_MGNT_IP/24
+nmcli c modify eth0 ipv4.addresses $CTL_MGNT_IP/$PREFIX_NETMASK_MGNT
 nmcli c modify eth0 ipv4.method manual
 
 echocolor "Setup IP  eth1"
 sleep 3
-nmcli c modify eth1 ipv4.addresses $CTL_EXT_IP/24
+nmcli c modify eth1 ipv4.addresses $CTL_EXT_IP/$PREFIX_NETMASK_EXT
 nmcli c modify eth1 ipv4.gateway $GATEWAY_IP_EXT
 nmcli c modify eth1 ipv4.dns $DNS_SERVER
 nmcli c modify eth1 ipv4.method manual
@@ -61,9 +61,9 @@ EOF
 echocolor "Enable the OpenStack liberty repository"
 sleep 3
 # CENTOS
-# yum install centos-release-openstack-liberty
+# yum -y install centos-release-openstack-liberty
 # RHEL
-# yum install https://rdoproject.org/repos/openstack-liberty/rdo-release-liberty.rpm
+# yum -y install https://rdoproject.org/repos/openstack-liberty/rdo-release-liberty.rpm
 
 echocolor "Upgrade the packages for server"
 sleep 3
