@@ -174,6 +174,10 @@ ops_edit $netmetadata DEFAULT nova_metadata_port 8775
 ops_edit $netmetadata DEFAULT metadata_proxy_shared_secret $METADATA_SECRET
 ops_edit $netmetadata DEFAULT verbose True
 
+ops_del $netmetadata DEFAULT admin_tenant_name
+ops_del $netmetadata DEFAULT admin_user
+ops_del $netmetadata DEFAULT admin_password 
+
 
 echocolor "Create a symbolic link"
 sleep 3
@@ -214,6 +218,31 @@ systemctl start neutron-$service
 systemctl enable neutron-$service
 done 
 
+### Setup IP for bridge card
+echocolor "Setup IP for bridge card"
+sleep 5
+
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-eth1
+TYPE=Ethernet
+DEVICE="eth1"
+NAME=eth1
+ONBOOT=yes
+OVS_BRIDGE=br-eth1
+TYPE="OVSPort"
+DEVICETYPE="ovs"
+EOF
+
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-br-eth1
+DEVICE="br-eth1"
+BOOTPROTO="none"
+IPADDR=172.16.69.40
+PREFIX=24
+GATEWAY=172.16.69.1
+DNS1=8.8.8.8
+ONBOOT="yes"
+TYPE="OVSBridge"
+DEVICETYPE="ovs"
+EOF
 
 echocolor "Add bridge"
 sleep 3
@@ -221,7 +250,6 @@ ovs-vsctl add-br br-int
 ovs-vsctl add-br br-eth1 
 ovs-vsctl add-port br-eth1 eth1 
 
-echocolor "Check service Neutron"
-sleep 90
-neutron agent-list
 echocolor "Finished install NEUTRON on CONTROLLER"
+init 6 
+
