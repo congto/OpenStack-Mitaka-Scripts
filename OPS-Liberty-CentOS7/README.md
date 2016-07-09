@@ -37,6 +37,7 @@
 
 - Sửa file `ctl-1-ipadd.sh`
  - Đối với RHEL bỏ comment dòng: 
+ 
      ```sh
      yum install https://rdoproject.org/repos/openstack-liberty/rdo-release-liberty.rpm
      ```
@@ -102,7 +103,12 @@
 
 - Sửa các biến về IP để đúng như thực tế, các biến còn lại có thể để nguyên nếu như chưa kiểm soát được script.
 
-- Thực thi script đặt địa chỉ IP cho node Compute
+- Kiểm tra xem dòng dưới trong file `com1-ipdd.sh` đã bỏ comment hay chưa 
+```sh
+yum install https://rdoproject.org/repos/openstack-liberty/rdo-release-liberty.rpm` 
+```
+
+- Thực thi script dưới để thiết lập IP cho máy compute
 ```sh
 bash com1-ipdd.sh
 ```
