@@ -31,7 +31,7 @@
     cd scripts/
     chmod +x *.sh
     ```
-- File config.cfg chứa các biến mà các script gọi tới. 
+- File `config.cfg` chứa các biến mà các script gọi tới. 
 
 - Sửa các biến về IP để đúng như thực tế, các biến còn lại có thể để nguyên nếu như chưa kiểm soát được script.
 
@@ -86,6 +86,7 @@
 ### Thực hiện trên COMPUTE node
 - Có 2 cách thực thi script.
 - Cách 1: Dùng lệnh `scp` đứng trên node compute kéo file từ controller node về.
+
     ```
     scp root@ip_node_controller:/root/scripts /root
     ```
