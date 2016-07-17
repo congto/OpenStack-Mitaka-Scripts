@@ -75,17 +75,19 @@ bash ctl-4-glance.sh
 bash ctl-5-nova.sh
 ```
 
-### Cinder
-- Nếu cài `cinder-volume` cùng node compute thì thực hiện sau sau, lưu ý máy controller cần có ổ cứng `/dev/vdb`: 
-```sh
-ctl-7-cinder-aio.sh
-```
-
-- Với mô hình tách node cinder (cài thành phần `cinder-volume`) thì thực hiện script. 
-```sh
-ctl-7-cinder.sh
-```
-- Lúc này cần thực hiện các bước tiếp theo trên máy chủ `Cinder`
+### Install Cinder
+- Lưu ý: chỉ chọn một trong 2 lựa chọn dưới đây
+- Lựa chọn 1: Không tách node cinder thành một máy chủ riêng:
+ - Nếu cài `cinder-volume` cùng node compute thì thực hiện sau sau, lưu ý máy controller cần có ổ cứng `/dev/vdb`: 
+     ```sh
+     ctl-7-cinder-aio.sh
+     ```
+- Lựa chọn 2: Tách node cinder ra một máy chủ riêng
+ - Với mô hình tách node cinder (cài thành phần `cinder-volume`) thì thực hiện script. 
+     ```sh
+     ctl-7-cinder.sh
+     ```
+ - Lúc này cần thực hiện các bước tiếp theo trên máy chủ `Cinder`
 
 
 ### Install NEUTRON
