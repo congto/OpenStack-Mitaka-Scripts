@@ -14,7 +14,7 @@ apt-get -y update && apt-get -y upgrade && apt-get -y dist-upgrade
 
 echocolor "Configuring hostname for COMPUTE2 node"
 sleep 3
-echo "$HOST_COM1" > /etc/hostname
+echo "$HOST_COM2" > /etc/hostname
 hostname -F /etc/hostname
 
 iphost=/etc/hosts
