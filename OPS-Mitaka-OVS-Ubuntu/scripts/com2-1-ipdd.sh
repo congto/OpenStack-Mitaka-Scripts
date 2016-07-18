@@ -45,7 +45,7 @@ iface lo inet loopback
 # MGNT NETWORK
 auto eth0
 iface eth0 inet static
-address $COM12_MGNT_IP
+address $COM2_MGNT_IP
 netmask $NETMASK_ADD_MGNT
 
 
