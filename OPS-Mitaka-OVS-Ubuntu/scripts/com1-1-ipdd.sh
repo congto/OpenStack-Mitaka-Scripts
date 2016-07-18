@@ -25,6 +25,7 @@ cat << EOF >> $iphost
 127.0.0.1       localhost $HOST_COM1
 $CTL_MGNT_IP    $HOST_CTL
 $COM1_MGNT_IP   $HOST_COM1
+$COM2_MGNT_IP   $HOST_COM2
 $CIN_MGNT_IP    $HOST_CIN
 EOF
 
