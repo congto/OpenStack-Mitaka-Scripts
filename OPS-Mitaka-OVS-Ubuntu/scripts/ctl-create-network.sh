@@ -12,7 +12,7 @@ neutron net-create ext-net --router:external True \
 echocolor "Create a subnet on the external network:"
 sleep 3
 neutron subnet-create ext-net --name ext-subnet --allocation-pool \
-    start=172.16.69.30,end=172.16.69.39 --disable-dhcp \
+    start=172.16.69.160,end=172.16.69.169 --disable-dhcp \
     --dns-nameserver 8.8.4.4 --gateway 172.16.69.1 172.16.69.0/24
     
 tenant_id=`openstack project show admin | egrep -w id | awk '{print $4}'`
