@@ -101,7 +101,7 @@ sleep 5
 systemctl enable libvirtd.service openstack-nova-compute.service
 systemctl start libvirtd.service openstack-nova-compute.service
 
-echocolor "Install neutron-linuxbridge-agent (neutron) on COMPUTE NODE"
+echocolor "Install neutron-openvswitch-agent (neutron) on COMPUTE NODE"
 sleep 5
 yum -y install  openstack-neutron openstack-neutron-ml2 openstack-neutron-openvswitch
 
