@@ -94,7 +94,7 @@ ops_edit $nova_com neutron project_name service
 ops_edit $nova_com neutron username neutron
 ops_edit $nova_com neutron password $NEUTRON_PASS
 ops_edit $nova_com neutron service_metadata_proxy True
-ops_edit $nova_com neutron metadata_proxy_shared_secret metadata_secret
+ops_edit $nova_com neutron metadata_proxy_shared_secret $METADATA_SECRET
 
 echocolor "Restart and start nova-compute when reboot server"
 sleep 5
