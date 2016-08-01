@@ -185,7 +185,7 @@ ops_edit $ml2_com ml2 extension_drivers port_security
 ops_edit $ml2_com ml2_type_flat flat_networks external
 
 ## [ml2_type_gre] section
-# ops_edit $ml2_com ml2_type_gre tunnel_id_ranges 300:400
+ops_edit $ml2_com ml2_type_gre tunnel_id_ranges 300:400
 
 ## [ml2_type_vxlan] section
 # ops_edit $ml2_com ml2_type_vxlan vni_ranges 201:300
@@ -208,16 +208,16 @@ ovsfile=/etc/neutron/plugins/ml2/openvswitch_agent.ini
 test -f $ovsfile.orig || cp $ovsfile $ovsfile.orig
 
 ## [agent] section
-# ops_edit $ovsfile agent tunnel_types gre
-# ops_edit $ovsfile agent l2_population True
+ops_edit $ovsfile agent tunnel_types gre
+ops_edit $ovsfile agent l2_population True
 
 ## [ovs] section
-# ops_edit $ovsfile ovs local_ip $CTL_MGNT_IP
+ops_edit $ovsfile ovs local_ip $CTL_MGNT_IP
 ops_edit $ovsfile ovs bridge_mappings external:br-ex
 
 # [securitygroup] section
-# ops_edit $ovsfile securitygroup firewall_driver \
-#    neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+ops_edit $ovsfile securitygroup firewall_driver \
+   neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
 
 echocolor "Reset service nova-compute,openvswitch_agent"
 sleep 5

@@ -360,13 +360,13 @@ ovs-vsctl add-port br-ex eth1
 
 # Tao network 
 
-neutron net-create --shared --provider:physical_network provider --provider:network_type flat provider
+neutron net-create --shared --provider:physical_network external --provider:network_type flat external
 
 
 neutron subnet-create --name provider \
 --allocation-pool start=172.16.69.180,end=172.16.69.189 \
 --dns-nameserver 8.8.4.4 --gateway 172.16.69.1 \
-provider 172.16.69.0/24
+external 172.16.69.0/24
 
 
 openstack security group rule create --proto icmp default
@@ -377,7 +377,7 @@ openstack network list
 
 
 openstack server create --flavor m1.tiny --image cirros \
-  --nic net-id=78f68e04-6356-48bf-8d5f-80dc93e1941d --security-group default \
+  --nic net-id=134e6e48-1264-4f71-9ac2-a6f33b1784e8 --security-group default \
   provider-instance
 
 
