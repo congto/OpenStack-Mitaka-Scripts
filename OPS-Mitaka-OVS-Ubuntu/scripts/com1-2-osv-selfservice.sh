@@ -183,6 +183,7 @@ ops_edit $ovsfile securitygroup firewall_driver \
 
 ## [ovs] section
 ops_edit $ovsfile ovs local_ip $COM1_MGNT_IP
+ops_edit $ovsfile ovs enable_tunneling True
 
 echocolor "Reset service nova-compute,openvswitch_agent"
 sleep 5

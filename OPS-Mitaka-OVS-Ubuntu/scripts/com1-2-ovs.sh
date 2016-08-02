@@ -133,9 +133,7 @@ rm /var/lib/nova/nova.sqlite
 echocolor "Install openvswitch-agent (neutron) on COMPUTE NODE"
 sleep 5
 
-apt-get -y install neutron-server neutron-plugin-ml2 \
-neutron-openvswitch-agent python-neutronclient ipset
-
+apt-get -y install  neutron-plugin-openvswitch-agent
 
 echocolor "Config file neutron.conf"
 neutron_com=/etc/neutron/neutron.conf
@@ -175,9 +173,9 @@ ml2_com=/etc/neutron/plugins/ml2/ml2_conf.ini
 test -f $ml2_com.orig || cp $ml2_com $ml2_com.orig
 
 ## [ml2] section
-ops_edit $ml2_com ml2 type_drivers flat,vlan
-ops_edit $ml2_com ml2 tenant_network_types 
-ops_edit $ml2_com ml2 mechanism_drivers openvswitch
+ops_edit $ml2_com ml2 type_drivers flat,vlan,vxlan,gre
+ops_edit $ml2_com ml2 tenant_network_types vlan,gre,vxlan
+ops_edit $ml2_com ml2 mechanism_drivers openvswitch,l2population
 ops_edit $ml2_com ml2 extension_drivers port_security
 
 
@@ -212,7 +210,7 @@ ops_edit $ovsfile agent tunnel_types gre
 ops_edit $ovsfile agent l2_population True
 
 ## [ovs] section
-ops_edit $ovsfile ovs local_ip $CTL_MGNT_IP
+ops_edit $ovsfile ovs local_ip $COM1_MGNT_IP
 ops_edit $ovsfile ovs bridge_mappings external:br-ex
 
 # [securitygroup] section
@@ -225,7 +223,7 @@ service neutron-openvswitch-agent restart
 
 echocolor "Config IP address for br-ex"
 ifaces=/etc/network/interfaces
-test -f $ifaces.orig1 || cp $ifaces $ifaces.orig1
+test -f $ifaces.orig || cp $ifaces $ifaces.orig
 rm $ifaces
 cat << EOF > $ifaces
 # The loopback network interface

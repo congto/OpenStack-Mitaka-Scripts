@@ -3,17 +3,20 @@
 source config.cfg
 source functions.sh
 
+openstack security group rule create --proto icmp default
+openstack security group rule create --proto tcp --dst-port 22 default
+
 echocolor "Create the external network"
 sleep 3
 
-neutron net-create ext-net --router:external True \
-    --provider:physical_network external --provider:network_type flat
-    
-echocolor "Create a subnet on the external network:"
-sleep 3
-neutron subnet-create ext-net --name ext-subnet --allocation-pool \
-    start=172.16.69.160,end=172.16.69.169 --disable-dhcp \
-    --dns-nameserver 8.8.4.4 --gateway 172.16.69.1 172.16.69.0/24
+
+neutron net-create --shared --provider:physical_network external \
+--provider:network_type flat ext-net
+  
+neutron subnet-create --name sub-provider \
+--allocation-pool start=172.16.69.180,end=172.16.69.189 \
+--dns-nameserver 8.8.4.4 --gateway 172.16.69.1 \
+external 172.16.69.0/24
     
 tenant_id=`openstack project show admin | egrep -w id | awk '{print $4}'`
 
@@ -27,6 +30,16 @@ echocolor "Create a subnet on the project network"
 sleep 3
 neutron subnet-create private-net --name private-subnet \
     --dns-nameserver 8.8.8.8 --gateway 192.168.10.1 192.168.10.0/24
+
+neutron net-update ext-net --router:external
+neutron router-create admin-router
+
+neutron router-interface-add admin-router private-subnet
+neutron router-gateway-set admin-router ext-net
+
+
+######################
+  
     
 echocolor "Create a project router"
 sleep 3

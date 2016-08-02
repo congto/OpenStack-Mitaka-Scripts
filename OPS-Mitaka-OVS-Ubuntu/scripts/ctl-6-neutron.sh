@@ -110,8 +110,8 @@ ml2_clt=/etc/neutron/plugins/ml2/ml2_conf.ini
 test -f $ml2_clt.orig || cp $ml2_clt $ml2_clt.orig
 
 ## [ml2] section
-ops_edit $ml2_clt ml2 type_drivers flat,vlan
-ops_edit $ml2_clt ml2 tenant_network_types 
+ops_edit $ml2_clt ml2 type_drivers flat,vlan,vxlan,gre
+ops_edit $ml2_clt ml2 tenant_network_types vlan,gre,vxlan
 ops_edit $ml2_clt ml2 mechanism_drivers openvswitch,l2population
 ops_edit $ml2_clt ml2 extension_drivers port_security
 
