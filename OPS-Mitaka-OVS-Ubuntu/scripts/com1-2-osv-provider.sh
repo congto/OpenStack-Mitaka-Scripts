@@ -133,9 +133,8 @@ rm /var/lib/nova/nova.sqlite
 echocolor "Install openvswitch-agent (neutron) on COMPUTE NODE"
 sleep 5
 
-apt-get -y install neutron-server neutron-plugin-ml2 \
+apt-get -y install neutron-common neutron-plugin-ml2 \
 neutron-openvswitch-agent python-neutronclient ipset
-
 
 echocolor "Config file neutron.conf"
 neutron_com=/etc/neutron/neutron.conf

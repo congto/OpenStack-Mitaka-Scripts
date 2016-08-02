@@ -13,10 +13,19 @@ sleep 3
 neutron net-create --shared --provider:physical_network external \
 --provider:network_type flat ext-net
   
-neutron subnet-create --name sub-provider \
+neutron subnet-create --name sub-ext-net \
 --allocation-pool start=172.16.69.180,end=172.16.69.189 \
 --dns-nameserver 8.8.4.4 --gateway 172.16.69.1 \
-external 172.16.69.0/24
+ext-net 172.16.69.0/24
+
+# Tao VM gan vao provider network
+ext_net_id=`openstack network list | egrep -w ext-net | awk '{print $2}'`
+
+openstack server create --flavor m1.tiny --image cirros \
+  --nic net-id=$ext_net_id --security-group default \
+  provider-instance
+
+#  Tao Selfservice network
     
 tenant_id=`openstack project show admin | egrep -w id | awk '{print $4}'`
 
@@ -38,6 +47,16 @@ neutron router-interface-add admin-router private-subnet
 neutron router-gateway-set admin-router ext-net
 
 
+# Gan may ao vao selfservice network 
+private_net_id=`openstack network list | egrep -w private-net | awk '{print $2}'`
+openstack server create --flavor m1.tiny --image cirros \
+  --nic net-id=$private_net_id --security-group default \
+  Selfservice-instance
+
+# Floating IP 
+openstack ip floating create ext-net
+
+ 
 ######################
   
     

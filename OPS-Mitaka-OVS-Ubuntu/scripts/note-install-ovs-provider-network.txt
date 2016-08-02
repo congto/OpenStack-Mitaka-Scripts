@@ -377,7 +377,7 @@ openstack network list
 
 
 openstack server create --flavor m1.tiny --image cirros \
-  --nic net-id=134e6e48-1264-4f71-9ac2-a6f33b1784e8 --security-group default \
+  --nic net-id=765efa56-c378-44cf-a22b-20303b4bd915 --security-group default \
   provider-instance
 
 
