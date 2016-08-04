@@ -47,7 +47,7 @@ openstack endpoint create --region RegionOne \
 echocolor "Install NEUTRON node - Using OpenvSwitch"
 sleep 5
 apt-get -y install neutron-server neutron-plugin-ml2 \
-    neutron-openvswitch-agent neutron-dhcp-agent \
+    neutron-plugin-openvswitch-agent neutron-dhcp-agent \
     neutron-metadata-agent python-neutronclient ipset
 
 ######## Backup configuration NEUTRON.CONF ##################"
