@@ -41,10 +41,8 @@ sed -i 's/server 2.debian.pool.ntp.org offline minpoll 8/ \
 sed -i 's/server 3.debian.pool.ntp.org offline minpoll 8/ \
 # server 3.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
 
-
-sleep 5
 echocolor "Installl package for NOVA"
-
+sleep 5
 apt-get -y install nova-compute
 # echo "libguestfs-tools libguestfs/update-appliance boolean true" \
 #    | debconf-set-selections
@@ -54,7 +52,6 @@ apt-get -y install nova-compute
 # update-guestfs-appliance
 # chmod 0644 /boot/vmlinuz*
 # usermod -a -G kvm root
-
 
 echocolor "Configuring in nova.conf"
 sleep 5
@@ -173,7 +170,7 @@ ovsfile=/etc/neutron/plugins/ml2/openvswitch_agent.ini
 test -f $ovsfile.orig || cp $ovsfile $ovsfile.orig
 
 # [agent] section
-ops_edit $ovsfile agent tunnel_types gre,vxlan
+ops_edit $ovsfile agent tunnel_types gre
 ops_edit $ovsfile agent l2_population True
 
 

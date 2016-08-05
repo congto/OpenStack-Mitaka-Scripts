@@ -57,7 +57,7 @@ openstack server create --flavor m1.tiny --image cirros \
 openstack ip floating create ext-net
 
 openstack ip floating add dia_chi_ip_floating selfservice-instance
-openstack ip floating add 172.16.69.183 selfservice-instance
+openstack ip floating add 172.16.69.183 Selfservice-instance
 ######################
   
     
