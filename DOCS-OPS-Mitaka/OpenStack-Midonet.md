@@ -3,6 +3,7 @@
 ## Chuẩn bị
 
 - Mô hình mạng
+
 ### Controller
 
 ```sh
@@ -154,7 +155,10 @@ EOF
 ```
 
 - Download and install the repositories' key:
+
+```sh
 curl -L https://builds.midonet.org/midorepo.key | apt-key add -
+```
 
 - Update Ubuntu
 
