@@ -1,0 +1,395 @@
+# Ghi chép về cài đặt mô hình provider network - sử dụng OVS
+
+# Cài đặt trên CONTROLLER
+
+echocolor "Configuring net forward for all VMs"
+sleep 5
+echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+echo "net.ipv4.conf.all.rp_filter=0" >> /etc/sysctl.conf
+echo "net.ipv4.conf.default.rp_filter=0" >> /etc/sysctl.conf
+sysctl -p
+
+echocolor "Create DB for NEUTRON "
+sleep 5
+cat << EOF | mysql -uroot -p'Welcome123'
+CREATE DATABASE neutron;
+GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'localhost' IDENTIFIED BY 'Welcome123';
+GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' IDENTIFIED BY 'Welcome123';
+FLUSH PRIVILEGES;
+EOF
+
+
+echocolor "Create  user, endpoint for NEUTRON"
+sleep 5
+
+openstack user create neutron --domain default --password Welcome123
+
+openstack role add --project service --user neutron admin
+
+openstack service create --name neutron --description "OpenStack Networking" network
+
+openstack endpoint create --region RegionOne network public http://10.10.10.140:9696
+
+openstack endpoint create --region RegionOne network internal http://10.10.10.140:9696
+
+openstack endpoint create --region RegionOne network admin http://10.10.10.140:9696
+
+
+echocolor "Install NEUTRON node - Using OpenvSwitch"
+sleep 5
+apt-get -y install neutron-server neutron-plugin-ml2 \
+    neutron-openvswitch-agent neutron-dhcp-agent \
+    neutron-metadata-agent python-neutronclient ipset
+
+    
+- File cấu hình file /etc/neutron/neutron.conf như sau:
+```sh
+[DEFAULT]
+core_plugin = ml2
+service_plugins =  router
+rpc_backend = rabbit
+auth_strategy = keystone
+notify_nova_on_port_status_changes = True
+notify_nova_on_port_data_changes = True
+
+[agent]
+root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
+
+[cors]
+[cors.subdomain]
+[database]
+connection = mysql+pymysql://neutron:Welcome123@10.10.10.140/neutron
+
+
+[keystone_authtoken]
+auth_uri = http://10.10.10.140:5000
+auth_url = http://10.10.10.140:35357
+memcached_servers = 10.10.10.140:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = neutron
+password = Welcome123
+
+
+[matchmaker_redis]
+
+[nova]
+auth_url = http://10.10.10.140:35357
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+region_name = RegionOne
+project_name = service
+username = nova
+password = Welcome123
+
+[oslo_concurrency]
+[oslo_messaging_amqp]
+[oslo_messaging_notifications]
+
+[oslo_messaging_rabbit]
+rabbit_host = 10.10.10.140
+rabbit_userid = openstack
+rabbit_password = Welcome123
+
+[oslo_policy]
+[quotas]
+[ssl]
+```
+
+
+- File cau hinh /etc/neutron/plugins/ml2/ml2_conf.ini 
+```sh
+[DEFAULT]
+
+[ml2]
+type_drivers = flat,vlan
+tenant_network_types =
+
+mechanism_drivers = openvswitch
+extension_drivers = port_security
+
+
+[ml2_type_flat]
+flat_networks = provider
+
+
+[ml2_type_geneve]
+[ml2_type_gre]
+
+[ml2_type_vlan]
+network_vlan_ranges = provider
+
+
+[ml2_type_vxlan]
+
+[securitygroup]
+enable_ipset = True
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+enable_security_group = True
+
+```
+
+- File cau hinh /etc/neutron/plugins/ml2/openvswitch_agent.ini
+```sh
+[DEFAULT]
+
+[agent]
+
+[ovs]
+bridge_mappings = provider:br-ex
+
+[securitygroup]
+```
+
+
+- File cau hinh /etc/neutron/dhcp_agent.ini
+```sh
+[DEFAULT]
+interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
+dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
+enable_isolated_metadata = True
+
+[AGENT]
+```
+
+- File cau hinh /etc/neutron/metadata_agent.ini
+```sh
+[DEFAULT]
+
+nova_metadata_ip = 10.10.10.140
+metadata_proxy_shared_secret = Welcome123
+
+
+[AGENT]
+```
+
+
+- Dong bo DB cho Neutron
+```sh
+su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf \
+--config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
+```
+
+- Khoi dong lai dich vu neutron tren controller
+```sh
+service neutron-server restart
+service neutron-openvswitch-agent restart
+service neutron-dhcp-agent restart
+service neutron-metadata-agent restart
+```
+
+- Cau hinh inteface
+
+cat << EOF > /etc/network/interfaces
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+auto br-ex
+iface br-ex inet static
+address 172.16.69.140
+netmask 255.255.255.0
+gateway 172.16.69.1
+dns-nameservers 8.8.8.8
+
+auto eth1
+iface eth1 inet manual
+   up ifconfig \$IFACE 0.0.0.0 up
+   up ip link set \$IFACE promisc on
+   down ip link set \$IFACE promisc off
+   down ifconfig \$IFACE down
+
+auto eth0
+iface eth0 inet static
+address 10.10.10.140
+netmask 255.255.255.0
+EOF
+
+# ovs-vsctl add-br br-int
+ovs-vsctl add-br br-ex
+ovs-vsctl add-port br-ex eth1
+
+
+- Khoi dong lai may
+init 6
+
+### Cai dat tren compute node
+
+echo 'net.ipv4.conf.default.rp_filter=0' >> /etc/sysctl.conf 
+echo 'net.ipv4.conf.all.rp_filter=0' >> /etc/sysctl.conf 
+sysctl -p 
+
+- Cai dat cac goi
+apt-get -y install neutron-server neutron-plugin-ml2 \
+neutron-openvswitch-agent python-neutronclient ipset
+
+
+- File cau hinh  /etc/neutron/neutron.conf
+```sh
+[DEFAULT]
+core_plugin = ml2
+rpc_backend = rabbit
+auth_strategy = keystone
+service_plugins = router
+
+[agent]
+root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
+[cors]
+[cors.subdomain]
+[database]
+[keystone_authtoken]
+auth_uri = http://10.10.10.140:5000
+auth_url = http://10.10.10.140:35357
+memcached_servers = 10.10.10.140:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = neutron
+password = Welcome123
+
+
+[matchmaker_redis]
+
+[nova]
+[oslo_concurrency]
+[oslo_messaging_amqp]
+[oslo_messaging_notifications]
+
+[oslo_messaging_rabbit]
+rabbit_host = 10.10.10.140
+rabbit_userid = openstack
+rabbit_password = Welcome123
+
+[oslo_policy]
+[quotas]
+[ssl]
+
+
+```
+
+
+- File cau hinh  /etc/neutron/plugins/ml2/ml2_conf.ini  
+```sh
+[DEFAULT]
+
+[ml2]
+type_drivers = flat,vlan
+tenant_network_types =
+mechanism_drivers = openvswitch
+extension_drivers = port_security
+
+[ml2_type_flat]
+flat_networks = provider
+
+[ml2_type_geneve]
+
+[ml2_type_gre]
+
+[ml2_type_vlan]
+network_vlan_ranges = provider
+
+[ml2_type_vxlan]
+
+[securitygroup]
+enable_security_group = True
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+enable_ipset = True
+
+```
+
+- File cau hinh /etc/neutron/plugins/ml2/openvswitch_agent.ini
+
+```sh
+[DEFAULT]
+[agent]
+
+[ovs]
+bridge_mappings = provider:br-ex
+
+[securitygroup]
+```
+
+
+
+- Khoi dong lai dich vu
+```sh
+service neutron-openvswitch-agent restart
+```
+
+- Cau hinh interface 
+
+cat << EOF > /etc/network/interfaces
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+auto br-ex
+iface br-ex inet static
+address 172.16.69.141
+netmask 255.255.255.0
+gateway 172.16.69.1
+dns-nameservers 8.8.8.8
+
+auto eth1
+iface eth1 inet manual
+   up ifconfig \$IFACE 0.0.0.0 up
+   up ip link set \$IFACE promisc on
+   down ip link set \$IFACE promisc off
+   down ifconfig \$IFACE down
+
+auto eth0
+iface eth0 inet static
+address 10.10.10.141
+netmask 255.255.255.0
+EOF
+
+
+
+ovs-vsctl add-br br-ex
+ovs-vsctl add-port br-ex eth1
+
+
+
+
+
+# Tao network 
+
+neutron net-create --shared --provider:physical_network external --provider:network_type flat external
+
+
+neutron subnet-create --name provider \
+--allocation-pool start=172.16.69.180,end=172.16.69.189 \
+--dns-nameserver 8.8.4.4 --gateway 172.16.69.1 \
+external 172.16.69.0/24
+
+
+openstack security group rule create --proto icmp default
+openstack security group rule create --proto tcp --dst-port 22 default
+
+
+openstack network list
+
+
+openstack server create --flavor m1.tiny --image cirros \
+  --nic net-id=765efa56-c378-44cf-a22b-20303b4bd915 --security-group default \
+  provider-instance
+
+
+
+
+
+
+neutron net-create --tenant-id $tenantID sharednet1 \
+--shared --provider:network_type flat --provider:physical_network provider 
+
+neutron subnet-create \
+--tenant-id $tenantID --gateway 172.16.69.1 --dns-nameserver 8.8.8.8 \
+--allocation-pool start=172.16.69.180,end=172.16.69.189 sharednet1 172.16.69.0/24 
+
+

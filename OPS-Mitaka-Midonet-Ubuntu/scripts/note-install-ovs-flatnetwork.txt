@@ -1,0 +1,92 @@
+- Cài đặt Neutron trên Compute node, sử dụng OpenvSwitch, mô hình provider network
+- Cài đặt trên compute node
+
+apt-get -y install neutron-server neutron-plugin-ml2 neutron-openvswitch-agent
+
+- Cấu hình neutron trên compute node với các file như sau
+
+############### FILE /etc/neutron/neutron.conf  ###############
+
+[DEFAULT]
+core_plugin = ml2
+service_plugins = router
+allow_overlapping_ips = True
+auth_strategy = keystone
+rpc_backend = rabbit
+
+
+[agent]
+root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
+
+[cors]
+[cors.subdomain]
+[database]
+# connection = mysql+pymysql://neutron:Welcome123@10.10.10.140/neutron
+
+[keystone_authtoken]
+auth_uri = http://10.10.10.140:5000
+auth_url = http://10.10.10.140:35357
+memcached_servers = 10.10.10.140:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = neutron
+password = Welcome123
+
+[matchmaker_redis]
+[nova]
+
+[oslo_concurrency]
+
+[oslo_messaging_amqp]
+[oslo_messaging_notifications]
+
+[oslo_messaging_rabbit]
+rabbit_host = 10.10.10.140
+rabbit_userid = openstack
+rabbit_password = Welcome123
+
+[oslo_policy]
+[quotas]
+[ssl]
+##########################################################################
+
+############### FILE /etc/neutron/plugins/ml2/ml2_conf.ini ###############
+
+[DEFAULT]
+[ml2]
+type_drivers = flat,vlan,vxlan,gre
+tenant_network_types = vlan,gre,vxlan
+mechanism_drivers = openvswitch,l2population
+extension_drivers = port_security
+
+[ml2_type_flat]
+flat_networks = external
+[ml2_type_geneve]
+[ml2_type_gre]
+tunnel_id_ranges = 300:400
+
+[ml2_type_vlan]
+[ml2_type_vxlan]
+
+[securitygroup]
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+
+##########################################################################
+
+############### FILE /etc/neutron/plugins/ml2/openvswitch_agent.ini ###############
+
+[DEFAULT]
+[agent]
+tunnel_types = gre
+l2_population = True
+[ovs]
+local_ip = 10.10.10.140
+bridge_mappings = external:br-ex
+[securitygroup]
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+##########################################################################
+
+
+
