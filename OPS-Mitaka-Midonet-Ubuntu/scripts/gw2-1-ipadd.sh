@@ -59,9 +59,9 @@ sleep 5
 echocolor "Upgrade the packages for server"
 apt-get -y update && apt-get -y upgrade && apt-get -y dist-upgrade
 
-echocolor "Configuring hostname for COMPUTE1 node"
+echocolor "Configuring hostname for HOST_GW2 node"
 sleep 3
-echo "$CTL_MGNT_IP" > /etc/hostname
+echo "$HOST_GW2" > /etc/hostname
 hostname -F /etc/hostname
 
 iphost=/etc/hosts
@@ -69,7 +69,7 @@ test -f $iphost.orig || cp $iphost $iphost.orig
 rm $iphost
 touch $iphost
 cat << EOF >> $iphost
-127.0.0.1       localhost $CTL_MGNT_IP
+127.0.0.1       localhost $HOST_GW2
 $CTL_MGNT_IP    $HOST_CTL
 $COM1_MGNT_IP   $HOST_COM1
 $COM2_MGNT_IP   $HOST_COM2
@@ -90,26 +90,35 @@ test -f $ifaces.orig || cp $ifaces $ifaces.orig
 rm $ifaces
 touch $ifaces
 cat << EOF >> $ifaces
-#Dat IP cho $COM1_MGNT_IP node
+#Dat IP cho $HOST_NSDB1 node
 
 # LOOPBACK NET
 auto lo
 iface lo inet loopback
 
 # DATA NETWORK
-auto eth0
-iface eth0 inet static
-address $COM1_DATA_IP
-netmask $NETMASK_DATA
+# auto eth0
+# iface eth0 inet static
+# address $GW2_DATA_IP
+# netmask $NETMASK_DATA
 
 
 # MGNT NETWORK
 auto eth1
 iface eth1 inet static
-address $CTL_MGNT_IP
+address $GW2_MGNT_IP
 netmask $NETMASK_MNGT
-gateway $GATEWAY_MNGT
+# gateway $GATEWAY_MNGT
+# dns-nameservers 8.8.8.8
+
+# MGNT NETWORK
+auto eth2
+iface eth2 inet static
+address $GW2_EXT_IP
+netmask $NETMASK_UPLINK2
+gateway $GATEWAY_UPLINK2
 dns-nameservers 8.8.8.8
+
 
 EOF
 
