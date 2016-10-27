@@ -2,6 +2,7 @@
 #
 source config.cfg
 source functions.sh
+source admin-openrc
 
 echocolor "Create the database for GLANCE"
 sleep 3

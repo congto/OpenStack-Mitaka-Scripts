@@ -2,6 +2,7 @@
 #
 source config.cfg
 source functions.sh
+source admin-openrc
 
 echocolor "Create DB for NOVA "
 cat << EOF | mysql -uroot -p$MYSQL_PASS
