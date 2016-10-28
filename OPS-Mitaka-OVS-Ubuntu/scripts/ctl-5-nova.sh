@@ -107,8 +107,6 @@ ops_edit $nova_ctl cinder os_region_name RegionOne
 
 
 ##########
-
-
 echocolor "Remove Nova default db "
 sleep 5
 rm /var/lib/nova/nova.sqlite

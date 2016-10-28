@@ -258,8 +258,13 @@ ovs-vsctl add-port br-ex eth1
 ifdown -a && ifup -a
 route add default gw $GATEWAY_IP_EXT br-ex
 
+# Add dns
+cat << EOF > /etc/resolv.conf
+nameserver 8.8.8.8 8.8.4.4
+EOF
+
 echocolor "Finished install NEUTRON on CONTROLLER"
 
-sleep 5
-echocolor "Reboot SERVER"
-init 6
+# sleep 5
+# echocolor "Reboot SERVER"
+# init 6

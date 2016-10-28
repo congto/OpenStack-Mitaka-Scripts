@@ -40,7 +40,7 @@ sed -i 's/server 3.debian.pool.ntp.org offline minpoll 8/ \
 /etc/init.d/chrony restart
 
 #############################################
-echocolor "Install repos to get package for openstack"
+echocolor "Install repository to get package for openstack mitaka"
 sleep 3
 apt-get install software-properties-common -y
 add-apt-repository cloud-archive:mitaka -y
