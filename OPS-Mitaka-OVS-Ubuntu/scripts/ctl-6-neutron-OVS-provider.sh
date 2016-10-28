@@ -5,6 +5,7 @@
 
 source config.cfg
 source functions.sh
+source admin-openrc
 
 echocolor "Configuring net forward for all VMs"
 sleep 5
@@ -109,8 +110,8 @@ ml2_clt=/etc/neutron/plugins/ml2/ml2_conf.ini
 test -f $ml2_clt.orig || cp $ml2_clt $ml2_clt.orig
 
 ## [ml2] section
-ops_edit $ml2_clt ml2 type_drivers flat,vlan
-ops_edit $ml2_clt ml2 tenant_network_types 
+ops_edit $ml2_clt ml2 type_drivers flat,vlan,vxlan,gre
+ops_edit $ml2_clt ml2 tenant_network_types vlan
 ops_edit $ml2_clt ml2 mechanism_drivers openvswitch
 ops_edit $ml2_clt ml2 extension_drivers port_security
 
@@ -150,7 +151,7 @@ ops_edit $ovsfile ovs bridge_mappings external:br-ex
 
 # [securitygroup] section
 # ops_edit $ovsfile securitygroup firewall_driver \
-    neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+#    neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
 
 #######################################################################
 # echocolor "Configuring L3 AGENT"
@@ -253,8 +254,17 @@ sleep 5
 ovs-vsctl add-br br-ex
 ovs-vsctl add-port br-ex eth1
 
+# Restart network
+ifdown -a && ifup -a
+route add default gw $GATEWAY_IP_EXT br-ex
+
+# Add dns
+cat << EOF > /etc/resolv.conf
+nameserver 8.8.8.8 8.8.4.4
+EOF
+
 echocolor "Finished install NEUTRON on CONTROLLER"
 
-sleep 5
-echocolor "Reboot SERVER"
-init 6
+# sleep 5
+# echocolor "Reboot SERVER"
+# init 6

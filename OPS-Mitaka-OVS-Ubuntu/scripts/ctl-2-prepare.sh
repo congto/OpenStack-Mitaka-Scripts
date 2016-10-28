@@ -36,6 +36,17 @@ sed -i 's/server 2.debian.pool.ntp.org offline minpoll 8/ \
 sed -i 's/server 3.debian.pool.ntp.org offline minpoll 8/ \
 # server 3.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
 
+# restart chrony after config
+/etc/init.d/chrony restart
+
+#############################################
+echocolor "Install repository to get package for openstack mitaka"
+sleep 3
+apt-get install software-properties-common -y
+add-apt-repository cloud-archive:mitaka -y
+apt-get -y update && apt-get -y upgrade && apt-get -y dist-upgrade
+apt-get -y install python-openstackclient
+
 ##############################################
 echocolor "Install and Config RabbitMQ"
 sleep 3
@@ -56,6 +67,7 @@ echo mysql-server mysql-server/root_password password \
 $MYSQL_PASS | debconf-set-selections
 echo mysql-server mysql-server/root_password_again password \
 $MYSQL_PASS | debconf-set-selections
+
 apt-get -y install mariadb-server python-mysqldb curl
 
 echocolor "Configuring MYSQL"

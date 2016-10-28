@@ -2,6 +2,7 @@
 #
 source config.cfg
 source functions.sh
+source admin-openrc
 
 echocolor "Create the database for GLANCE"
 sleep 3
@@ -25,7 +26,7 @@ openstack user create glance --domain default --password $GLANCE_PASS
 openstack role add --project service --user glance admin
 
 openstack service create --name glance --description \
-"OpenStack Image service" image
+    "OpenStack Image service" image
 
 openstack endpoint create --region RegionOne \
     image public http://$CTL_MGNT_IP:9292
@@ -48,16 +49,14 @@ glanceapi_ctl=/etc/glance/glance-api.conf
 test -f $glanceapi_ctl.orig || cp $glanceapi_ctl $glanceapi_ctl.orig
 
 #Configuring glance config file /etc/glance/glance-api.conf
-
-
 ops_edit $glanceapi_ctl database \
 connection  mysql+pymysql://glance:$GLANCE_DBPASS@$CTL_MGNT_IP/glance
 ops_del $glanceapi_ctl database sqlite_db
 
 ops_edit $glanceapi_ctl keystone_authtoken \
-auth_uri http://$CTL_MGNT_IP:5000
+    auth_uri http://$CTL_MGNT_IP:5000
 ops_edit $glanceapi_ctl keystone_authtoken \
-auth_url http://$CTL_MGNT_IP:35357
+    auth_url http://$CTL_MGNT_IP:35357
 ops_edit $glanceapi_ctl keystone_authtoken \
     memcached_servers $CTL_MGNT_IP:11211
 ops_edit $glanceapi_ctl keystone_authtoken auth_type password
