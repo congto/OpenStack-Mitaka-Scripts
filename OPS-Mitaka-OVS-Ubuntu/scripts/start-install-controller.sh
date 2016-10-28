@@ -10,6 +10,7 @@ echo "IP Controller ext is $CTL_MGNT_IP"
 echo "IP Controller int is $CTL_EXT_IP"
 echo "Hostname Controller is $HOST_CTL"
 echo "Password default is $DEFAULT_PASS"
+sleep 5
 
 # Cai dat cac goi can thiet
 echo -e "\e[1;42m Installing prepare package \e[1;0m"
@@ -33,22 +34,22 @@ echo -e "\e[1;42m Installing neutron \e[1;0m"
 	while [[ true ]]; do
 		read answer_neutron
 		case $answer_neutron in 
-			P)
+			p|P)
 				echocolor "You choise Provider"
 				$WORK_DIR/ctl-6-neutron-OVS-provider.sh
 				break
 				;;
-			S)
+			s|S)
 				echocolor "You choise Selfservice"
-				$WORK_DIR/ctl-6-neutron-OVS-provider.sh
+				$WORK_DIR/ctl-6-neutron-OVS-selfservice.sh
 				break
 				;;
-			B)
+			b|B)
 				echocolor "You choise both Provider and Selfservice"
-				$WORK_DIR/ctl-6-neutron-OVS-provider.sh
+				$WORK_DIR/ctl-6-neutron.sh
 				break
 				;;
-			E)
+			e|E)
 				echocolor "You don't install neutron."
 				break
 				;;
