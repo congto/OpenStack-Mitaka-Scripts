@@ -22,6 +22,9 @@ NIC2: eth1: 172.16.69.0/24, gateway 172.16.69.1 (external range - using NAT or B
 HDD: 1000GB
 ```
 
+### TOPO
+![Mitaka-topo-2node.png](./images/Mitaka-topo-2node.png)
+
 ### Execute script
 - Install git package and dowload script 
 ```sh
