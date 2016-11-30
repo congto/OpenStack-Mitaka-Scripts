@@ -132,7 +132,7 @@ bash com1-ipdd.sh
 ```sh
 su -
 cd scripts/
-bash com1-prepare.sh
+com1-2-ovs.sh
 ```
 
 After install COMPUTE NODE, move to step that guide to use dashboard
