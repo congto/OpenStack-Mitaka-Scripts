@@ -124,7 +124,7 @@ chmod +x *.sh
 - Edit file `config.cfg`  to make it suitable with your IP.
 - Execute script to establish IP, hostname
 ```sh
-bash com1-ipdd.sh
+bash com1-1-ipdd.sh
 ```
 - The server will restart after script `com1-ipdd.sh` is executed.
 - Login to server with root privilege and execute conponents installation script on Nova
