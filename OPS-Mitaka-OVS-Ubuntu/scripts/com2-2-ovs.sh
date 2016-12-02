@@ -165,41 +165,6 @@ ops_edit $neutron_com oslo_messaging_rabbit rabbit_host $CTL_MGNT_IP
 ops_edit $neutron_com oslo_messaging_rabbit rabbit_userid openstack
 ops_edit $neutron_com oslo_messaging_rabbit rabbit_password $RABBIT_PASS
 
-######## Backup configuration of ML2 ##################"
-echocolor "Configuring ML2"
-sleep 7
-
-ml2_com=/etc/neutron/plugins/ml2/ml2_conf.ini
-test -f $ml2_com.orig || cp $ml2_com $ml2_com.orig
-
-## [ml2] section
-ops_edit $ml2_com ml2 type_drivers flat,vlan,vxlan,gre
-ops_edit $ml2_com ml2 tenant_network_types vlan,gre,vxlan
-ops_edit $ml2_com ml2 mechanism_drivers openvswitch,l2population
-ops_edit $ml2_com ml2 extension_drivers port_security
-
-
-## [ml2_type_flat] section
-ops_edit $ml2_com ml2_type_flat flat_networks provider
-
-## [ml2_type_gre] section
-ops_edit $ml2_com ml2_type_gre tunnel_id_ranges 300:400
-
-## [ml2_type_vxlan] section
-# ops_edit $ml2_com ml2_type_vxlan vni_ranges 201:300
-
-
-## [ml2_type_vlan] section
-ops_edit $ml2_com ml2_type_vlan network_vlan_ranges provider
-
-## [securitygroup] section
-ops_edit $ml2_com securitygroup enable_ipset True
-ops_edit $ml2_com securitygroup firewall_driver \
-    neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
-
-ops_edit $ml2_com securitygroup enable_security_group True
-    
-
 echocolor "Configuring openvswitch_agent"
 sleep 5
 ovsfile=/etc/neutron/plugins/ml2/openvswitch_agent.ini
