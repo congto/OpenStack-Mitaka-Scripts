@@ -1,5 +1,6 @@
-## Hướng dẫn thực thi script cài đặt OpenStack Mitaka
+# Hướng dẫn thực thi script cài đặt OpenStack Mitaka
 
+## Tóm tắt về các ngữ cảnh sử dụng (use case) Neutron trong OpenStack 
 
 - Neutron trong OpenStack cung cấp 02 use case chính là `Provider Network` và `Self Service Network.`
 - Trong tài liệu này sẽ hướng dẫn dựng LAB và cấu hình đối với use case `Provider Network` sử dụng VLAN 
@@ -27,7 +28,7 @@
 - Có thể tạo các dải IP private trùng nhau ở các project (tenant) khác nhau.
 
 
-
+## Hướng dẫn thực thi script
 
 
 
