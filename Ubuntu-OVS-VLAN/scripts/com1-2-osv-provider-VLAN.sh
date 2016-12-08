@@ -174,7 +174,7 @@ auto eth0
 iface eth0 inet static
 address $COM1_MGNT_IP
 netmask $NETMASK_ADD_MGNT
-EOF
+
 
 # IP EXTERNAL (for internet install package)
 auto eth1
@@ -191,6 +191,7 @@ iface eth2 inet manual
    up ip link set \$IFACE promisc on
    down ip link set \$IFACE promisc off
    down ifconfig \$IFACE down
+EOF
 
 echocolor "Config br-int and br-ex for OpenvSwitch"
 sleep 5
