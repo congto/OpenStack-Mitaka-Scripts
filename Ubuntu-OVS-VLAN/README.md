@@ -1,31 +1,31 @@
-# Installation Steps
+# Các bước cài đặt
 
-### Prepare LAB enviroment
+### Môi trường LAB
 - Using in VMware Workstation or Virtualbox ... enviroment
+- Thiết lập Network trong VMware Workstation
+- Ubuntu 14.04 64 Bit
 
-#### Configure CONTROLLER NODE
+### Thành phần OpenStack sử dụng
+
+OpenStack Mitaka 
+
+- Keystone
+- Glance
+- Nova
+- Neutron
+ - OpenvSwitch
+ - Provider Network: Sử dụng use case VLAN (cấp máy ảo theo các VLAN của mạng bên ngoài)
+- Horizon 
+
+
+#### Yêu cầu về các máy chủ (Số lượng card mạng, ổ cứng, dải IP )
+
 ```sh
-OS: Ubuntu Server 14.04 64 bit
-RAM: 4GB
-CPU: 2x2,  VT supported
-NIC1: eth0: 10.10.10.0/24 (interntel range, using vmnet or hostonly in VMware Workstation)
-NIC2: eth1: 172.16.69.0/24, gateway 172.16.69.1 (external range - using NAT or Bridge VMware Workstation)
-HDD: +60GB
-```
-
-
-#### Configure COMPUTE NODE
-```sh
-OS: Ubuntu Server 14.04 64 bit
-RAM: 4GB
-CPU: 2x2, VT supported
-NIC1: eth0: 10.10.10.0/24 (interntel range, using vmnet or hostonly in VMware Workstation)
-NIC2: eth1: 172.16.69.0/24, gateway 172.16.69.1 (external range - using NAT or Bridge VMware Workstation  )
-HDD: +100GB
+- bổ sung vào đây sớm 
 ```
 
 ## Mô hình 2 node 
-![Mitaka-topo-2node.png](./images/Mitaka-topo-2node.png)
+![Mitaka-topo-2node.png](./images/OPS-Network-TOPO-Provider-VLAN.png)
 
 ### Execute script
 - Install git package and dowload script 
@@ -34,16 +34,16 @@ su -
 apt-get update
 apt-get -y install git 
 
-git clone https://github.com/congto/OpenStack-Mitaka-Scripts.git
-mv /root/OpenStack-Mitaka-Scripts/OPS-Mitaka-OVS-Ubuntu/scripts/ /root/
+git clone -b vlan https://github.com/congto/OpenStack-Mitaka-Scripts.git
+mv /root/OpenStack-Mitaka-Scripts/Ubuntu-OVS-VLAN/scripts/ /root/
 rm -rf OpenStack-Mitaka-Scripts/
 cd scripts/
 chmod +x *.sh
 ```
 
-## Install on CONTROLLER NODE
-### install IP establishment script and repos for mitaka
-- Edit file `config.cfg` in dicrectory with IP that you want to use.
+## Cài đặt trên máy CONTROLLER 
+### Thực hiện script cấu hình IP, cài các gói cơ bản.
+- Sửa file `config.cfg` nếu cần thay đổi IP và mật khẩu. Nếu ko thay đổi, các máy sẽ lấy IP, mật khẩu ... trong file cấu hình mẫu
  
 ```sh
 bash ctl-1-ipadd.sh
