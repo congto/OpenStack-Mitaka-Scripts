@@ -12,7 +12,6 @@
  - Với Provider Network theo dạng FLAT: 
   - Các máy ảo ở các project, tenant khác nhau đều cùng một dải IP.
   - Muốn cấp nhiều dải IP khác nhau khi sử dụng FLAT thì cần có nhiều Interface cho các host vật lý của OpenStack.
- 
  - Với Provider Network theo dạng VLAN: 
   - Có thể tạo nhiều network thuộc các VLAN khác nhau, 
   - Các máy ảo sẽ được lựa chọn dải mạng ứng với VLAN được tạo ra. 
