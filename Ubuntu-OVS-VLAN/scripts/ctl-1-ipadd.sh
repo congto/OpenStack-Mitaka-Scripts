@@ -48,6 +48,11 @@ $COM2_MGNT_IP   $HOST_COM2
 $CIN_MGNT_IP    $HOST_CIN
 EOF
 
+# Add dns
+cat << EOF > /etc/resolv.conf
+nameserver 8.8.8.8 8.8.4.4
+EOF
+
 echocolor "Enable the OpenStack Mitaka repository"
 apt-get install software-properties-common -y
 add-apt-repository cloud-archive:mitaka -y

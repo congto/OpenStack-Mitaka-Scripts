@@ -23,7 +23,6 @@ apt-get -y install python-openstackclient
 echocolor "Install and config NTP"
 sleep 3
 
-
 apt-get -y install chrony
 ntpfile=/etc/chrony/chrony.conf
 cp $ntpfile $ntpfile.orig
@@ -41,20 +40,10 @@ sed -i 's/server 2.debian.pool.ntp.org offline minpoll 8/ \
 sed -i 's/server 3.debian.pool.ntp.org offline minpoll 8/ \
 # server 3.debian.pool.ntp.org offline minpoll 8/g' $ntpfile
 
-
 sleep 5
 echocolor "Installl package for NOVA"
 
 apt-get -y install nova-compute
-# echo "libguestfs-tools libguestfs/update-appliance boolean true" \
-#    | debconf-set-selections
-# apt-get -y install libguestfs-tools sysfsutils guestfsd python-guestfs
-
-# Fix KVM bug when injecting password
-# update-guestfs-appliance
-# chmod 0644 /boot/vmlinuz*
-# usermod -a -G kvm root
-
 
 echocolor "Configuring in nova.conf"
 sleep 5
@@ -70,20 +59,11 @@ ops_edit $nova_com DEFAULT my_ip $COM1_MGNT_IP
 ops_edit $nova_com DEFAULT use_neutron  True
 ops_edit $nova_com DEFAULT \
     firewall_driver nova.virt.firewall.NoopFirewallDriver
-#ops_edit $nova_com DEFAULT \
-#	linuxnet_interface_driver nova.network.linux_net.LinuxOVSInterfaceDriver
-    
-# ops_edit $nova_com DEFAULT network_api_class nova.network.neutronv2.api.API
-# ops_edit $nova_com DEFAULT security_group_api neutron
-
-
-# ops_edit $nova_com DEFAULT enable_instance_password True
 
 ## [oslo_messaging_rabbit] section
 ops_edit $nova_com oslo_messaging_rabbit rabbit_host $CTL_MGNT_IP
 ops_edit $nova_com oslo_messaging_rabbit rabbit_userid openstack
 ops_edit $nova_com oslo_messaging_rabbit rabbit_password $RABBIT_PASS
-
 
 ## [keystone_authtoken] section
 ops_edit $nova_com keystone_authtoken auth_uri http://$CTL_MGNT_IP:5000
@@ -104,10 +84,8 @@ ops_edit $nova_com vnc vncserver_proxyclient_address \$my_ip
 ops_edit $nova_com vnc \
     novncproxy_base_url http://$CTL_EXT_IP:6080/vnc_auto.html
 
-
 ## [glance] section
 ops_edit $nova_com glance api_servers http://$CTL_MGNT_IP:9292
-
 
 ## [oslo_concurrency] section
 ops_edit $nova_com oslo_concurrency lock_path /var/lib/nova/tmp
@@ -165,57 +143,18 @@ ops_edit $neutron_com oslo_messaging_rabbit rabbit_host $CTL_MGNT_IP
 ops_edit $neutron_com oslo_messaging_rabbit rabbit_userid openstack
 ops_edit $neutron_com oslo_messaging_rabbit rabbit_password $RABBIT_PASS
 
-######## Backup configuration of ML2 ##################"
-echocolor "Configuring ML2"
-sleep 7
-
-ml2_com=/etc/neutron/plugins/ml2/ml2_conf.ini
-test -f $ml2_com.orig || cp $ml2_com $ml2_com.orig
-
-## [ml2] section
-ops_edit $ml2_com ml2 type_drivers flat,vlan
-ops_edit $ml2_com ml2 tenant_network_types 
-ops_edit $ml2_com ml2 mechanism_drivers openvswitch
-ops_edit $ml2_com ml2 extension_drivers port_security
-
-
-## [ml2_type_flat] section
-ops_edit $ml2_com ml2_type_flat flat_networks provider
-
-## [ml2_type_gre] section
-# ops_edit $ml2_com ml2_type_gre tunnel_id_ranges 300:400
-
-## [ml2_type_vxlan] section
-# ops_edit $ml2_com ml2_type_vxlan vni_ranges 201:300
-
-
-## [ml2_type_vlan] section
-ops_edit $ml2_com ml2_type_vlan network_vlan_ranges provider
-
-## [securitygroup] section
-ops_edit $ml2_com securitygroup enable_ipset True
-ops_edit $ml2_com securitygroup firewall_driver \
-    neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
-
-ops_edit $ml2_com securitygroup enable_security_group True
-    
-
 echocolor "Configuring openvswitch_agent"
 sleep 5
 ovsfile=/etc/neutron/plugins/ml2/openvswitch_agent.ini
 test -f $ovsfile.orig || cp $ovsfile $ovsfile.orig
 
-## [agent] section
-# ops_edit $ovsfile agent tunnel_types gre
-# ops_edit $ovsfile agent l2_population True
-
 ## [ovs] section
-# ops_edit $ovsfile ovs local_ip $CTL_MGNT_IP
 ops_edit $ovsfile ovs bridge_mappings provider:br-ex
 
 # [securitygroup] section
-# ops_edit $ovsfile securitygroup firewall_driver \
-#    neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+ops_edit $ovsfile securitygroup firewall_driver neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+ops_edit $ovsfile securitygroup enable_ipset True
+ops_edit $ovsfile securitygroup enable_security_group True
 
 echocolor "Reset service nova-compute,openvswitch_agent"
 sleep 5
@@ -230,36 +169,36 @@ cat << EOF > $ifaces
 auto lo
 iface lo inet loopback
 
-# The primary network interface
-auto br-ex
-iface br-ex inet static
-address $COM1_EXT_IP
-netmask $NETMASK_ADD_EXT
-gateway $GATEWAY_IP_EXT
-dns-nameservers 8.8.8.8
-
-auto eth1
-iface eth1 inet manual
-   up ifconfig \$IFACE 0.0.0.0 up
-   up ip link set \$IFACE promisc on
-   down ip link set \$IFACE promisc off
-   down ifconfig \$IFACE down
-
+# IP MGNT (for internet)
 auto eth0
 iface eth0 inet static
 address $COM1_MGNT_IP
 netmask $NETMASK_ADD_MGNT
 EOF
 
+# IP EXTERNAL (for internet install package)
+auto eth1
+iface eth1 inet static
+address $COM1_EXT_IP
+netmask $NETMASK_ADD_EXT
+gateway $GATEWAY_IP_EXT
+dns-nameservers 8.8.8.8
+
+# VLAN for VM (for internet)
+auto eth2
+iface eth2 inet manual
+   up ifconfig \$IFACE 0.0.0.0 up
+   up ip link set \$IFACE promisc on
+   down ip link set \$IFACE promisc off
+   down ifconfig \$IFACE down
 
 echocolor "Config br-int and br-ex for OpenvSwitch"
 sleep 5
 # ovs-vsctl add-br br-int
 ovs-vsctl add-br br-ex
-ovs-vsctl add-port br-ex eth1
+ovs-vsctl add-port br-ex eth2
 
 echocolor "Finished install NEUTRON on CONTROLLER"
-
 sleep 5
 echocolor "Reboot SERVER"
 init 6
