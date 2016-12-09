@@ -140,7 +140,7 @@ ops_edit $ovsfile agent l2_population True
 
 ## [ovs] section
 ops_edit $ovsfile ovs bridge_mappings provider:br-vlan
-ops_edit $ovsfile ovs local_ip $CTL_MGNT_IP
+ops_edit $ovsfile ovs local_ip $CTL_DATA_VM_IP
 
 #######################################################################
 echocolor "Configuring DHCP AGENT"
@@ -202,11 +202,11 @@ cat << EOF > $ifaces
 auto lo
 iface lo inet loopback
 
-# IP MGNT + VM
+# IP DATA VM
 auto eth0
 iface eth0 inet static
-address $CTL_MGNT_IP
-netmask $NETMASK_ADD_MGNT
+address $CTL_DATA_VM_IP
+netmask $NETMASK_ADD_DATA_VM
 
 # IP EXTERNAL (for internet install package)
 auto eth1

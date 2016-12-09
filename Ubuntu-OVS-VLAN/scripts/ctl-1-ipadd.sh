@@ -17,8 +17,8 @@ iface lo inet loopback
 # MGNT NETWORK
 auto eth0
 iface eth0 inet static
-address $CTL_MGNT_IP
-netmask $NETMASK_ADD_MGNT
+address $CTL_DATA_VM_IP
+netmask $NETMASK_ADD_DATA_VM
 
 # EXT NETWORK
 auto eth1

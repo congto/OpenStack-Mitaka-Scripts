@@ -155,7 +155,7 @@ ops_edit $ovsfile agent l2_population True
 
 ## [ovs] section
 ops_edit $ovsfile ovs bridge_mappings provider:br-vlan
-ops_edit $ovsfile ovs local_ip $COM1_MGNT_IP
+ops_edit $ovsfile ovs local_ip $COM1_DATA_VM_IP
 
 # [securitygroup] section
 ops_edit $ovsfile securitygroup firewall_driver neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
@@ -178,8 +178,8 @@ iface lo inet loopback
 # IP MGNT (for internet)
 auto eth0
 iface eth0 inet static
-address $COM1_MGNT_IP
-netmask $NETMASK_ADD_MGNT
+address $COM1_DATA_VM_IP
+netmask $NETMASK_ADD_DATA_VM
 
 
 # IP EXTERNAL (for internet install package)
