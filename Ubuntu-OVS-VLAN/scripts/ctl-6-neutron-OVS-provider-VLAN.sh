@@ -117,7 +117,7 @@ ops_edit $ml2_clt ml2_type_flat flat_networks external
 ops_edit $ml2_clt ml2_type_vlan network_vlan_ranges provider:100:200
 
 ## [ml2_type_vxlan] section
-ops_edit $ml2_clt ml2_type_vxlan vni_ranges 500:600
+# ops_edit $ml2_clt ml2_type_vxlan vni_ranges 500:600
 
 ## [securitygroup] section
 ops_edit $ml2_clt securitygroup enable_ipset True
@@ -132,12 +132,12 @@ ovsfile=/etc/neutron/plugins/ml2/openvswitch_agent.ini
 test -f $ovsfile.orig || cp $ovsfile $ovsfile.orig
 
 # [agent] section
-ops_edit $ovsfile agent tunnel_types vxlan
-ops_edit $ovsfile agent l2_population True
+# ops_edit $ovsfile agent tunnel_types vxlan
+# ops_edit $ovsfile agent l2_population True
 
 ## [ovs] section
 ops_edit $ovsfile ovs bridge_mappings provider:br-vlan
-ops_edit $ovsfile ovs local_ip $CTL_MGNT_IP
+# ops_edit $ovsfile ovs local_ip $CTL_MGNT_IP
 
 #######################################################################
 echocolor "Configuring DHCP AGENT"
