@@ -106,8 +106,8 @@ test -f $ml2_clt.orig || cp $ml2_clt $ml2_clt.orig
 
 ## [ml2] section
 ops_edit $ml2_clt ml2 type_drivers flat,vlan,vxlan,gre
-ops_edit $ml2_clt ml2 tenant_network_types vxlan
-ops_edit $ml2_clt ml2 mechanism_drivers openvswitch,l2population
+ops_edit $ml2_clt ml2 tenant_network_types
+ops_edit $ml2_clt ml2 mechanism_drivers openvswitch
 ops_edit $ml2_clt ml2 extension_drivers port_security
 
 ## [ml2_type_flat] section
