@@ -148,9 +148,14 @@ sleep 5
 ovsfile=/etc/neutron/plugins/ml2/openvswitch_agent.ini
 test -f $ovsfile.orig || cp $ovsfile $ovsfile.orig
 
+## [agent] section
+ops_edit $ovsfile agent tunnel_types vxlan,gre
+ops_edit $ovsfile agent l2_population True
+
+
 ## [ovs] section
-# ops_edit $ovsfile ovs bridge_mappings provider:br-vlan
-# ops_edit $ovsfile ovs local_ip $COM1_MGNT_IP
+ops_edit $ovsfile ovs bridge_mappings provider:br-vlan
+ops_edit $ovsfile ovs local_ip $COM1_MGNT_IP
 
 # [securitygroup] section
 ops_edit $ovsfile securitygroup firewall_driver neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
