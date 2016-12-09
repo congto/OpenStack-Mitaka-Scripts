@@ -149,7 +149,8 @@ ovsfile=/etc/neutron/plugins/ml2/openvswitch_agent.ini
 test -f $ovsfile.orig || cp $ovsfile $ovsfile.orig
 
 ## [ovs] section
-ops_edit $ovsfile ovs bridge_mappings provider:br-ex
+ops_edit $ovsfile ovs bridge_mappings provider:br-vlan
+ops_edit $ovsfile ovs local_ip $COM1_MGNT_IP
 
 # [securitygroup] section
 ops_edit $ovsfile securitygroup firewall_driver neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
@@ -160,7 +161,7 @@ echocolor "Reset service nova-compute,openvswitch_agent"
 sleep 5
 service neutron-openvswitch-agent restart
 
-echocolor "Config IP address for br-ex"
+echocolor "Config IP address for br-VLAN"
 ifaces=/etc/network/interfaces
 test -f $ifaces.orig1 || cp $ifaces $ifaces.orig1
 rm $ifaces
@@ -196,8 +197,8 @@ EOF
 echocolor "Config br-int and br-ex for OpenvSwitch"
 sleep 5
 # ovs-vsctl add-br br-int
-ovs-vsctl add-br br-ex
-ovs-vsctl add-port br-ex eth2
+ovs-vsctl add-br br-vlan
+ovs-vsctl add-port br-vlan eth2
 
 echocolor "Finished install NEUTRON on CONTROLLER"
 sleep 5
