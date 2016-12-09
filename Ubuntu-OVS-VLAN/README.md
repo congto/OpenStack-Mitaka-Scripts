@@ -91,6 +91,8 @@ bash ctl-6-neutron-OVS-provider-VLAN.sh
 bash ctl-horizon.sh
 ```
 
+- Ghi lại địa chỉ IP, tài khoản, mật khẩu để sau khi cài xong máy compute sẽ sử dụng.
+
 ## Install on COMPUTE NODE
 ### Dowload GIT and script
 - install git package and dowload script 
@@ -124,5 +126,18 @@ bash com1-2-osv-provider-VLAN.sh
 After install COMPUTE NODE, move to step that guide to use dashboard
 
 
-## Using dashboard to initialize network, VM, rules.
+## Thực thi script tạo VM
+- Login vào máy CTL và thự hiện các lệnh sau
+
+```sh
+su -
+cd scripts
+source admin-openrc
+
+bash ctl-create-network.sh
+```
+
+## Sử dụng dashboad
+
+- Truy cập vào dashboad với Link, user và password đã được tạo trước đó.
 
