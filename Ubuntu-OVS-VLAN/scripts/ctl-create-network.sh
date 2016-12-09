@@ -3,10 +3,13 @@
 source config.cfg
 source functions.sh
 
+echocolor "Tạo các rule cho security groups"
+sleep 3
 openstack security group rule create --proto icmp default
 openstack security group rule create --proto tcp --dst-port 22 default
 
-echocolor "Create the provider network - VLAN"
+echocolor "Tạo provider network theo kiểu VLAN"
+# --provider:network_type vlan tham số "vlan" cần giống với file cấu hình ML2 trên controller
 sleep 3
 
 neutron net-create provider_VLAN --shared \

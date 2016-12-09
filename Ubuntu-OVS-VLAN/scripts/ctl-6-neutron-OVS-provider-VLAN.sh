@@ -233,6 +233,6 @@ ovs-vsctl add-port br-vlan eth2
 
 echocolor "Finished install NEUTRON on CONTROLLER"
 
-# sleep 5
-# echocolor "Reboot SERVER"
-# init 6
+sleep 5
+echocolor "Reboot SERVER"
+init 6
