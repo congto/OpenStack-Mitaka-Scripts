@@ -10,7 +10,7 @@ echocolor "Create the external network"
 sleep 3
 
 
-neutron net-create --shared --provider:physical_network external \
+neutron net-create --shared --provider:physical_network provider \
 --provider:network_type flat ext-net
   
 neutron subnet-create --name sub-ext-net \
