@@ -147,7 +147,7 @@ ops_edit $ovsfile agent l2_population True
 
 ## [ovs] section
 ops_edit $ovsfile ovs local_ip $CTL_MGNT_IP
-ops_edit $ovsfile ovs bridge_mappings external:br-ex
+ops_edit $ovsfile ovs bridge_mappings provider:br-ex
 
 # [securitygroup] section
 ops_edit $ovsfile securitygroup firewall_driver \
