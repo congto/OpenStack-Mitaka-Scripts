@@ -117,7 +117,7 @@ ops_edit $ml2_clt ml2 extension_drivers port_security
 
 
 ## [ml2_type_flat] section
-ops_edit $ml2_clt ml2_type_flat flat_networks external
+ops_edit $ml2_clt ml2_type_flat flat_networks provider
 
 ## [ml2_type_gre] section
 ops_edit $ml2_clt ml2_type_gre tunnel_id_ranges 300:400
