@@ -1,6 +1,6 @@
 ## Cài đặt MongoDB
 
-### Thực hiện trên 10.10.10.140 NODE
+### Thực hiện trên CONTROLLER NODE
 
 - Tải gói
 
@@ -10,7 +10,7 @@ apt-get update
 apt-get -y install mongodb-server mongodb-clients python-pymongo
 ```
 
-- Sửa file /etc/mongodb.conf với các dòng sau
+- Sửa file `/etc/mongodb.conf` với các dòng sau
 
 ```sh
 bind_ip = 0.0.0.0
@@ -49,18 +49,23 @@ openstack endpoint create --region RegionOne metering public http://10.10.10.140
 openstack endpoint create --region RegionOne metering internal http://10.10.10.140:8777
 
 openstack endpoint create --region RegionOne metering admin http://10.10.10.140:8777
+```
 
 -Cài đặt các gói ceilometer
 
 ```sh
-apt-get install ceilometer-api ceilometer-collector \
+apt-get -y install ceilometer-api ceilometer-collector \
   ceilometer-agent-central ceilometer-agent-notification
   python-ceilometerclient
 ```
 
 #### Cấu hình ceilometer
 
-- Sửa file /etc/ceilometer/ceilometer.conf, tìm các dòng tương ứng hoặc bổ sung dòng mới với các thông số như sau
+- Sửa file `/etc/ceilometer/ceilometer.conf`, tìm các dòng tương ứng hoặc bổ sung dòng mới với các thông số như sau
+
+```sh
+cp /etc/ceilometer/ceilometer.conf /etc/ceilometer/ceilometer.conf.orig
+```
 
 - Ở section `[database]`
 
@@ -127,7 +132,7 @@ service ceilometer-collector restart
 
 #### Cấu hình ceilometer đối với Glance
 
-- Sửa file /etc/glance/glance-api.conf và file /etc/glance/glance-api.conf với các cấu hình dưới. LƯU Ý RẰNG SẼ PHẢI SỬA Ở CẢ 2 FILE
+- Sửa file `/etc/glance/glance-api.conf` và file `/etc/glance/glance-api.conf` với các cấu hình dưới. LƯU Ý RẰNG SẼ PHẢI SỬA Ở CẢ 2 FILE
 
 - Ở section `[DEFAULT]`
 
@@ -166,6 +171,7 @@ service glance-api restart
 - Cài đặt gói ceilomêtr cho compute node
 
 ```sh
+apt-get update
 apt-get -y install ceilometer-agent-compute
 ```
 
@@ -210,7 +216,7 @@ username = ceilometer
 password = Welcome123
 ```
 
-- Ở section [service_credentials]`
+- Ở section `[service_credentials]`
 
 ```sh
 [service_credentials]
@@ -223,7 +229,6 @@ username = ceilometer
 password = Welcome123
 interface = internalURL
 region_name = RegionOne
-
 ```
 
 - Sửa file `/etc/nova/nova.conf`, ở section `[DEFAULT]` như sau:
@@ -252,3 +257,9 @@ service nova-compute restart
 
 
 ### Kiểm tra dịch vụ
+
+- Kiểm tra meter 
+
+```sh
+ceilometer meter-list
+```
