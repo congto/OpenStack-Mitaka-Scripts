@@ -1,6 +1,6 @@
 ## Cài đặt MongoDB
 
-### Thực hiện trên CONTROLLER NODE
+### Thực hiện trên 10.10.10.140 NODE
 
 - Tải gói
 
@@ -28,7 +28,7 @@ service mongodb start
 - Tạo DB
 
 ```sh
-mongo --host controller --eval '
+mongo --host 10.10.10.140 --eval '
   db = db.getSiblingDB("ceilometer");
   db.addUser({user: "ceilometer",
   pwd: "Welcome123",
@@ -44,11 +44,11 @@ openstack role add --project service --user ceilometer admin
 
 openstack service create --name ceilometer --description "Telemetry" metering
 
-openstack endpoint create --region RegionOne metering public http://controller:8777
+openstack endpoint create --region RegionOne metering public http://10.10.10.140:8777
 
-openstack endpoint create --region RegionOne metering internal http://controller:8777
+openstack endpoint create --region RegionOne metering internal http://10.10.10.140:8777
 
-openstack endpoint create --region RegionOne metering admin http://controller:8777
+openstack endpoint create --region RegionOne metering admin http://10.10.10.140:8777
 
 -Cài đặt các gói ceilometer
 
@@ -66,7 +66,7 @@ apt-get install ceilometer-api ceilometer-collector \
 
 ```sh
 [database]
-connection = mongodb://ceilometer:Welcome123@controller:27017/ceilometer
+connection = mongodb://ceilometer:Welcome123@10.10.10.140:27017/ceilometer
 ```
 
 - Ở section `[DEFAULT]`
@@ -81,7 +81,7 @@ auth_strategy = keystone
 
 ```sh
 [oslo_messaging_rabbit]
-rabbit_host = controller
+rabbit_host = 10.10.10.140
 rabbit_userid = openstack
 rabbit_password = Welcome123
 ```
@@ -90,9 +90,9 @@ rabbit_password = Welcome123
 
 ```sh
 [keystone_authtoken]
-auth_uri = http://controller:5000
-auth_url = http://controller:35357
-memcached_servers = controller:11211
+auth_uri = http://10.10.10.140:5000
+auth_url = http://10.10.10.140:35357
+memcached_servers = 10.10.10.140:11211
 auth_type = password
 project_domain_name = default
 user_domain_name = default
@@ -106,7 +106,7 @@ password = Welcome123
 ```sh
 [service_credentials]
 auth_type = password
-auth_url = http://controller:5000/v3
+auth_url = http://10.10.10.140:5000/v3
 project_domain_name = default
 user_domain_name = default
 project_name = service
@@ -147,7 +147,7 @@ driver = messagingv2
 
 ```sh
 [oslo_messaging_rabbit]
-rabbit_host = controller
+rabbit_host = 10.10.10.140
 rabbit_userid = openstack
 rabbit_password = Welcome123
 ```
@@ -190,7 +190,7 @@ auth_strategy = keystone
 
 ```sh
 [oslo_messaging_rabbit]
-rabbit_host = controller
+rabbit_host = 10.10.10.140
 rabbit_userid = openstack
 rabbit_password = Welcome123
 ```
@@ -199,9 +199,9 @@ rabbit_password = Welcome123
 
 ```sh
 [keystone_authtoken]
-auth_uri = http://controller:5000
-auth_url = http://controller:35357
-memcached_servers = controller:11211
+auth_uri = http://10.10.10.140:5000
+auth_url = http://10.10.10.140:35357
+memcached_servers = 10.10.10.140:11211
 auth_type = password
 project_domain_name = default
 user_domain_name = default
@@ -215,7 +215,7 @@ password = Welcome123
 ```sh
 [service_credentials]
 auth_type = password
-auth_url = http://controller:5000/v3
+auth_url = http://10.10.10.140:5000/v3
 project_domain_name = default
 user_domain_name = default
 project_name = service
