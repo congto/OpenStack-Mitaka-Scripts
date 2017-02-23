@@ -72,7 +72,7 @@ EOF
 - Tải gói
 
 ```sh
-yum install https://repos.fedorapeople.org/repos/openstack/openstack-mitaka/rdo-release-mitaka-6.noarch.rpm
+yum install -y https://repos.fedorapeople.org/repos/openstack/openstack-mitaka/rdo-release-mitaka-6.noarch.rpm
 yum -y upgrade
 ```
 
