@@ -1,24 +1,20 @@
 # Cài đặt openStack Mitaka
 ***
 
-<a name="I."> </a> 
+
 # I. Cài đặt cơ bản
 ***
-<a name="1"> </a> 
+
 ## 1. Chuẩn bị môi trường
-<a name="1.1"> </a> 
-### 1.1 Mô hình mạng
-- Mô hình đầy đủ
-![OpenStack Mitaka Topo](/DOCS-OPS-Mitaka/images/openstack-mitaka-network-layout-rhel.png)
 
-<a name="1.2"> </a> 
-### 1.2 Các tham số phần cứng đối với các node
-![OpenStack Mitaka Topo](/DOCS-OPS-Mitaka/images/Mitaka-ip-hardware.png)
-
-## Mô hình 2 node 
+## 1.1. Mô hình 2 node 
 ![Mitaka-topo-2node.png](./images/openstack-mitaka-network-layout-rhel.png)
 
-<a name="2"> </a> 
+
+### 1.2. Các tham số phần cứng đối với các node
+- đang cập nhật
+
+
 ## 2. Cài đặt trên node controller
 ===
 - Lưu ý:
@@ -26,11 +22,10 @@
  - Các thao tác sửa file trong hướng dẫn này sử dụng lệnh `vi` hoặc `vim`
  - Password thống nhất cho tất cả các dịch vụ là `Welcome123`
 
-<a name="2.1"> </a>  
-### 2.1 Cài đặt các thành phần chung
+### 2.1. Cài đặt các thành phần chung
 ===
-<a name="2.1.1"> </a> 
-#### 2.1.1 Thiết lập các thành phần cơ bản
+
+### 2.1.1. Thiết lập các thành phần cơ bản
 
 - Ngắt firewall
 
@@ -72,12 +67,13 @@ cat << EOF >> /etc/hosts
 EOF
 ```
 
-### Khai báo repos cho OpenStack Mitaka
+### 2.1.2. Khai báo repos cho OpenStack Mitaka
 
 - Tải gói
 
 ```sh
 yum install https://repos.fedorapeople.org/repos/openstack/openstack-mitaka/rdo-release-mitaka-6.noarch.rpm
+yum -y upgrade
 ```
 
 - Cài các gói bổ trợ
