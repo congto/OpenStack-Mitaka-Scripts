@@ -14,7 +14,7 @@
 ### 1.2. Các tham số phần cứng đối với các node
 - đang cập nhật
 
-### 1.2.3 Phân hoạch IP với các node
+### 1.3. Phân hoạch IP với các node
 - Xem trong file topo đã điền sẵn. Trong lab này chỉ đặt default gateway cho card mạng gắn vào dải `172.16.69.0/24`
 
 ## 2. Cài đặt trên node controller
@@ -314,11 +314,11 @@ yum -y install openstack-keystone httpd mod_wsgi
 	EOF
 	```
 
-	- Khởi động và kích hoạt dịch vụ HTTP
+- Khởi động và kích hoạt dịch vụ HTTP
 
 	```sh
 	systemctl enable httpd.service
-	 systemctl start httpd.service
+	systemctl start httpd.service
 	```
 
 #### 2.2.2. Tạo endpoint cho keystone
@@ -381,15 +381,15 @@ yum -y install openstack-keystone httpd mod_wsgi
 
 - Tạo project tên là `serivce` 
 
-```sh
-openstack project create --domain default  --description "Service Project" service
-```
+	```sh
+	openstack project create --domain default  --description "Service Project" service
+	```
 
 - Tạo project tên là `demo`
 
-```sh
-openstack project create --domain default --description "Demo Project" demo
-```
+	```sh
+	openstack project create --domain default --description "Demo Project" demo
+	```
 
 - Tạo user tên là `demo` và password là `Wecome123`
 
@@ -414,52 +414,52 @@ openstack project create --domain default --description "Demo Project" demo
 
 - Bỏ các biến môi trường `OS_TOKEN` và `OS_URL`
 
-```sh
-unset OS_TOKEN OS_URL
-```
+	```sh
+	unset OS_TOKEN OS_URL
+	```
 
 - Tạo file chứa biến môi trường dành cho tài khoản `admin`
 
-```sh
-cat << EOF > admin-openrc
-export OS_PROJECT_DOMAIN_NAME=default
-export OS_USER_DOMAIN_NAME=default
-export OS_PROJECT_NAME=admin
-export OS_USERNAME=admin
-export OS_PASSWORD=Welcome123
-export OS_AUTH_URL=http://10.10.10.40:35357/v3
-export OS_IDENTITY_API_VERSION=3
-export OS_IMAGE_API_VERSION=2
-EOF
-```
+	```sh
+	cat << EOF > admin-openrc
+	export OS_PROJECT_DOMAIN_NAME=default
+	export OS_USER_DOMAIN_NAME=default
+	export OS_PROJECT_NAME=admin
+	export OS_USERNAME=admin
+	export OS_PASSWORD=Welcome123
+	export OS_AUTH_URL=http://10.10.10.40:35357/v3
+	export OS_IDENTITY_API_VERSION=3
+	export OS_IMAGE_API_VERSION=2
+	EOF
+	```
 
 
 - Tạo file chứa biến môi trường dành cho tài khoản `demo`
 
-```sh
-cat << EOF > admin-openrc
-export OS_PROJECT_DOMAIN_NAME=default
-export OS_USER_DOMAIN_NAME=default
-export OS_PROJECT_NAME=demo
-export OS_USERNAME=demo
-export OS_PASSWORD=Welcome123
-export OS_AUTH_URL=http://10.10.10.40:5000/v3
-export OS_IDENTITY_API_VERSION=3
-export OS_IMAGE_API_VERSION=2
-EOF
-```
+	```sh
+	cat << EOF > admin-openrc
+	export OS_PROJECT_DOMAIN_NAME=default
+	export OS_USER_DOMAIN_NAME=default
+	export OS_PROJECT_NAME=demo
+	export OS_USERNAME=demo
+	export OS_PASSWORD=Welcome123
+	export OS_AUTH_URL=http://10.10.10.40:5000/v3
+	export OS_IDENTITY_API_VERSION=3
+	export OS_IMAGE_API_VERSION=2
+	EOF
+	```
 
 - Thực thi biến môi trường. Lưu ý: Bước này được thực hiện mỗi khi sử dụng lệnh của OpenStack
 
-```sh
-. admin-openrc
-```
+	```sh
+	. admin-openrc
+	```
 
 - Kiểm tra xem `keystone` đã hoạt động hay chưa
 
-```sh
-openstack token issue
-```
+	```sh
+	openstack token issue
+	```
 
 - Kết quả như sau:
 
