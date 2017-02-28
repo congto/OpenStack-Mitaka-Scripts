@@ -90,3 +90,40 @@ yum -y install wget
 init 6
 ```
 
+
+### 2.1.2. Cài đặt chrony (Network Time Protocol)
+
+- Cài gói cần thiết
+
+```sh
+yum install -y chrony
+```
+
+- Sao lưu file `/etc/chrony.conf`
+
+```sh
+cp /etc/chrony.conf /etc/chrony.conf.orig
+```
+
+- Sửa file các dòng dưới trong file `/etc/chrony.conf`
+
+```
+sed -i 's/server 0.rhel.pool.ntp.org iburst/server 10.10.10.40 iburst/g' /etc/chrony.conf
+sed -i 's/server 1.rhel.pool.ntp.org iburst/#server 1.centos.pool.ntp.org iburst/g' /etc/chrony.conf
+sed -i 's/server 2.rhel.pool.ntp.org iburst/#server 2.centos.pool.ntp.org iburst/g' /etc/chrony.conf
+sed -i 's/server 3.rhel.pool.ntp.org iburst/#server 3.centos.pool.ntp.org iburst/g' /etc/chrony.conf
+sed -i 's/#allow 192.168\/16/allow 172.16.69.0\/24/g' $ntpfile
+```
+
+- Khởi động lại dịch vụ rabbit
+
+```sh
+systemctl enable chronyd.service
+systemctl start chronyd.service
+```
+
+- Kiểm tra trạng thái
+
+```sh
+chronyc sources
+```
