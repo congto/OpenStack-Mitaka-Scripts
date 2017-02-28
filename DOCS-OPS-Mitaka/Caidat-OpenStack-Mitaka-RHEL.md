@@ -229,7 +229,7 @@ EOF
 yum -y install openstack-keystone httpd mod_wsgi
 ```
 
-#### 2.2.2 Sửa file cấu hình keystone
+#### 2.2.1.1 Sửa file cấu hình keystone
 
 - Sao lưu file cấu hình của keystone
 
@@ -263,15 +263,217 @@ yum -y install openstack-keystone httpd mod_wsgi
 
 - Thiết lập bộ key cho `Fernet` trong keystone
 
-```sh
-keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
-```
+	```sh
+	keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
+	```
 
-#### 2.2.3 Cấu hình APACHE cho keystone sử dụng
+#### 2.2.1.2 Cấu hình APACHE cho keystone sử dụng
 
 - Sửa file `/etc/httpd/conf/httpd.conf` với dòng dưới
 
+	```
+	echo "ServerName 10.10.10.40" >>   /etc/httpd/conf/httpd.conf
+	```
+
+- Tạo file `/etc/httpd/conf.d/wsgi-keystone.conf` với nội dung dưới
+
+	```sh
+	cat << EOF > /etc/httpd/conf.d/wsgi-keystone.conf
+	Listen 5000
+	Listen 35357
+
+	<VirtualHost *:5000>
+	    WSGIDaemonProcess keystone-public processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}
+	    WSGIProcessGroup keystone-public
+	    WSGIScriptAlias / /usr/bin/keystone-wsgi-public
+	    WSGIApplicationGroup %{GLOBAL}
+	    WSGIPassAuthorization On
+	    ErrorLogFormat "%{cu}t %M"
+	    ErrorLog /var/log/httpd/keystone-error.log
+	    CustomLog /var/log/httpd/keystone-access.log combined
+
+	    <Directory /usr/bin>
+	        Require all granted
+	    </Directory>
+	</VirtualHost>
+
+	<VirtualHost *:35357>
+	    WSGIDaemonProcess keystone-admin processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}
+	    WSGIProcessGroup keystone-admin
+	    WSGIScriptAlias / /usr/bin/keystone-wsgi-admin
+	    WSGIApplicationGroup %{GLOBAL}
+	    WSGIPassAuthorization On
+	    ErrorLogFormat "%{cu}t %M"
+	    ErrorLog /var/log/httpd/keystone-error.log
+	    CustomLog /var/log/httpd/keystone-access.log combined
+
+	    <Directory /usr/bin>
+	        Require all granted
+	    </Directory>
+	</VirtualHost>
+	EOF
+	```
+
+	- Khởi động và kích hoạt dịch vụ HTTP
+
+	```sh
+	systemctl enable httpd.service
+	 systemctl start httpd.service
+	```
+
+#### 2.2.2. Tạo endpoint cho keystone
+
+- Khai báo các biến môi trường cần thiết cho keystone
+
+	```sh
+	export OS_TOKEN=Welcome123
+	export OS_URL=http://10.10.10.40:35357/v3
+	export OS_IDENTITY_API_VERSION=3
+	```
+
+- Tạo service cho keystone
+
+	```sh
+	openstack service create --name keystone --description "OpenStack Identity" identity
+	```
+
+- Tạo các `endpoint` cho dịch vụ keystone
+
+	```sh
+	 openstack endpoint create --region RegionOne identity public http://10.10.10.40:5000/v3
+
+	 openstack endpoint create --region RegionOne identity internal http://10.10.10.40:5000/v3
+
+	 openstack endpoint create --region RegionOne identity admin http://10.10.10.40:35357/v3
+	```
+
+#### 2.2.3. Tạo `domain, projects, users` và `roles` cho OpenStack
+
+- Tạo domain cho keystone
+
+	```sh
+	openstack domain create --description "Default Domain" default
+	```
+
+- Tạo project tên là `admin`
+
+	```sh
+	openstack project create --domain default --description "Admin Project" admin
+	```
+
+- Tạo user tên là `admin` và password là `Welcome123`
+
+	```sh
+	openstack user create admin --domain default --password Welcome123
+	```
+
+- Tạo role tên là `admin`
+
+	```sh
+	openstack role create admin
+	```
+
+- Gán role `admin` cho project `admin` và user `admin`
+
+	```sh
+	openstack role add --project admin --user admin admin
+	```
+
+- Tạo project tên là `serivce` 
+
 ```sh
-ServerName 10.10.10.40
+openstack project create --domain default  --description "Service Project" service
 ```
+
+- Tạo project tên là `demo`
+
+```sh
+openstack project create --domain default --description "Demo Project" demo
+```
+
+- Tạo user tên là `demo` và password là `Wecome123`
+
+	```sh
+	openstack user create demo --domain default --password Welcome123
+	```
+
+- Tạo rule tên là `user`
+
+	```sh
+	openstack role create user
+	```
+
+- Gán role `user` cho user và project `demo`
+
+	```sh
+	openstack role add --project demo --user demo user
+	```
+
+
+#### 2.2.4. Xác nhận lại keystone vừa cài đặt đã hoạt động
+
+- Bỏ các biến môi trường `OS_TOKEN` và `OS_URL`
+
+```sh
+unset OS_TOKEN OS_URL
+```
+
+- Tạo file chứa biến môi trường dành cho tài khoản `admin`
+
+```sh
+cat << EOF > admin-openrc
+export OS_PROJECT_DOMAIN_NAME=default
+export OS_USER_DOMAIN_NAME=default
+export OS_PROJECT_NAME=admin
+export OS_USERNAME=admin
+export OS_PASSWORD=Welcome123
+export OS_AUTH_URL=http://10.10.10.40:35357/v3
+export OS_IDENTITY_API_VERSION=3
+export OS_IMAGE_API_VERSION=2
+EOF
+```
+
+
+- Tạo file chứa biến môi trường dành cho tài khoản `demo`
+
+```sh
+cat << EOF > admin-openrc
+export OS_PROJECT_DOMAIN_NAME=default
+export OS_USER_DOMAIN_NAME=default
+export OS_PROJECT_NAME=demo
+export OS_USERNAME=demo
+export OS_PASSWORD=Welcome123
+export OS_AUTH_URL=http://10.10.10.40:5000/v3
+export OS_IDENTITY_API_VERSION=3
+export OS_IMAGE_API_VERSION=2
+EOF
+```
+
+- Thực thi biến môi trường. Lưu ý: Bước này được thực hiện mỗi khi sử dụng lệnh của OpenStack
+
+```sh
+. admin-openrc
+```
+
+- Kiểm tra xem `keystone` đã hoạt động hay chưa
+
+```sh
+openstack token issue
+```
+
+- Kết quả như sau:
+
+```sh
++------------+-----------------------------------------------------------------+
+| Field      | Value                                                           |
++------------+-----------------------------------------------------------------+
+| expires    | 2016-02-12T20:44:35.659723Z                                     |
+| id         | gAAAAABWvjYj-Zjfg8WXFaQnUd1DMYTBVrKw4h3fIagi5NoEmh21U72SrRv2trl |
+|            | JWFYhLi2_uPR31Igf6A8mH2Rw9kv_bxNo1jbLNPLGzW_u5FC7InFqx0yYtTwa1e |
+|            | eq2b0f6-18KZyQhs7F3teAta143kJEWuNEYET-y7u29y0be1_64KYkM7E       |
+| project_id | 343d245e850143a096806dfaefa9afdc                                |
+| user_id    | ac3377633149401296f6c0d92d79dc16                                |
++------------+-----------------------------------------------------------------+
+```
+
 
