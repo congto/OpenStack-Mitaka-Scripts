@@ -137,17 +137,27 @@ yum -y install rabbitmq-server
 
 systemctl enable rabbitmq-server.service
 systemctl start rabbitmq-server.service
+```
 
-rabbitmqctl add_user openstack $RABBIT_PASS
+- Tạo user `openstack` và đặt mật khẩu `Welcome123` cho RabbitMQ
+
+```sh
+rabbitmqctl add_user openstack Welcome123
 rabbitmqctl set_permissions openstack ".*" ".*" ".*"
 ```
 
 
-### 2.1.3. Cài đặt Database `mariadb`
+### 2.1.3. Cài đặt Database `MariaDB`
+
+- Cài đặt MariaDB
 
 ```
 yum -y install mariadb mariadb-server python2-PyMySQL
+```
 
+- Cấu hình cho MariaDB
+
+```
 echocolor "Configuring MYSQL"
 sleep 5
 touch /etc/my.cnf.d/openstack.cnf
