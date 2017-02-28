@@ -14,6 +14,8 @@
 ### 1.2. Các tham số phần cứng đối với các node
 - đang cập nhật
 
+### 1.2.3 Phân hoạch IP với các node
+- Xem trong file topo đã điền sẵn. Trong lab này chỉ đặt default gateway cho card mạng gắn vào dải `172.16.69.0/24`
 
 ## 2. Cài đặt trên node controller
 ===
@@ -158,8 +160,6 @@ yum -y install mariadb mariadb-server python2-PyMySQL
 - Cấu hình cho MariaDB
 
 ```
-echocolor "Configuring MYSQL"
-sleep 5
 touch /etc/my.cnf.d/openstack.cnf
 
 cat << EOF > /etc/my.cnf.d/openstack.cnf
@@ -208,3 +208,70 @@ yum -y install memcached python-memcached
 systemctl enable memcached.service
 systemctl start memcached.service
 ```
+
+### 2.2. Cài đặt  và cấu hình keystone
+===
+
+- Tạo DB cho keystone
+
+```sh
+cat << EOF | mysql -uroot -pWelcome123
+CREATE DATABASE keystone;
+GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY 'Welcome123';
+GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'Welcome123';
+FLUSH PRIVILEGES;
+EOF
+```
+
+#### 2.2.1 Cài đặt keystone
+
+```sh
+yum -y install openstack-keystone httpd mod_wsgi
+```
+
+#### 2.2.2 Sửa file cấu hình keystone
+
+- Sao lưu file cấu hình của keystone
+
+	```sh
+	cp /etc/keystone/keystone.conf /etc/keystone/keystone.conf.orig
+	```
+
+- Sửa trong section `[DEFAULT]` các dòng dưới
+
+	```sh
+	admin_token = Welcome123
+	```
+
+- Sửa trong section `[database]` các dòng dưới:
+
+	```sh
+	connection = mysql+pymysql://keystone:Welcome123@10.10.10.40/keystone
+	```
+
+- Sửa trong section `[token]` các dòng dưới:
+
+	```sh
+	provider = fernet
+	```
+
+- Tạo các bảng dữ liệu trong database của keystone
+
+	```sh
+	su -s /bin/sh -c "keystone-manage db_sync" keystone
+	```
+
+- Thiết lập bộ key cho `Fernet` trong keystone
+
+```sh
+keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
+```
+
+#### 2.2.3 Cấu hình APACHE cho keystone sử dụng
+
+- Sửa file `/etc/httpd/conf/httpd.conf` với dòng dưới
+
+```sh
+ServerName 10.10.10.40
+```
+
