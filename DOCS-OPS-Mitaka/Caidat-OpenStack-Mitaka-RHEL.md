@@ -275,7 +275,7 @@ yum -y install openstack-keystone httpd mod_wsgi
 	echo "ServerName 10.10.10.40" >>   /etc/httpd/conf/httpd.conf
 	```
 
-- Tạo file `/etc/httpd/conf.d/wsgi-keystone.conf` với nội dung dưới
+- Sử dụng lệnh cat ở dưới để tạo file `/etc/httpd/conf.d/wsgi-keystone.conf` với nội dung dưới
 
 	```sh
 	cat << EOF > /etc/httpd/conf.d/wsgi-keystone.conf
@@ -312,6 +312,11 @@ yum -y install openstack-keystone httpd mod_wsgi
 	    </Directory>
 	</VirtualHost>
 	EOF
+	```
+- Kiểm tra lại nội dung file `/etc/httpd/conf.d/wsgi-keystone.conf` vừa tạo
+
+	```sh
+	cat /etc/httpd/conf.d/wsgi-keystone.conf
 	```
 
 - Khởi động và kích hoạt dịch vụ HTTP
@@ -418,7 +423,7 @@ yum -y install openstack-keystone httpd mod_wsgi
 	unset OS_TOKEN OS_URL
 	```
 
-- Tạo file chứa biến môi trường dành cho tài khoản `admin`
+- Tạo file chứa biến môi trường dành cho tài khoản `admin` bằng đoạn lệnh dưới
 
 	```sh
 	cat << EOF > admin-openrc
@@ -434,7 +439,7 @@ yum -y install openstack-keystone httpd mod_wsgi
 	```
 
 
-- Tạo file chứa biến môi trường dành cho tài khoản `demo`
+- Tạo file chứa biến môi trường dành cho tài khoản `demo` bằng đoạn lệnh dưới
 
 	```sh
 	cat << EOF > admin-openrc
@@ -463,17 +468,168 @@ yum -y install openstack-keystone httpd mod_wsgi
 
 - Kết quả như sau:
 
+	```sh
+	+------------+-----------------------------------------------------------------+
+	| Field      | Value                                                           |
+	+------------+-----------------------------------------------------------------+
+	| expires    | 2016-02-12T20:44:35.659723Z                                     |
+	| id         | gAAAAABWvjYj-Zjfg8WXFaQnUd1DMYTBVrKw4h3fIagi5NoEmh21U72SrRv2trl |
+	|            | JWFYhLi2_uPR31Igf6A8mH2Rw9kv_bxNo1jbLNPLGzW_u5FC7InFqx0yYtTwa1e |
+	|            | eq2b0f6-18KZyQhs7F3teAta143kJEWuNEYET-y7u29y0be1_64KYkM7E       |
+	| project_id | 343d245e850143a096806dfaefa9afdc                                |
+	| user_id    | ac3377633149401296f6c0d92d79dc16                                |
+	+------------+-----------------------------------------------------------------+
+	```
+
+
+### 2.3. Cài đặt và cấu hình `GLANCE`
+
+
+#### 2.3.1. Cài đặt database cho `GLANCE`
+
+- Tạo database cho dịch vụ `Glance` bằng đoạn lệnh dưới.
+
+	```sh
+	cat << EOF | mysql -uroot -pWelcome123
+	CREATE DATABASE glance;
+	GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'localhost' IDENTIFIED BY 'Welcome123';
+	GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY 'Welcome123';
+	FLUSH PRIVILEGES;
+	EOF
+	```
+
+#### 2.3.2. Tạo user, endpoint cho dịch vụ GLANCE
+
+- Thực thi biến môi trường để tương tác với OpenStack
+
+	```sh
+	source /root/admin-openrc
+	```
+
+- Tạo user tên là `glance` và có mật khẩu là `Welcome123`
+
+	```sh
+	openstack user create  glance --domain default --password Welcome123
+	```
+
+- Gán role `admin` cho user `glance` vào trong project `service`
+
+	```sh
+	openstack role add --project service --user glance admin
+	```
+
+
+- Tạo service tên là `glance`
+
+	```sh
+	openstack service create --name glance --description "OpenStack Image" image
+	```
+
+- Tạo các endpoint cho dịch vụ `glance`
+
 ```sh
-+------------+-----------------------------------------------------------------+
-| Field      | Value                                                           |
-+------------+-----------------------------------------------------------------+
-| expires    | 2016-02-12T20:44:35.659723Z                                     |
-| id         | gAAAAABWvjYj-Zjfg8WXFaQnUd1DMYTBVrKw4h3fIagi5NoEmh21U72SrRv2trl |
-|            | JWFYhLi2_uPR31Igf6A8mH2Rw9kv_bxNo1jbLNPLGzW_u5FC7InFqx0yYtTwa1e |
-|            | eq2b0f6-18KZyQhs7F3teAta143kJEWuNEYET-y7u29y0be1_64KYkM7E       |
-| project_id | 343d245e850143a096806dfaefa9afdc                                |
-| user_id    | ac3377633149401296f6c0d92d79dc16                                |
-+------------+-----------------------------------------------------------------+
+openstack endpoint create --region RegionOne image public http://10.10.10.40:9292
+
+openstack endpoint create --region RegionOne image internal http://10.10.10.40:9292
+
+openstack endpoint create --region RegionOne image admin http://10.10.10.40:9292
 ```
 
+#### 2.3.3. Cài đặt và cấu hình dịch vụ `GLANCE`
 
+- Cài đặt các gói 
+
+```sh
+yum install -y openstack-glance
+```
+
+#### 2.3.3.1. Sửa file /etc/glance/glance-api.conf
+
+- Sao lưu file cấu hình của glance `/etc/glance/glance-api.conf`
+
+	```sh
+	cp /etc/glance/glance-api.conf /etc/glance/glance-api.conf.orig
+	```
+
+- Khai báo các dòng dưới trong section `[database]` của file 
+
+	```sh
+	connection = mysql+pymysql://glance:Welcome123@10.10.10.40/glance
+	```
+
+- Khai báo các dòng dưới trong section `[keystone_authtoken]`
+
+	```sh
+	auth_uri = http://10.10.10.40:5000
+	auth_url = http://10.10.10.40:35357
+	memcached_servers = 10.10.10.40:11211
+	auth_type = password
+	project_domain_name = default
+	user_domain_name = default
+	project_name = service
+	username = glance
+	password = Welcome123
+	```
+
+- Khai báo dòng dưới trong section `[paste_deploy]`
+
+	```sh
+	flavor = keystone
+	```
+
+- Khai báo các dòng dưới trong section `[glance_store]`
+
+```sh
+stores = file,http
+default_store = file
+filesystem_store_datadir = /var/lib/glance/images/
+```
+
+#### 2.3.3.2. Sửa file `/etc/glance/glance-registry.conf`
+
+- Sao lưu file `/etc/glance/glance-registry.conf`
+
+	```sh
+	cp /etc/glance/glance-registry.conf /etc/glance/glance-registry.conf.orig
+	```
+
+- Khai báo các dòng dưới trong section `[database]`
+
+	```sh
+	connection = mysql+pymysql://glance:Welcome123@10.10.10.40/glance
+	```
+
+- Khai báo các dòng dưới trong section `[keystone_authtoken]`
+
+	```sh
+	auth_uri = http://controller:5000
+	auth_url = http://controller:35357
+	memcached_servers = controller:11211
+	auth_type = password
+	project_domain_name = default
+	user_domain_name = default
+	project_name = service
+	username = glance
+	password = Welcome123
+	```
+
+- Khai báo các dòng dưới trong section `[paste_deploy]`
+
+	```sh
+	flavor = keystone
+	```
+
+- Tạo các bảng trong database cho dịch vụ `glance`
+
+```sh
+su -s /bin/sh -c "glance-manage db_sync" glance
+```
+
+- Khởi động và kích hoạt dịch vụ của glance
+
+	````sh
+	systemctl enable openstack-glance-api.service  openstack-glance-registry.service
+	systemctl start openstack-glance-api.service openstack-glance-registry.service
+	```
+
+- Kiểm tra lại dịch vụ glance
